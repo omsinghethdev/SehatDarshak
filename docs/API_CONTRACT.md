@@ -19,7 +19,7 @@ Status labels used in this document:
 | `GET` | `/api/health` | Public | Implemented and verified |
 | `POST` | `/api/auth/register` | Public | Implemented and verified |
 | `POST` | `/api/auth/login` | Public | Implemented and verified |
-| `GET` | `/api/auth/me` | Any authenticated role | Implemented and verified (adding staff `departmentId` is Proposed) |
+| `GET` | `/api/auth/me` | Any authenticated role | Implemented and verified (includes staff `departmentId`) |
 | `GET` | `/api/patients/me` | Patient | Implemented and verified |
 | `GET` | `/api/patients/me/queue-tokens/active` | Patient | Implemented and verified |
 | `GET` | `/api/departments`, `/api/departments/:departmentId` | Authenticated | Implemented and verified |
@@ -35,7 +35,7 @@ Status labels used in this document:
 | `GET` | `/api/assistance-requests/me?page=&limit=` | Patient | Implemented and verified |
 | `GET` | `/api/assistance-requests?status=&page=&limit=` | Assigned-department staff, admin | Implemented and verified |
 | `PATCH` | `/api/assistance-requests/:requestId/acknowledge` | Assigned-department staff, admin | Implemented and verified |
-| `GET` | `/api/dashboard/statistics` | Admin | Implemented and verified (response shape pending team approval) |
+| `GET` | `/api/dashboard/statistics` | Admin | Implemented and verified; shown on the admin dashboard (response shape pending team approval) |
 | `GET` | `/api/admin/staff?departmentId=&isActive=&page=&limit=` | Admin | **Proposed** |
 | `POST` | `/api/admin/staff` | Admin | **Proposed** |
 | `PATCH` | `/api/admin/staff/:staffId` | Admin | **Proposed** |
@@ -226,10 +226,11 @@ password-hashing algorithm (scrypt) and never in plaintext.
 { "data": { "user": { "id": "665f…", "name": "Asha Devi", "role": "patient", "preferredLanguage": "hi" } } }
 ```
 
-**Proposed:** for `staff` users, `user` additionally includes `departmentId` (string or `null`) in
-the login and `/api/auth/me` responses. The staff UI needs it to open the correct department queue;
-today the client has to guess it and relies on the server's `403`. `departmentId` is display
-information only and never authorizes anything.
+For `staff` users, `user` additionally includes `departmentId` (string, or `null` when unassigned)
+in the register/login and `/api/auth/me` responses; patients and admins never get the field. The
+staff UI uses it to open the staff member's own department queue. `departmentId` is display
+information only and never authorizes anything: the server re-checks the stored assignment on
+every request, so a changed assignment takes effect immediately even if the client's copy is stale.
 
 ## Departments, rooms, and navigation map
 
@@ -505,10 +506,11 @@ Implemented details:
 - Acknowledging another department's request returns `404`.
 - Staff without an assigned department receive `403` on the list.
 - Lists are ordered newest first.
-- `GET /api/assistance-requests/me` items use the public shape (`id`, `status`, `createdAt`,
-  `notice`).
-- `GET /api/assistance-requests` items additionally include `departmentId`, `location`, and
-  `message`, which staff need in order to help.
+- `POST /api/assistance-requests` returns the public shape (`id`, `status`, `createdAt`, `notice`).
+- `GET /api/assistance-requests/me` and `GET /api/assistance-requests` items additionally include
+  the request's own `departmentId`, `location`, and `message`: the patient needs them to recognise
+  their requests in their history, and staff need them in order to help. Neither list includes
+  patient or staff IDs.
 
 ### Create and acknowledge examples
 

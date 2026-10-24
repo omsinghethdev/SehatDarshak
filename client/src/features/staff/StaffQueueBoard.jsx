@@ -37,7 +37,7 @@ function QueueCounts({ tokens }) {
 }
 
 /** Department queue for staff/admin: counts, call-next, and per-token status actions. */
-export function StaffQueueBoard({ department }) {
+export function StaffQueueBoard({ department, canChooseDepartment }) {
   const departmentId = department.id;
   const load = useCallback(
     (signal) => staffQueueService.listDepartmentQueue(departmentId, { signal }),
@@ -112,7 +112,13 @@ export function StaffQueueBoard({ department }) {
       <ErrorState
         error={queue.error}
         title={forbidden ? `You are not assigned to ${department.name}` : undefined}
-        description={forbidden ? 'Choose the department you work in from the list above.' : undefined}
+        description={
+          forbidden
+            ? canChooseDepartment
+              ? 'Choose the department you work in from the list above.'
+              : 'Your department assignment may have changed. Sign out and sign in again to refresh it.'
+            : undefined
+        }
         onRetry={forbidden ? undefined : reload}
       />
     );

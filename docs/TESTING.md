@@ -8,7 +8,7 @@ npm test
 ```
 
 - Tests use Node's built-in test runner (`node --test`).
-- These files need a reachable MongoDB 6.0+ at `MONGODB_TEST_URI` (default `mongodb://127.0.0.1:27017`): `auth.routes`, `hospital.routes`, `seed`, `queueTokens`, `queueOperations`, `assistanceRequests`, and `dashboard`.
+- These files need a reachable MongoDB 6.0+ at `MONGODB_TEST_URI` (default `mongodb://127.0.0.1:27017`): `auth.routes`, `hospital.routes`, `seed`, `devSeed`, `queueTokens`, `queueOperations`, `assistanceRequests`, and `dashboard`.
 - Each file uses its own `sehatdarshak_*_test` database and drops it afterwards.
 - Without MongoDB those suites are **skipped**, not failed, so check that the summary reports `skipped 0`.
 
@@ -41,7 +41,7 @@ The frontend has no automated test or lint scripts yet; frontend checks so far h
 | Login to a deactivated account with a wrong password | `401` generic, status not revealed | **Planned** |
 | Existing session of a staff member who is then deactivated | `401` on the next request | **Planned** |
 | Reactivated staff can sign in and operate again | `200` | **Planned** |
-| Staff `departmentId` returned by login and `/api/auth/me`; never for patients | present / absent | **Planned** |
+| Staff `departmentId` returned by login and `/api/auth/me`; never for patients or admins | present / absent | Existing: `auth.routes → login and /auth/me return the assigned department for staff`; `→ unassigned staff get departmentId null`; `→ patients and admins never get a departmentId`; `→ a department change is reflected on the next /auth/me` |
 
 ## Patient data ownership
 

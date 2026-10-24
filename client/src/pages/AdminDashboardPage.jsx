@@ -26,29 +26,28 @@ export function AdminDashboardPage() {
     content = <ErrorState error={overview.error} onRetry={overview.reload} />;
   } else if (!overview.data) {
     content = <LoadingState label="Calculating the overview…" />;
-  } else if (overview.data.source === 'mock-summary') {
-    const { summary } = overview.data;
+  } else {
+    const { source, summary } = overview.data;
     content = (
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
           <p>
-            Calculated at <time dateTime={summary.calculatedAt}>{formatTime(summary.calculatedAt)}</time> from the
-            demo data in this browser.
+            Calculated at <time dateTime={summary.calculatedAt}>{formatTime(summary.calculatedAt)}</time>{' '}
+            {source === 'api' ? 'by the hospital queue service.' : 'from the demo data in this browser.'}
           </p>
           <Button variant="ghost" onClick={overview.reload} aria-disabled={overview.status === 'loading' || undefined}>
             <RefreshCw aria-hidden="true" className={overview.status === 'loading' ? 'size-4 animate-spin' : 'size-4'} />
-            Recalculate
+            {source === 'api' ? 'Refresh' : 'Recalculate'}
           </Button>
         </div>
-        <OperationalSummary summary={summary} />
+        {summary.departments.length === 0 ? (
+          <Notice tone="info" title="No departments to show">
+            There are no active departments yet, so there are no queues to summarise.
+          </Notice>
+        ) : (
+          <OperationalSummary summary={summary} />
+        )}
       </div>
-    );
-  } else {
-    content = (
-      <Notice tone="info" title="Statistics format not agreed yet">
-        The server returned statistics, but the API contract does not yet define their format, so
-        they are not shown here. Once the team agrees the response shape, this page can display it.
-      </Notice>
     );
   }
 

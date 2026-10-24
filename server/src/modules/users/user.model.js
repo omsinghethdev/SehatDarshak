@@ -23,11 +23,14 @@ const userSchema = new mongoose.Schema(
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 
+// Staff always get `departmentId` (null when unassigned) so the staff UI opens their own
+// department instead of guessing. The server still authorizes every department request.
 export function toPublicUser(user) {
   return {
     id: String(user._id ?? user.id),
     name: user.name,
     role: user.role,
     ...(user.preferredLanguage ? { preferredLanguage: user.preferredLanguage } : {}),
+    ...(user.role === 'staff' ? { departmentId: user.departmentId ?? null } : {}),
   };
 }

@@ -16,41 +16,63 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function StaffQueuePage() {
   useDocumentTitle('Queue management');
-  const { isMockAuth, role } = useAuth();
+  const { isMockAuth, role, user } = useAuth();
+  // Staff work only in the department the server assigned them (from the sign-in response);
+  // administrators can choose any department.
+  const isStaff = role === 'staff';
 
   const loadDepartments = useCallback((signal) => departmentService.listDepartments({ signal }), []);
   const departments = useAsyncData(loadDepartments);
-  const [departmentId, selectDepartment] = useDepartmentSelection(departments.data);
+  const [selectedId, selectDepartment] = useDepartmentSelection(isStaff ? null : departments.data);
+  const departmentId = isStaff ? user?.departmentId : selectedId;
   const department = departments.data?.find((item) => item.id === departmentId);
 
   let content;
-  if (departments.status === 'error') {
+  if (isStaff && !departmentId) {
+    content = (
+      <EmptyState
+        icon={Building2}
+        title="You are not assigned to a department"
+        description="Ask an administrator to assign you to a department, then sign out and sign in again."
+      />
+    );
+  } else if (departments.status === 'error') {
     content = <ErrorState error={departments.error} onRetry={departments.reload} />;
   } else if (!departments.data) {
     content = <LoadingState label="Loading departments…" />;
   } else if (!department) {
-    content = <EmptyState icon={Building2} title="No departments are available" description="There is no queue to manage right now." />;
+    content = isStaff ? (
+      <EmptyState
+        icon={Building2}
+        title="Your department is not available"
+        description="Your assigned department is not currently open. Ask an administrator to check your assignment."
+      />
+    ) : (
+      <EmptyState icon={Building2} title="No departments are available" description="There is no queue to manage right now." />
+    );
   } else {
     content = (
       <div className="space-y-6">
-        <SelectField
-          id="staff-department"
-          label="Department"
-          hint={
-            role === 'admin'
-              ? 'Administrators can monitor and manage every department.'
-              : 'You can manage only the department you are assigned to.'
-          }
-          options={departments.data.map((item) => ({ value: item.id, label: `${item.name} (${item.code})` }))}
-          value={department.id}
-          onChange={(event) => selectDepartment(event.target.value)}
-          className="max-w-md"
-        />
+        {isStaff ? (
+          <p className="text-slate-700">
+            Your department: <span className="font-semibold text-slate-900">{department.name} ({department.code})</span>
+          </p>
+        ) : (
+          <SelectField
+            id="staff-department"
+            label="Department"
+            hint="Administrators can monitor and manage every department."
+            options={departments.data.map((item) => ({ value: item.id, label: `${item.name} (${item.code})` }))}
+            value={department.id}
+            onChange={(event) => selectDepartment(event.target.value)}
+            className="max-w-md"
+          />
+        )}
         <section aria-labelledby="queue-heading" className="space-y-4">
           <h2 id="queue-heading" className="text-2xl font-bold tracking-tight text-slate-900">
             {department.name} queue
           </h2>
-          <StaffQueueBoard key={department.id} department={department} />
+          <StaffQueueBoard key={department.id} department={department} canChooseDepartment={!isStaff} />
         </section>
       </div>
     );

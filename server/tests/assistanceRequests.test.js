@@ -156,19 +156,25 @@ describe('assistance requests', { skip: databaseUnavailable }, () => {
   });
 
   describe('GET /api/assistance-requests/me', () => {
-    test('lists only the caller\'s own requests, newest first, in the public shape', async () => {
+    test('lists only the caller\'s own requests, newest first, with their own details', async () => {
       const older = await insertRequest({ patient: 'patientA' });
       await insertRequest({ patient: 'patientB' });
       const newer = await insertRequest({ patient: 'patientA', departmentId: CARDIO, status: 'acknowledged' });
+      const detailed = (request) => ({
+        id: request._id,
+        status: request.status,
+        createdAt: request.createdAt.toISOString(),
+        notice,
+        departmentId: request.departmentId,
+        location: request.location,
+        message: request.message,
+      });
 
       const response = await getAs('patientA', '/api/assistance-requests/me');
 
       assert.equal(response.status, 200);
       assert.deepEqual(response.body.meta, { page: 1, limit: 20, total: 2 });
-      assert.deepEqual(response.body.data, [
-        { id: newer._id, status: 'acknowledged', createdAt: newer.createdAt.toISOString(), notice },
-        { id: older._id, status: 'open', createdAt: older.createdAt.toISOString(), notice },
-      ]);
+      assert.deepEqual(response.body.data, [detailed(newer), detailed(older)]);
       assert.doesNotMatch(response.rawBody, /patientId|acknowledgedBy|acknowledgedAt/);
     });
 

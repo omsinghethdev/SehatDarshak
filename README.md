@@ -53,8 +53,8 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 ## Development status
 
 - **Backend:** implements and tests the patient, hospital-data, queue, staff queue-operation, assistance, and admin-statistics endpoints. QR lookup uses an existing endpoint.
-- **Proposed, not implemented yet:** admin staff-account management, staff deactivation, the staff `departmentId` in user responses, and the queue-token audit history. See the [implementation status table](docs/API_CONTRACT.md#implementation-status).
-- **Frontend:** the `raunak` branch is merged into `main`. It has patient, staff, and admin pages, English and Hindi translations, QR pages, and service layers that switch between mock data and the API. Full integration with the API is still pending.
+- **Proposed, not implemented yet:** admin staff-account management, staff deactivation, and the queue-token audit history. See the [implementation status table](docs/API_CONTRACT.md#implementation-status).
+- **Frontend:** the `raunak` branch is merged into `main`. It has patient, staff, and admin pages, English and Hindi translations, QR pages, and service layers that switch between mock data and the API. In API mode the patient, staff, and admin pages use the real backend (verified end to end in a browser on the `integration` branch); QR codes are still frontend-only.
 
 ## Next step
 

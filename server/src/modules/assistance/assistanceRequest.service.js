@@ -14,8 +14,9 @@ function toPublicRequest(request) {
   };
 }
 
-// Staff also need the submitted request fields to be able to help.
-function toStaffRequest(request) {
+// The request's own submitted fields: staff need them to help, and the patient who sent the
+// request needs them to recognise it in their history. Never includes patient or staff IDs.
+function toDetailedRequest(request) {
   return {
     ...toPublicRequest(request),
     departmentId: request.departmentId,
@@ -50,7 +51,7 @@ export async function createAssistanceRequest(patient, { departmentId, location,
 }
 
 export function listOwnAssistanceRequests(patient, pagination) {
-  return paginate({ patientId: patient._id }, pagination, toPublicRequest);
+  return paginate({ patientId: patient._id }, pagination, toDetailedRequest);
 }
 
 // Admins see every department; staff only their assigned department.
@@ -64,7 +65,7 @@ export function listAssistanceRequests(user, { status }, pagination) {
     ...(status ? { status } : {}),
   };
 
-  return paginate(filter, pagination, toStaffRequest);
+  return paginate(filter, pagination, toDetailedRequest);
 }
 
 export async function acknowledgeAssistanceRequest(user, requestId) {

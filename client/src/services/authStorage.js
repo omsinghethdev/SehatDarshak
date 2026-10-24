@@ -4,17 +4,21 @@ const ROLES = ['patient', 'staff', 'admin'];
 
 /**
  * A session is only accepted if it has the shape returned by the auth endpoints
- * in docs/API_CONTRACT.md: `{ accessToken, user: { id, name, role } }`.
+ * in docs/API_CONTRACT.md: `{ accessToken, user: { id, name, role } }`, where staff users also
+ * carry `departmentId` (a string, or null when unassigned). Staff sessions saved before the
+ * API returned a department are rejected, so those users simply sign in again.
  */
 export function isValidSession(session) {
+  const user = session?.user;
   return Boolean(
     session &&
       typeof session.accessToken === 'string' &&
       session.accessToken.length > 0 &&
-      session.user &&
-      typeof session.user.id === 'string' &&
-      typeof session.user.name === 'string' &&
-      ROLES.includes(session.user.role),
+      user &&
+      typeof user.id === 'string' &&
+      typeof user.name === 'string' &&
+      ROLES.includes(user.role) &&
+      (user.role !== 'staff' || user.departmentId === null || typeof user.departmentId === 'string'),
   );
 }
 

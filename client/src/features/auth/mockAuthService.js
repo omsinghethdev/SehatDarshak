@@ -1,6 +1,6 @@
 import { API_ERROR_CODES, ApiError } from '../../services/apiClient';
 import { ACCOUNT_TYPES } from './accountTypes';
-import { accountType, readMockAccounts, writeMockAccounts } from './mockAccountStore';
+import { accountType, getMockStaffDepartmentId, readMockAccounts, writeMockAccounts } from './mockAccountStore';
 import { MOCK_DEMO_ACCOUNTS } from './mockDemoAccounts';
 import { toErrorDetails, validateLogin, validateRegistration } from './validation';
 
@@ -50,8 +50,10 @@ async function digestPassword(identifier, password) {
   return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+/** Like the API, staff users carry their assigned department (`null` when unassigned). */
 function issueSession({ id, name, role }) {
-  return { accessToken: `mock.${crypto.randomUUID()}`, user: { id, name, role } };
+  const user = { id, name, role, ...(role === 'staff' ? { departmentId: getMockStaffDepartmentId(id) } : {}) };
+  return { accessToken: `mock.${crypto.randomUUID()}`, user };
 }
 
 function validationError(errors) {

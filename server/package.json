@@ -10,6 +10,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "seed": "node src/seed/seedDemoData.js",
+    "seed:dev-users": "node src/seed/seedDevUsers.js",
     "test": "node --test"
   },
   "dependencies": {

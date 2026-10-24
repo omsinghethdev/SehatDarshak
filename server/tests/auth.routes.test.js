@@ -3,6 +3,7 @@ import { after, before, beforeEach, describe, test } from 'node:test';
 import { createApp } from '../src/app.js';
 import { User } from '../src/modules/users/user.model.js';
 import { signAccessToken, verifyAccessToken } from '../src/utils/accessToken.js';
+import { hashPassword } from '../src/utils/password.js';
 import { connectTestDatabase, dropTestDatabase } from './helpers/database.js';
 import { bearer, request } from './helpers/http.js';
 
@@ -193,6 +194,54 @@ describe('auth routes', { skip: databaseUnavailable }, () => {
 
       const response = await me(bearer(body.data.accessToken));
       assert.equal(response.status, 401);
+    });
+  });
+
+  describe('staff department in user responses', () => {
+    const createUser = async (fields) => User.create({
+      name: 'Test User',
+      passwordHash: await hashPassword('test-password-123'),
+      ...fields,
+    });
+    const loginAs = (identifier) => login({ identifier, password: 'test-password-123' });
+
+    test('login and /auth/me return the assigned department for staff', async () => {
+      await createUser({ identifier: 'test.staff', role: 'staff', departmentId: 'dept_demo_opd' });
+
+      const response = await loginAs('test.staff');
+      assert.equal(response.status, 200);
+      assert.equal(response.body.data.user.departmentId, 'dept_demo_opd');
+
+      const current = await me(bearer(response.body.data.accessToken));
+      assert.deepEqual(current.body, { data: { user: response.body.data.user } });
+    });
+
+    test('unassigned staff get departmentId null', async () => {
+      await createUser({ identifier: 'test.staff', role: 'staff' });
+
+      const { body } = await loginAs('test.staff');
+      assert.equal(body.data.user.departmentId, null);
+    });
+
+    test('patients and admins never get a departmentId', async () => {
+      await createUser({ identifier: 'test.admin', role: 'admin', departmentId: 'dept_demo_opd' });
+      const { body: patient } = await register(validRegistration);
+
+      const { body: admin } = await loginAs('test.admin');
+      assert.equal('departmentId' in admin.data.user, false);
+      assert.equal('departmentId' in patient.data.user, false);
+      const patientCurrent = await me(bearer(patient.data.accessToken));
+      assert.equal('departmentId' in patientCurrent.body.data.user, false);
+    });
+
+    test('a department change is reflected on the next /auth/me', async () => {
+      const staff = await createUser({ identifier: 'test.staff', role: 'staff', departmentId: 'dept_demo_opd' });
+      const { body } = await loginAs('test.staff');
+
+      await User.updateOne({ _id: staff._id }, { departmentId: 'dept_demo_med' });
+
+      const current = await me(bearer(body.data.accessToken));
+      assert.equal(current.body.data.user.departmentId, 'dept_demo_med');
     });
   });
 

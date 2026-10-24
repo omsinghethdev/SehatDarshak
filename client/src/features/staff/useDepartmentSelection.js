@@ -12,9 +12,9 @@ function readPreference() {
 }
 
 /**
- * Selected department for staff views: `?department=` in the URL, else the last choice on this
- * device, else the first department. The contract does not expose a staff member's assigned
- * department to the client, so the server (or mock) answers 403 for departments they cannot manage.
+ * Department chosen by an administrator in the staff views: `?department=` in the URL, else the
+ * last choice on this device, else the first department. Staff do not choose: they use the
+ * `departmentId` from their session. The server authorizes every department request regardless.
  */
 export function useDepartmentSelection(departments) {
   const [searchParams, setSearchParams] = useSearchParams();

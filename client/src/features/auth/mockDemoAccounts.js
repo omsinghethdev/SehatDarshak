@@ -3,9 +3,8 @@
  * only so each role can be demonstrated. Never treat them as production authentication.
  *
  * The demo patient (`user_demo_01`, Asha Devi) is canonical (docs/SHARED_INTEGRATION_CONTRACT.md §6).
- * The staff and admin accounts are additional fictional accounts. A staff member's department
- * assignment is server-only data in the contract; here it is mock-internal and is never
- * returned in the public user object.
+ * The staff and admin accounts are additional fictional accounts. As with the API, a staff
+ * member's `departmentId` is returned in their user object (see mockAuthService.issueSession).
  */
 export const MOCK_DEMO_ACCOUNTS = Object.freeze([
   {

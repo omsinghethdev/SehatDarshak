@@ -36,9 +36,36 @@ with code 1.
 cd server
 npm install
 cp .env.example .env          # then set AUTH_SECRET (and PORT if 5000 is busy)
-npm run seed                  # loads the canonical demo floor/department/room; safe to repeat
+npm run seed                  # loads the fictional demo floors, departments, and rooms; safe to repeat
+npm run seed:dev-users        # optional, development only: demo patient, staff, and admin accounts
 npm run dev                   # restarts on file changes
 ```
+
+### Development test accounts
+
+Public registration only creates patients, so `npm run seed:dev-users` creates one demo patient,
+one staff member (assigned to `dept_demo_opd` by default), and one admin for local testing. Add
+these to `server/.env` with your own passwords (placeholders are in `.env.example`):
+
+```bash
+NODE_ENV=development
+ALLOW_DEV_USER_SEED=true
+DEV_PATIENT_PASSWORD=<choose one>
+DEV_STAFF_PASSWORD=<choose one>
+DEV_ADMIN_PASSWORD=<choose one>
+```
+
+- The script refuses to run unless `NODE_ENV` is exactly `development`, `ALLOW_DEV_USER_SEED` is
+  `true`, and `MONGODB_URI` is a `mongodb://` URI pointing only to `localhost`, `127.0.0.1`, or
+  `[::1]`. It never runs against Atlas.
+- Usernames default to `demo.patient`, `demo.staff`, and `demo.admin` (override with
+  `DEV_*_USERNAME`); the staff department can be changed with `DEV_STAFF_DEPARTMENT_ID`.
+- Passwords follow the registration rules (8–128 characters), are hashed like any other account,
+  and are never printed.
+- Re-running is safe: existing accounts are left unchanged, including their passwords. If a
+  username already belongs to an account with a different role or department, the script reports
+  it, changes nothing, and exits with code 1.
+- Run `npm run seed` first; the staff department must exist.
 
 On macOS, port 5000 is often taken by AirPlay Receiver; set `PORT=5001` (and the client's
 `VITE_API_BASE_URL` to match) or turn AirPlay Receiver off.
@@ -49,14 +76,15 @@ On macOS, port 5000 is often taken by AirPlay Receiver; set `PORT=5001` (and the
 | --- | --- |
 | `npm start` | Production start: `node src/server.js`. |
 | `npm run dev` | Development start with `node --watch`. |
-| `npm run seed` | Idempotently upserts the demo data from `src/seed/demoData.js` into `MONGODB_URI`. It validates the data first and never deletes other records. |
+| `npm run seed` | Idempotently upserts the fictional demo data into `MONGODB_URI`: the canonical fixtures in `src/seed/demoData.js` plus the development floors, departments, and rooms in `src/seed/devDemoData.js` (which match the frontend mocks). It validates the data first, resets those records to the fixture values, and never deletes other records. |
+| `npm run seed:dev-users` | Development only: creates the demo patient, staff, and admin accounts described above. Never modifies existing users. |
 | `npm test` | Runs all tests with `node --test`. |
 
 ## Tests
 
 `npm test` runs unit tests and HTTP-level tests. These files need a reachable MongoDB at
-`MONGODB_TEST_URI`: `auth.routes`, `hospital.routes`, `seed`, `queueTokens`, `queueOperations`,
-`assistanceRequests`, and `dashboard`. Without MongoDB those suites are **skipped**, not failed,
+`MONGODB_TEST_URI`: `auth.routes`, `hospital.routes`, `seed`, `devSeed`, `queueTokens`,
+`queueOperations`, `assistanceRequests`, and `dashboard`. Without MongoDB those suites are **skipped**, not failed,
 so check that the summary reports `skipped 0`. [docs/TESTING.md](../docs/TESTING.md) lists which
 cases are covered by existing tests and which are planned.
 
@@ -103,14 +131,14 @@ register/login. Responses use `{ "data": ..., "message"?, "meta"? }`; errors use
 | GET | `/dashboard/statistics` | Admin (response shape is a proposal pending team review) |
 
 The table lists the endpoints that are **implemented**. Public registration only creates patients.
-Staff and admin accounts currently have to be created directly in the database by a maintainer.
+Staff and admin accounts currently have to be created directly in the database by a maintainer,
+or locally with `npm run seed:dev-users`.
 
 **Proposed, not implemented yet** (see the
 [implementation status](../docs/API_CONTRACT.md#implementation-status)):
 
 - Admin staff-account endpoints under `/admin/staff`.
 - Staff deactivation, enforced at login and on every request.
-- A staff `departmentId` in login and `/auth/me` responses.
 - A read-only admin audit history of queue-token status changes at
   `/admin/audit/queue-token-status-changes`.
 

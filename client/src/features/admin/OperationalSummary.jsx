@@ -79,7 +79,7 @@ export function OperationalSummary({ summary }) {
         <div className="relative hidden overflow-x-auto rounded-xl border border-line bg-white sm:block">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <caption className="sr-only">
-              Active queue tokens and open assistance requests for each department (demo data)
+              Active queue tokens and open assistance requests for each department
             </caption>
             <thead className="border-b border-line bg-canvas-muted text-slate-700">
               <tr>

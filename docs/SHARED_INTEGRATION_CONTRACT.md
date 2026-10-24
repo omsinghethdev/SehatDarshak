@@ -31,11 +31,11 @@ All IDs are strings in API JSON. Timestamps are ISO 8601 strings. Fields below a
 
 | Public/API response | Request-only | Server-only |
 | --- | --- | --- |
-| `id: string`, `name: string`, `role: "patient" \| "staff" \| "admin"`, `preferredLanguage?: string`; **Proposed:** `departmentId?: string \| null` for `staff` users only | `identifier: string` (unique username), `password: string` for register/login | `passwordHash`, account status (`isActive`, Proposed), authorization claims/source |
+| `id: string`, `name: string`, `role: "patient" \| "staff" \| "admin"`, `preferredLanguage?: string`; `departmentId: string \| null` for `staff` users only | `identifier: string` (unique username), `password: string` for register/login | `passwordHash`, account status (`isActive`, Proposed), authorization claims/source |
 
 Public registration accepts `name`, `identifier`, `password` (minimum 8 characters), and optional supported `preferredLanguage`. It always creates a `patient`; it cannot assign a role or staff department.
 
-A staff user's `departmentId` in login and `/api/auth/me` responses is Proposed. It lets the staff UI open the right queue, but it is display information only: the server re-checks the assignment on every request.
+A staff user's `departmentId` is included in login and `/api/auth/me` responses. It lets the staff UI open the right queue, but it is display information only: the server re-checks the assignment on every request.
 
 ```json
 {
@@ -141,6 +141,8 @@ Valid status values are `waiting`, `called`, `in_consultation`, `completed`, `sk
 | --- | --- | --- |
 | `id: string`, `status: "open" \| "acknowledged"`, `createdAt: string`, `notice: string` | Create: `departmentId`, `location`, `message`; acknowledge: no body | `patientId`, `acknowledgedBy`, `acknowledgedAt`, authorization decisions |
 
+The create response uses the public fields above. Both lists (`/me` for the patient's own requests, and the staff/admin list) also return the request's own `departmentId`, `location`, and `message`.
+
 The only transition is `open` to `acknowledged`. It is a staff-assistance request, never a guaranteed emergency medical response.
 
 ```json
@@ -158,7 +160,7 @@ The only transition is `open` to `acknowledged`. It is a staff-assistance reques
 | --- | --- | --- |
 | Basic aggregate operational counts and queue summaries | None in the current contract | Any patient-level data, calculation inputs, and authorization decisions |
 
-The backend implements the shape documented in [API_CONTRACT.md → Dashboard](API_CONTRACT.md#dashboard). That shape is **pending team approval**: frontend must not build against it, or invent other field names, until it is approved.
+The backend implements the shape documented in [API_CONTRACT.md → Dashboard](API_CONTRACT.md#dashboard). That shape is still **pending team approval**. The admin dashboard reads it in exactly one place, `toOperationalSummary` in `client/src/features/admin/adminOverviewService.js`, which uses only the documented fields and shows an error instead of guessed values if a field is missing; if the approved shape differs, update that function and the backend together.
 
 ### StaffAccount (Proposed, admin only)
 
@@ -218,7 +220,7 @@ This document is the canonical fixture reference for the small shared demo set. 
 | Staff (Proposed) | username `demo.staff`, Demo Staff, role `staff`, department `dept_demo_opd` |
 | Admin (Proposed) | username `demo.admin`, Demo Admin, role `admin` |
 
-The backend seed (`npm run seed`) currently loads only the floor, department, and facility. The patient, token, assistance request, and the proposed staff and admin demo accounts are not seeded yet. Demo account passwords must be set locally and never shared as real credentials.
+The backend seed (`npm run seed`) loads these floor, department, and facility fixtures plus the fictional development floors, departments, and rooms that match the frontend mocks (`server/src/seed/devDemoData.js`). Demo patient, staff, and admin accounts can be created locally with the development-only `npm run seed:dev-users` (see [server/README.md](../server/README.md)); demo tokens and assistance requests are not seeded. Demo account passwords must be set locally and never shared as real credentials.
 
 Never use real patient information, real credentials, production secrets, or external hospital data. Frontend mocks are display/development data only; backend seeds are persisted demo data only. Password examples must never become real shared credentials.
 
@@ -234,7 +236,7 @@ Never use real patient information, real credentials, production secrets, or ext
 - [ ] Loading, validation, unauthorized, forbidden, not-found, conflict, server-error, empty, responsive, and keyboard/screen-reader states are handled.
 - [ ] Client and server local environments are configured, start independently, and the client can reach `/api`.
 - [ ] Token QR codes contain only `sehatdarshak-token:<id>`, appear only for active tokens with the display number as text, and staff scanning handles invalid codes, `401`, `404`, camera denial, and scan failure.
-- [ ] Staff UI uses the server-provided department (Proposed `departmentId`) and handles `403` for other departments.
+- [x] Staff UI uses the server-provided department (`departmentId`) and handles `403` for other departments.
 - [ ] Admin staff management and audit history UIs are reachable only for admins and handle `401`/`403`/`400`/`404`/`409` (after the Proposed endpoints are implemented).
 - [ ] A deactivated staff account is signed out on its next request (`401`) and sees the deactivation message at login (after implementation).
 

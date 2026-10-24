@@ -5,6 +5,7 @@ import { Department } from '../modules/departments/department.model.js';
 import { Floor } from '../modules/map/floor.model.js';
 import { Room } from '../modules/rooms/room.model.js';
 import { demoDepartments, demoFloors, demoRooms } from './demoData.js';
+import { devHospitalData } from './devDemoData.js';
 import { findHospitalDataProblems } from './validateHospitalData.js';
 
 const managedPaths = new Set(['_id', '__v', 'createdAt', 'updatedAt']);
@@ -49,10 +50,10 @@ export async function seedDemoData({
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     await connectDatabase();
-    await seedDemoData();
-    console.log(
-      `Seeded ${demoFloors.length} floor(s), ${demoDepartments.length} department(s), ${demoRooms.length} room(s).`,
-    );
+    // The CLI loads the canonical fixtures plus the fictional development data that matches the UI.
+    await seedDemoData(devHospitalData);
+    const { floors, departments, rooms } = devHospitalData;
+    console.log(`Seeded ${floors.length} floor(s), ${departments.length} department(s), ${rooms.length} room(s).`);
   } catch (error) {
     console.error(`Seeding failed: ${error.message}`);
     process.exitCode = 1;
