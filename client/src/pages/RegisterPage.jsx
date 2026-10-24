@@ -1,5 +1,5 @@
 import { UserPlus } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { StatusPageLayout } from '../components/layout/StatusPageLayout';
 import { DemoAuthNotice } from '../features/auth/DemoAuthNotice';
 import { RegisterForm } from '../features/auth/RegisterForm';
@@ -9,6 +9,7 @@ import { PATHS } from '../routes/paths';
 
 export function RegisterPage() {
   const { t } = useTranslation();
+  const location = useLocation();
   useDocumentTitle(t('auth.registerTitle'));
 
   return (
@@ -18,7 +19,7 @@ export function RegisterPage() {
       <RegisterForm />
       <p className="border-t border-line pt-6 text-sm">
         {t('auth.haveAccount')}{' '}
-        <Link to={PATHS.login} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
+        <Link to={PATHS.login} state={location.state} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
           {t('layout.signIn')}
         </Link>
       </p>

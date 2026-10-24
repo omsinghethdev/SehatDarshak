@@ -9,7 +9,9 @@ import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { NavigationPage } from '../pages/NavigationPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { QrCodesPage } from '../pages/QrCodesPage';
 import { RegisterPage } from '../pages/RegisterPage';
+import { ScanPage } from '../pages/ScanPage';
 import { StaffAssistancePage } from '../pages/StaffAssistancePage';
 import { StaffQueuePage } from '../pages/StaffQueuePage';
 import { TokenStatusPage } from '../pages/TokenStatusPage';
@@ -28,6 +30,8 @@ export const router = createBrowserRouter([
         children: [
           { path: PATHS.home, element: <HomePage /> },
           { path: PATHS.unauthorized, element: <UnauthorizedPage /> },
+          // Public: validates the QR payload and asks visitors to sign in before showing data.
+          { path: PATHS.scan, element: <ScanPage /> },
           {
             element: <GuestRoute />,
             children: [
@@ -42,6 +46,7 @@ export const router = createBrowserRouter([
               { path: PATHS.dashboard, element: <DashboardPage /> },
               { path: PATHS.departments, element: <DepartmentsPage /> },
               { path: PATHS.navigation, element: <NavigationPage /> },
+              { path: PATHS.qrCodes, element: <QrCodesPage /> },
             ],
           },
           {

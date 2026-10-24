@@ -1,8 +1,10 @@
-import { MousePointerClick, X } from 'lucide-react';
-import { Button } from '../../components/common/Button';
+import { MousePointerClick, Ticket, X } from 'lucide-react';
+import { Button, ButtonLink } from '../../components/common/Button';
 import { LocationGlyph } from './LocationGlyph';
 import { ListenButton } from '../../components/common/ListenButton';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
+import { bookTokenPath } from '../../routes/paths';
 import { getLocationType, typeLabel } from './locationTypes';
 
 function departmentText(location, departments, t) {
@@ -16,6 +18,7 @@ function departmentText(location, departments, t) {
 /** Details for the selected location. Announced politely when the selection changes. */
 export function LocationDetails({ location, number, floor, departments, onClear }) {
   const { t } = useTranslation();
+  const { role } = useAuth();
   if (!location) {
     return (
       <div aria-live="polite" className="rounded-xl border border-dashed border-line bg-white p-5 text-slate-700">
@@ -30,6 +33,8 @@ export function LocationDetails({ location, number, floor, departments, onClear 
   const type = getLocationType(location.roomType);
   const typeText = typeLabel(type, t);
   const departmentValue = departmentText(location, departments, t);
+  // Only offered when the department is known, so the booking form opens with it selected.
+  const bookableDepartment = role === 'patient' && location.departmentId ? departments.data?.get(location.departmentId) : null;
 
   return (
     <section
@@ -61,6 +66,12 @@ export function LocationDetails({ location, number, floor, departments, onClear 
       </dl>
       <p className="mt-4 text-sm text-slate-600">{t('map.noDirections')}</p>
       <div className="mt-4 flex flex-wrap gap-3">
+        {bookableDepartment && (
+          <ButtonLink to={bookTokenPath(bookableDepartment.id)}>
+            <Ticket aria-hidden="true" className="size-4" />
+            {t('map.bookForDepartment', { department: bookableDepartment.name })}
+          </ButtonLink>
+        )}
         <ListenButton
           text={() =>
             [
