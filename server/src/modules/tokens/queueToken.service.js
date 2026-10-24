@@ -11,7 +11,7 @@ export const duplicateKeyErrorCode = 11000;
 
 // Wait-time estimates are simulated for the MVP and must always carry this label.
 export const estimateLabel = 'Simulated estimate';
-const simulatedMinutesPerPatient = 5;
+export const simulatedMinutesPerPatient = 5;
 
 const activeTokenExistsError = () => conflictError('You already have an active token for this department');
 

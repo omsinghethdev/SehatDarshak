@@ -1,5 +1,6 @@
 import { assistanceRequestRouter } from '../modules/assistance/assistanceRequest.routes.js';
 import { authRouter } from '../modules/auth/auth.routes.js';
+import { dashboardRouter } from '../modules/dashboard/dashboard.routes.js';
 import { departmentRouter } from '../modules/departments/department.routes.js';
 import { mapRouter } from '../modules/map/map.routes.js';
 import { patientRouter } from '../modules/patients/patient.routes.js';
@@ -16,4 +17,5 @@ export function registerApiRoutes(app) {
   app.use('/api/patients', patientRouter);
   app.use('/api/queues', queueRouter);
   app.use('/api/assistance-requests', assistanceRequestRouter);
+  app.use('/api/dashboard', dashboardRouter);
 }
