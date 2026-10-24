@@ -11,6 +11,21 @@ function fieldError(field, message) {
   return validationError(`${field}: ${message}`, [{ field, message }]);
 }
 
+// Requires a JSON object body and rejects fields outside allowedFields, so clients cannot
+// smuggle server-controlled values such as patientId or status.
+export function parseObjectBody(body, allowedFields) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw validationError('Request body must be a JSON object');
+  }
+
+  const unknownField = Object.keys(body).find((field) => !allowedFields.includes(field));
+  if (unknownField) {
+    throw fieldError(unknownField, 'Field is not allowed');
+  }
+
+  return body;
+}
+
 export function isValidResourceId(value) {
   return typeof value === 'string' && resourceIdPattern.test(value);
 }
