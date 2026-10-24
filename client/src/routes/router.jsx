@@ -1,0 +1,56 @@
+import { createBrowserRouter } from 'react-router';
+import { AppLayout } from '../components/layout/AppLayout';
+import { BookTokenPage } from '../pages/BookTokenPage';
+import { DashboardPage } from '../pages/DashboardPage';
+import { DepartmentsPage } from '../pages/DepartmentsPage';
+import { HomePage } from '../pages/HomePage';
+import { LoginPage } from '../pages/LoginPage';
+import { NavigationPage } from '../pages/NavigationPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
+import { RegisterPage } from '../pages/RegisterPage';
+import { TokenStatusPage } from '../pages/TokenStatusPage';
+import { UnauthorizedPage } from '../pages/UnauthorizedPage';
+import { GuestRoute } from './GuestRoute';
+import { ProtectedRoute } from './ProtectedRoute';
+import { RouteErrorPage } from './RouteErrorPage';
+import { PATHS } from './paths';
+
+export const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    children: [
+      {
+        errorElement: <RouteErrorPage />,
+        children: [
+          { path: PATHS.home, element: <HomePage /> },
+          { path: PATHS.unauthorized, element: <UnauthorizedPage /> },
+          {
+            element: <GuestRoute />,
+            children: [
+              { path: PATHS.login, element: <LoginPage /> },
+              { path: PATHS.register, element: <RegisterPage /> },
+            ],
+          },
+          {
+            // Any signed-in role (department and map endpoints are open to all authenticated users).
+            element: <ProtectedRoute />,
+            children: [
+              { path: PATHS.dashboard, element: <DashboardPage /> },
+              { path: PATHS.departments, element: <DepartmentsPage /> },
+              { path: PATHS.navigation, element: <NavigationPage /> },
+            ],
+          },
+          {
+            // Patient-only queue actions. Staff/admin token views are not built yet.
+            element: <ProtectedRoute allowedRoles={['patient']} />,
+            children: [
+              { path: PATHS.bookToken, element: <BookTokenPage /> },
+              { path: PATHS.tokenStatus, element: <TokenStatusPage /> },
+            ],
+          },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
+    ],
+  },
+]);

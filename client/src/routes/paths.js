@@ -1,0 +1,21 @@
+export const PATHS = Object.freeze({
+  home: '/',
+  login: '/login',
+  register: '/register',
+  dashboard: '/dashboard',
+  departments: '/departments',
+  navigation: '/navigation',
+  bookToken: '/queue/book',
+  tokenStatus: '/queue/tokens/:tokenId',
+  unauthorized: '/unauthorized',
+});
+
+export function tokenStatusPath(tokenId) {
+  return `/queue/tokens/${encodeURIComponent(tokenId)}`;
+}
+
+export function bookTokenPath(departmentId) {
+  return departmentId
+    ? `${PATHS.bookToken}?department=${encodeURIComponent(departmentId)}`
+    : PATHS.bookToken;
+}

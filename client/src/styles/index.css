@@ -1,12 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  font-family: Arial, sans-serif;
-  color: #0f172a;
-  background: #f8fafc;
+/*
+ * Design tokens: warm off-white canvas, forest-green primary, slate text.
+ * Brand shades are chosen so white text on brand-700 and brand-800 meets WCAG AA.
+ */
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", Arial, sans-serif;
+
+  --color-canvas: #faf7f2;
+  --color-canvas-muted: #f3eee5;
+  --color-line: #e4ddd1;
+
+  --color-brand-50: #eef6f1;
+  --color-brand-100: #d6eadd;
+  --color-brand-200: #afd5bd;
+  --color-brand-600: #2b7350;
+  --color-brand-700: #1f5f3f;
+  --color-brand-800: #184a31;
+  --color-brand-900: #123824;
+
+  --color-focus: #b45309;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
+@layer base {
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background-color: var(--color-canvas);
+    color: var(--color-slate-900);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* Programmatic focus targets (e.g. <main> after navigation) should not show a ring. */
+  [tabindex="-1"]:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
