@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { createCorsOptions } from './config/cors.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { registerApiRoutes } from './routes/index.js';
 
 export function createApp({ registerRoutes } = {}) {
   const app = express();
@@ -18,6 +19,8 @@ export function createApp({ registerRoutes } = {}) {
       message: 'Service is healthy',
     });
   });
+
+  registerApiRoutes(app);
 
   if (registerRoutes) {
     registerRoutes(app);

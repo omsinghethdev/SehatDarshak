@@ -1,8 +1,11 @@
-function sendError(response, status, code, message) {
+import { HttpError } from '../utils/httpError.js';
+
+function sendError(response, status, code, message, details) {
   response.status(status).json({
     error: {
       code,
       message,
+      ...(details ? { details } : {}),
     },
   });
 }
@@ -14,6 +17,11 @@ export function notFoundHandler(_request, response) {
 export function errorHandler(error, _request, response, next) {
   if (response.headersSent) {
     next(error);
+    return;
+  }
+
+  if (error instanceof HttpError) {
+    sendError(response, error.status, error.code, error.message, error.details);
     return;
   }
 

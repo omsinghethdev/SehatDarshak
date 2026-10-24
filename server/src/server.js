@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { fileURLToPath } from 'node:url';
 import app from './app.js';
+import { AuthConfigurationError, getAuthConfig } from './config/auth.js';
 import {
   DatabaseConfigurationError,
   DatabaseConnectionError,
@@ -55,7 +56,11 @@ export async function stopServer(httpServer) {
 }
 
 export function startupFailureMessage(error, port) {
-  if (error instanceof DatabaseConfigurationError || error instanceof DatabaseConnectionError) {
+  if (
+    error instanceof AuthConfigurationError
+    || error instanceof DatabaseConfigurationError
+    || error instanceof DatabaseConnectionError
+  ) {
     return error.message;
   }
 
@@ -74,6 +79,7 @@ async function bootstrap() {
   let httpServer;
 
   try {
+    getAuthConfig();
     httpServer = await startServer();
   } catch (error) {
     console.error(`Server startup failed: ${startupFailureMessage(error, defaultPort)}`);
