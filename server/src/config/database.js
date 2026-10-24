@@ -39,7 +39,15 @@ function findErrorCode(error) {
 }
 
 function connectionFailureMessage(error) {
+  if (error?.name === 'MongoParseError') {
+    return 'MONGODB_URI is not a valid MongoDB connection string. Check its format and URL-encode special characters in the password.';
+  }
+
   switch (findErrorCode(error)) {
+    // 18: MongoDB AuthenticationFailed; 8000: MongoDB Atlas "bad auth".
+    case 18:
+    case 8000:
+      return 'MongoDB authentication failed. Check the database username and password in MONGODB_URI.';
     case 'ECONNREFUSED':
       return 'MongoDB connection was refused. Verify that MongoDB is running and reachable.';
     case 'ENOTFOUND':
@@ -50,7 +58,7 @@ function connectionFailureMessage(error) {
     case 'EPERM':
       return 'Network access to MongoDB was denied by the current environment.';
     default:
-      return 'Unable to connect to MongoDB. Check database configuration and availability.';
+      return 'Unable to connect to MongoDB. Check MONGODB_URI, database availability, and (for MongoDB Atlas) the network access list.';
   }
 }
 

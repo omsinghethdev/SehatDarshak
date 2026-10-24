@@ -23,7 +23,7 @@ cp client/.env.example client/.env
 cp server/.env.example server/.env
 ```
 
-`client/.env` needs `VITE_API_BASE_URL`. `server/.env` needs `PORT`, `CORS_ORIGIN`, `MONGODB_URI`, and `AUTH_SECRET`. The server connects to MongoDB before it starts listening; the example URI expects a local MongoDB instance to be running. Authentication is not implemented yet.
+`client/.env` needs `VITE_API_BASE_URL`. `server/.env` needs `PORT`, `CORS_ORIGIN`, `MONGODB_URI`, and `AUTH_SECRET`, and `AUTH_SECRET` must be replaced with a long random value. The server connects to MongoDB before it starts listening; the example URI expects a local MongoDB instance to be running. See [server/README.md](../server/README.md) for every server variable, demo-data seeding, tests, and deployment.
 
 ## Start the applications
 
@@ -34,4 +34,6 @@ npm run dev --prefix server
 npm run dev --prefix client
 ```
 
-Vite will display its local browser URL. The server health endpoint is `http://localhost:5000/api/health` by default.
+Before the first server start, load the demo data with `npm run seed --prefix server`.
+
+Vite will display its local browser URL. The server health endpoint is `http://localhost:5000/api/health` by default. On macOS, port 5000 is often used by AirPlay Receiver; if so, set `PORT=5001` in `server/.env` and update `VITE_API_BASE_URL` to match.

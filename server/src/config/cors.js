@@ -1,9 +1,11 @@
 const developmentOrigins = ['http://localhost:5173'];
 
+// Browsers send Origin without a trailing slash, so "https://app.example/" is normalised
+// to match. A "*" entry matches nothing: every allowed origin must be listed explicitly.
 function parseOrigins(value) {
   return (value || '')
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
     .filter(Boolean);
 }
 
