@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Building2, HandHelping, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
+import { Building2, HandHelping, History, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
 import { Button, ButtonLink } from '../../components/common/Button';
 import { QuickActionCard } from '../../components/common/QuickActionCard';
 import { EmptyState } from '../../components/feedback/EmptyState';
@@ -116,6 +116,14 @@ export function PatientDashboard() {
           </li>
           <li>
             <QuickActionCard to={statusAction.to} icon={ListOrdered} title={t('queue.viewStatus')} description={statusAction.description} />
+          </li>
+          <li>
+            <QuickActionCard
+              to={PATHS.tokenHistory}
+              icon={History}
+              title={t('queue.history.title')}
+              description={t('dashboard.actions.history')}
+            />
           </li>
           <li>
             <QuickActionCard

@@ -22,6 +22,7 @@ Status labels used in this document:
 | `GET` | `/api/auth/me` | Any authenticated role | Implemented and verified (includes staff `departmentId`) |
 | `GET` | `/api/patients/me` | Patient | Implemented and verified |
 | `GET` | `/api/patients/me/queue-tokens/active` | Patient | Implemented and verified |
+| `GET` | `/api/patients/me/queue-tokens?status=&page=&limit=` | Patient | Implemented and verified (token history) |
 | `GET` | `/api/departments`, `/api/departments/:departmentId` | Authenticated | Implemented and verified |
 | `GET` | `/api/rooms?floor=&departmentId=&page=&limit=`, `/api/rooms/:roomId` | Authenticated | Implemented and verified |
 | `GET` | `/api/map/floors`, `/api/map/floors/:floorId` | Authenticated | Implemented and verified |
@@ -158,6 +159,7 @@ Staff accounts can be deactivated by an admin (see [Admin: staff accounts](#admi
 | `GET` | `/api/auth/me` | Any authenticated role | Return the authenticated user. |
 | `GET` | `/api/patients/me` | Patient | Return the patient's own profile. |
 | `GET` | `/api/patients/me/queue-tokens/active` | Patient | Return the patient's active tokens, if any. |
+| `GET` | `/api/patients/me/queue-tokens?status=&page=&limit=` | Patient | Token history: the patient's own `completed`, `skipped`, and `cancelled` tokens, newest first (`issuedAt`, then `id`). Optional `status` must be one of those three (active statuses are rejected with `400`); `limit` defaults to 20, max 100. Each item: `id`, `displayNumber`, `departmentId`, `status`, `issuedAt`, `calledAt`, `completedAt` (ISO strings; `null` when not recorded). The patient always comes from the JWT; other query parameters are ignored. Returns `{ data, meta: { page, limit, total } }`. |
 
 ### Login example
 
