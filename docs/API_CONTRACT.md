@@ -48,7 +48,7 @@ Roles are `patient`, `staff`, and `admin`.
 
 - **patient**: may access only their own profile, tokens, and assistance requests.
 - **staff**: may view and manage only queues and assistance requests for their assigned department.
-- **admin**: may manage system resources and view dashboard data according to their role.
+- **admin**: may access basic dashboard statistics and queue monitoring. Department, room, and staff-management CRUD are out of scope for this MVP.
 
 Server-side authorization is mandatory. Hiding a frontend route is not authorization. The server must derive the authenticated user, role, patient identity, and staff department from the verified JWT/session data; it must never trust a client-supplied `patientId`, `role`, or department assignment.
 
@@ -56,7 +56,7 @@ Server-side authorization is mandatory. Hiding a frontend route is not authoriza
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `POST` | `/api/auth/register` | Public | Register a fictional demo patient; server assigns the `patient` role. |
+| `POST` | `/api/auth/register` | Public | Register a fictional demo patient, assign the `patient` role, and automatically sign them in. |
 | `POST` | `/api/auth/login` | Public | Authenticate and issue a JWT. |
 | `GET` | `/api/auth/me` | Any authenticated role | Return the authenticated user. |
 | `GET` | `/api/patients/me` | Patient | Return the patient's own profile. |
@@ -95,6 +95,7 @@ Server-side authorization is mandatory. Hiding a frontend route is not authoriza
 ```json
 {
   "data": {
+    "accessToken": "<jwt>",
     "user": {
       "id": "user_demo_01",
       "name": "Asha Devi",
@@ -105,7 +106,9 @@ Server-side authorization is mandatory. Hiding a frontend route is not authoriza
 }
 ```
 
-The response is `201 Created`. The request must not accept a role or patient ID; it may return an access token if the team chooses automatic sign-in.
+The response is `201 Created` and automatically signs in the newly registered patient. `identifier` is the required, unique username; `password` is required and must contain at least 8 characters; `preferredLanguage` is optional and must be a supported language code. The request must not accept a role, patient ID, staff department, or admin privileges. Passwords must be stored using an appropriate password-hashing algorithm and never in plaintext.
+
+For login, `identifier` is the unique username and `password` is the account password. A successful `POST /api/auth/login` returns the JWT and user object shown above.
 
 ## Departments, rooms, and navigation map
 
@@ -119,6 +122,37 @@ The response is `201 Created`. The request must not accept a role or patient ID;
 | `GET` | `/api/map/floors/:floorId` | Authenticated | Return one floor's SVG-safe map metadata, rooms, departments, and facilities. |
 
 Map responses should contain only presentation/location metadata needed by the 2D UI; no patient or operational queue data is included.
+
+### Basic 2D floor-map response
+
+`GET /api/map/floors/:floorId` returns one floor plan using a top-left origin: `x` increases to the right and `y` increases downward. The floor canvas and every location use the same numeric map-unit coordinate system.
+
+```json
+{
+  "data": {
+    "id": "floor_ground",
+    "displayName": "Ground Floor",
+    "width": 1000,
+    "height": 700,
+    "coordinateOrigin": "top-left",
+    "coordinateUnit": "map-unit",
+    "locations": [
+      {
+        "id": "room_registration",
+        "displayName": "Registration Desk",
+        "roomType": "facility",
+        "departmentId": null,
+        "x": 80,
+        "y": 120,
+        "width": 180,
+        "height": 100
+      }
+    ]
+  }
+}
+```
+
+Each room or facility has a stable ID, display name, numeric coordinates and dimensions, plus a room type and associated department when applicable. This supports rendering only; route-finding, 3D maps, external map services, and other map dependencies are out of scope.
 
 ## Queue tokens
 
@@ -231,7 +265,7 @@ Response:
 | `GET` | `/api/assistance-requests?status=&page=&limit=` | Assigned-department staff or admin | List requests within permitted scope. |
 | `PATCH` | `/api/assistance-requests/:requestId/acknowledge` | Assigned-department staff or admin | Acknowledge a request. |
 
-Assistance requests have only two MVP statuses: `open` when created and `acknowledged` when an authorized staff member or admin acknowledges it. Patients may create requests and view only their own requests. Staff may view and acknowledge requests only for their assigned department; admins may do so according to their role. There is no `resolved` status or resolution endpoint in this MVP.
+Assistance requests have only two MVP statuses: `open` when created and `acknowledged` when an authorized staff member or admin acknowledges it. The only valid status transition is `open` to `acknowledged`. Patients may create requests and view only their own requests. Staff may view and acknowledge requests only for their assigned department; admins may do so according to their role. There is no `resolved` status or resolution endpoint in this MVP.
 
 ### Create and acknowledge examples
 
@@ -276,10 +310,11 @@ Assistance requests are for hospital staff and must never be represented as a gu
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/api/dashboard/statistics` | Admin | Return basic operational counts and queue summaries. |
+| `GET` | `/api/dashboard/statistics` | Admin | Return basic aggregate operational counts and queue summaries for monitoring. |
+
+Dashboard statistics must avoid unnecessary patient-sensitive information. Department, room, and staff-management CRUD are out of scope for this MVP.
 
 ## Decisions for Team Review
 
-- Whether registration automatically returns a JWT or requires a separate login.
-- The identifier/password approach for demo accounts and minimum password rules.
-- Exact map metadata format and data-retention/privacy rules.
+- Supported preferred-language codes and the fallback language.
+- Data-retention/privacy rules beyond the MVP's fictional demo data.

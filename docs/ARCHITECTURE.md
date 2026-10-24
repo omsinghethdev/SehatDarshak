@@ -6,7 +6,7 @@ SehatDarsak uses a single React/Vite client, a single Express REST API, and Mong
 
 ## Frontend
 
-`client/src/features/` groups product areas such as registration, queue, navigation, assistance, staff, and admin. Shared presentational components live in `components/`; routes, API calls, i18n, hooks, and utilities have dedicated folders. The client will poll the REST API for queue updates. UI route visibility is only a usability measure; the server must authorize every protected request.
+`client/src/features/` groups product areas such as registration, queue, navigation, assistance, staff, and admin. Shared presentational components live in `components/`; routes, API calls, i18n, hooks, and utilities have dedicated folders. The client will poll the REST API for queue updates. Navigation is a basic SVG-based 2D floor map with room coordinates; route-finding, 3D maps, and external navigation APIs are out of scope. UI route visibility is only a usability measure; the server must authorize every protected request.
 
 ## Backend
 

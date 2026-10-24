@@ -13,7 +13,7 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 - Accessible 2D hospital maps for floors, rooms, departments, and facilities.
 - Assistance requests routed to hospital staff.
 - Staff queue controls and assistance acknowledgements.
-- Admin management views and basic operational statistics.
+- Admin queue monitoring and basic operational statistics; management CRUD is out of scope for this MVP.
 
 ## Technology
 
