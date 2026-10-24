@@ -4,6 +4,7 @@ import { AuthActions } from './AuthActions';
 import { BrandLink } from './BrandLink';
 import { MainNav } from './MainNav';
 import { Container } from '../common/Container';
+import { OPENED_ON_LANDING } from '../../hooks/useLandingReveal';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const MOBILE_MENU_ID = 'mobile-menu';
@@ -33,7 +34,7 @@ export function Header() {
       {/* Brand, links, and Sign out keep their natural width; only the signed-in name may
           shrink (it truncates), so labels never wrap or squeeze into each other. */}
       <Container className="flex h-16 items-center justify-between gap-4">
-        <BrandLink onClick={closeMenu} className="shrink-0" />
+        <BrandLink onClick={closeMenu} className="shrink-0" animateMark={OPENED_ON_LANDING} />
 
         <div className="hidden shrink-0 lg:block">
           <MainNav />

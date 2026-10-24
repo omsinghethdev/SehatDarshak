@@ -1,10 +1,11 @@
-import { HeartPulse } from 'lucide-react';
 import { Link } from 'react-router';
+import { BrandMark } from '../common/BrandMark';
 import { PATHS } from '../../routes/paths';
 import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 
-export function BrandLink({ className, onClick }) {
+/** `animateMark` draws the logo's pulse line once when this link first mounts. */
+export function BrandLink({ className, onClick, animateMark = false }) {
   const { t } = useTranslation();
   return (
     <Link
@@ -13,9 +14,7 @@ export function BrandLink({ className, onClick }) {
       aria-label={t('layout.brandHome')}
       className={cn('inline-flex min-h-11 items-center gap-2.5 font-bold text-slate-900', className)}
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-700">
-        <HeartPulse aria-hidden="true" className="size-5 text-white" />
-      </span>
+      <BrandMark className="size-9" animated={animateMark} />
       <span className="text-xl tracking-tight whitespace-nowrap">Sehat Darshak</span>
     </Link>
   );

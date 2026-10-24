@@ -163,6 +163,9 @@ const en = {
     example: {
       yourToken: 'Your token',
       caption: 'Example only — this shows how a queue token will look. It is not live data.',
+      whereToGo: 'Where to go',
+      place: 'Registration Desk',
+      floor: 'Ground floor',
     },
     features: {
       title: 'Built around a patient’s hospital visit',

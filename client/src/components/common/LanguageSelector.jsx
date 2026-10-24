@@ -26,7 +26,7 @@ export function LanguageSelector({ className }) {
                 aria-pressed={selected}
                 onClick={() => setLanguage(option.code)}
                 className={cn(
-                  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-base font-semibold',
+                  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-base font-semibold transition-colors motion-safe:active:translate-y-px',
                   selected
                     ? 'border-brand-700 bg-brand-700 text-white'
                     : 'border-slate-400 bg-white text-slate-800 hover:border-brand-700 hover:bg-brand-50',
