@@ -4,7 +4,7 @@ import { Container } from '../common/Container';
 export function StatusPageLayout({ icon: Icon, eyebrow, title, children, actions }) {
   return (
     <Container className="flex justify-center py-16 sm:py-24">
-      <div className="w-full max-w-lg rounded-2xl border border-line bg-white p-6 shadow-sm sm:p-10">
+      <div className="w-full max-w-lg rounded-xl border border-line bg-white p-5 shadow-raised sm:p-10">
         {Icon && (
           <span className="flex size-12 items-center justify-center rounded-full bg-brand-50">
             <Icon aria-hidden="true" className="size-6 text-brand-700" />

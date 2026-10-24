@@ -8,6 +8,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
+import { PageHeader } from '../components/layout/PageHeader';
 import { departmentService } from '../features/departments/departmentService';
 import { BookTokenForm } from '../features/queue/BookTokenForm';
 import { TokenCard } from '../features/queue/TokenCard';
@@ -52,7 +53,6 @@ export function BookTokenPage() {
   const { isMockAuth } = useAuth();
   const [searchParams] = useSearchParams();
   const [bookedToken, setBookedToken] = useState(null);
-  const headingRef = useRef(null);
 
   const load = useCallback(async (signal) => {
     const [departments, activeTokens] = await Promise.all([
@@ -61,13 +61,15 @@ export function BookTokenPage() {
     ]);
     return { departments, activeTokens };
   }, []);
-  const { status, data, error, reload } = useAsyncData(load);
+  const { status, data, error, reload, setData } = useAsyncData(load);
 
   function handleBookAnother() {
+    // Show the new token as active straight away so its department is not briefly selectable
+    // while the list reloads (the service would reject a second booking anyway).
+    const booked = bookedToken;
+    setData((current) => current && { ...current, activeTokens: [...current.activeTokens, booked] });
     setBookedToken(null);
     reload();
-    // The clicked button disappears with the confirmation; keep focus on the page heading.
-    headingRef.current?.focus();
   }
 
   let content;
@@ -106,16 +108,11 @@ export function BookTokenPage() {
 
   return (
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">OPD queue</p>
-        <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Book a token
-        </h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          Choose the department you need. You will get a token number and can follow your place in
-          the queue.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="OPD queue"
+        title="Book a token"
+        description="Choose the department you need. You will get a token number and can follow your place in the queue."
+      />
 
       {isMockAuth && (
         <Notice tone="warning" title="Demo data">

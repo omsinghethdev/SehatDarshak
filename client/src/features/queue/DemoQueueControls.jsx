@@ -20,7 +20,7 @@ function getActions(token) {
     actions.push({ key: 'completed', label: 'Consultation completed', status: 'completed' });
   }
   if (['waiting', 'called', 'in_consultation'].includes(token.status)) {
-    actions.push({ key: 'cancelled', label: 'Staff cancel this token', status: 'cancelled', variant: 'ghost' });
+    actions.push({ key: 'cancelled', label: 'Staff cancel this token', status: 'cancelled', variant: 'danger' });
   }
   return actions;
 }

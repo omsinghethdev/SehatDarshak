@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, RefreshCw, Ticket } from 'lucide-react';
+import { ArrowLeft, Building2, RefreshCw, Ticket } from 'lucide-react';
 import { useParams } from 'react-router';
 import { Button, ButtonLink } from '../components/common/Button';
 import { Container } from '../components/common/Container';
@@ -89,7 +89,7 @@ export function TokenStatusPage() {
     [tokenId],
   );
   const { status, data, error, reload, setData } = useAsyncData(load);
-  const token = data?.token;
+  const token = data?.token?.id === tokenId ? data.token : undefined;
   useDocumentTitle(token ? `Token ${token.displayNumber}` : 'Queue status');
 
   const applyStatus = useCallback(
@@ -135,17 +135,20 @@ export function TokenStatusPage() {
         aria-labelledby="token-heading"
         className={
           active
-            ? 'rounded-2xl border border-line bg-white p-6 shadow-sm sm:p-8'
-            : 'rounded-2xl border border-dashed border-slate-300 bg-canvas-muted p-6 sm:p-8'
+            ? 'rounded-xl border border-line bg-white p-5 shadow-raised sm:p-8'
+            : 'rounded-xl border border-dashed border-slate-300 bg-canvas-muted p-5 sm:p-8'
         }
       >
-        <p className="text-sm font-medium text-slate-600">{data.department?.name ?? 'Department'}</p>
-        <h1 id="token-heading" className="mt-1">
+        <h1 id="token-heading">
           <span className="block text-sm font-semibold tracking-wide text-brand-700 uppercase">
             Queue token
           </span>
-          <span className="text-5xl font-bold tracking-tight text-slate-900">{token.displayNumber}</span>
+          <span className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">{token.displayNumber}</span>
         </h1>
+        <p className="mt-2 flex items-center gap-1.5 text-lg font-medium text-slate-800">
+          <Building2 aria-hidden="true" className="size-5 text-slate-500" />
+          {data.department?.name ?? 'Department not available'}
+        </p>
 
         {/* Announces status and position changes to screen readers as they happen. */}
         <div aria-live="polite" className="mt-6 space-y-4 border-t border-line pt-6">
@@ -163,7 +166,7 @@ export function TokenStatusPage() {
             {active && ` · updates automatically every ${QUEUE_POLL_INTERVAL_MS / 1000} seconds`}
           </p>
           {active && (
-            <Button variant="ghost" onClick={refresh} aria-disabled={refreshing || undefined} className="self-start">
+            <Button variant="ghost" onClick={refresh} aria-disabled={refreshing || undefined} className="-ml-5 self-start sm:ml-0 sm:-mr-5 sm:self-auto">
               <RefreshCw aria-hidden="true" className={refreshing ? 'size-4 animate-spin' : 'size-4'} />
               {refreshing ? 'Refreshing…' : 'Refresh now'}
             </Button>

@@ -157,7 +157,7 @@ function MapLocation({ item, number, prefix, selected, onSelect }) {
         fontSize={LABEL_FONT_SIZE}
         fontWeight={selected ? 700 : 600}
         fill="#0f172a"
-        className="pointer-events-none max-sm:hidden"
+        className="pointer-events-none"
       >
         {lines.map((line, index) => (
           <tspan key={index} x={line.x} y={line.y}>
@@ -179,35 +179,39 @@ export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
   const drawable = floor.locations.filter(hasValidGeometry);
 
   return (
-    <svg
-      viewBox={`0 0 ${floor.width} ${floor.height}`}
-      preserveAspectRatio="xMidYMid meet"
-      role="group"
-      aria-label={`${floor.displayName} map with ${drawable.length} selectable locations`}
-      className="block h-auto w-full rounded-lg border border-line bg-white"
-    >
-      <PatternDefs prefix={prefix} />
-      <rect
-        aria-hidden="true"
-        x="20"
-        y="20"
-        width={floor.width - 40}
-        height={floor.height - 40}
-        rx="12"
-        fill="#faf7f2"
-        stroke="#94a3b8"
-        strokeWidth="3"
-      />
-      {drawable.map((item) => (
-        <MapLocation
-          key={item.id}
-          item={item}
-          number={numbering.get(item.id)}
-          prefix={prefix}
-          selected={item.id === selectedId}
-          onSelect={onSelect}
+    // Below 640px the plan keeps a minimum width (rooms stay readable and at least ~44px tall
+    // to tap) and scrolls sideways inside this frame instead of shrinking.
+    <div className="relative overflow-x-auto rounded-lg border border-line bg-white">
+      <svg
+        viewBox={`0 0 ${floor.width} ${floor.height}`}
+        preserveAspectRatio="xMidYMid meet"
+        role="group"
+        aria-label={`${floor.displayName} map with ${drawable.length} selectable locations`}
+        className="block h-auto w-full min-w-[40rem]"
+      >
+        <PatternDefs prefix={prefix} />
+        <rect
+          aria-hidden="true"
+          x="20"
+          y="20"
+          width={floor.width - 40}
+          height={floor.height - 40}
+          rx="12"
+          fill="#faf7f2"
+          stroke="#94a3b8"
+          strokeWidth="3"
         />
-      ))}
-    </svg>
+        {drawable.map((item) => (
+          <MapLocation
+            key={item.id}
+            item={item}
+            number={numbering.get(item.id)}
+            prefix={prefix}
+            selected={item.id === selectedId}
+            onSelect={onSelect}
+          />
+        ))}
+      </svg>
+    </div>
   );
 }

@@ -20,6 +20,10 @@
   --color-brand-900: #123824;
 
   --color-focus: #b45309;
+
+  /* Surfaces are white with a 1px --color-line border and rounded-xl corners; only primary
+     panels (forms, the current token) are raised, using this single shadow. */
+  --shadow-raised: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.06);
 }
 
 @layer base {

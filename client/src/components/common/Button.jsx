@@ -2,13 +2,14 @@ import { Link } from 'react-router';
 import { cn } from '../../utils/cn';
 
 const BASE =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 aria-disabled:cursor-not-allowed aria-disabled:opacity-60';
 
 const VARIANTS = {
   primary: 'bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900',
   secondary:
     'border border-brand-700 bg-white text-brand-800 hover:bg-brand-50 active:bg-brand-100',
   ghost: 'text-slate-800 hover:bg-canvas-muted active:bg-line',
+  danger: 'border border-red-700 bg-white text-red-800 hover:bg-red-50 active:bg-red-100',
 };
 
 export function buttonClasses({ variant = 'primary', className } = {}) {

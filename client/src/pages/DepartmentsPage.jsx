@@ -6,6 +6,7 @@ import { EmptyState } from '../components/feedback/EmptyState';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
+import { PageHeader } from '../components/layout/PageHeader';
 import { departmentService } from '../features/departments/departmentService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
@@ -63,11 +64,11 @@ export function DepartmentsPage() {
 
   return (
     <Container className="space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Hospital information</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">OPD departments</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">The outpatient departments you can visit.</p>
-      </div>
+      <PageHeader
+        eyebrow="Hospital information"
+        title="OPD departments"
+        description="The outpatient departments you can visit."
+      />
 
       {isMockAuth && (
         <Notice tone="warning" title="Demo data">

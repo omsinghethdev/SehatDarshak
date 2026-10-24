@@ -86,7 +86,7 @@ function SectionHeading({ id, eyebrow, title, description }) {
 
 function ExampleTokenCard() {
   return (
-    <figure className="rounded-2xl border border-line bg-white p-6 shadow-sm sm:p-8">
+    <figure className="rounded-xl border border-line bg-white p-6 shadow-raised sm:p-8">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm font-medium text-slate-600">Demo OPD</p>
         <span className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-800">

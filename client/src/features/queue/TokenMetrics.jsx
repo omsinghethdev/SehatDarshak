@@ -17,10 +17,12 @@ export function TokenMetrics({ token, size = 'md', className }) {
     );
   }
 
-  const valueClass = cn('mt-1 font-semibold text-slate-900', size === 'lg' ? 'text-3xl' : 'text-2xl');
+  const valueClass = cn('mt-1 font-semibold whitespace-nowrap text-slate-900', size === 'lg' ? 'text-2xl sm:text-3xl' : 'text-2xl');
 
   return (
-    <dl className={cn('grid grid-cols-2 gap-4', className)}>
+    // Flex-wrap rather than a fixed grid: on very narrow screens the wait moves below the
+    // patients-ahead figure instead of breaking mid-value.
+    <dl className={cn('flex flex-wrap gap-x-10 gap-y-4', className)}>
       <div>
         <dt className="flex items-center gap-1.5 text-sm text-slate-600">
           <Users aria-hidden="true" className="size-4" />
@@ -34,7 +36,7 @@ export function TokenMetrics({ token, size = 'md', className }) {
           Estimated wait
         </dt>
         <dd className={valueClass}>{formatWaitMinutes(token.estimatedWaitMinutes)}</dd>
-        <dd className="mt-0.5 inline-block rounded border border-line bg-canvas-muted px-1.5 text-xs font-medium text-slate-700">
+        <dd className="mt-0.5 inline-block rounded border border-line bg-canvas-muted px-1.5 text-xs font-medium whitespace-nowrap text-slate-700">
           {token.estimateLabel || FALLBACK_ESTIMATE_LABEL}
         </dd>
       </div>

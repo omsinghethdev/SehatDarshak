@@ -47,8 +47,11 @@ function DemoAcknowledge({ request, onUpdated }) {
   );
 }
 
-/** One assistance request in the patient's history. */
-export function AssistanceRequestCard({ request, departmentsById, onUpdated }) {
+/**
+ * One assistance request. Patients see the mock-only demo control; staff pass their own
+ * `actions` (e.g. an Acknowledge button) and `showDemoControls={false}`.
+ */
+export function AssistanceRequestCard({ request, departmentsById, onUpdated, actions, showDemoControls = true }) {
   const createdAt = formatDateTime(request.createdAt);
   const department = request.departmentId ? departmentsById?.get(request.departmentId) : null;
   const departmentText = !request.departmentId
@@ -93,7 +96,8 @@ export function AssistanceRequestCard({ request, departmentsById, onUpdated }) {
         </div>
       </dl>
 
-      <DemoAcknowledge request={request} onUpdated={onUpdated} />
+      {actions && <div className="mt-4 border-t border-line pt-4">{actions}</div>}
+      {showDemoControls && <DemoAcknowledge request={request} onUpdated={onUpdated} />}
     </article>
   );
 }

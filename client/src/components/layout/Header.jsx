@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { AuthActions } from './AuthActions';
 import { BrandLink } from './BrandLink';
@@ -9,12 +9,18 @@ const MOBILE_MENU_ID = 'mobile-menu';
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const toggleRef = useRef(null);
   const closeMenu = () => setMenuOpen(false);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
     function handleKeyDown(event) {
-      if (event.key === 'Escape') setMenuOpen(false);
+      if (event.key !== 'Escape') return;
+      // Focus inside the menu would be left on a hidden element; return it to the toggle.
+      if (document.getElementById(MOBILE_MENU_ID)?.contains(document.activeElement)) {
+        toggleRef.current?.focus();
+      }
+      setMenuOpen(false);
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -34,6 +40,7 @@ export function Header() {
         </div>
 
         <button
+          ref={toggleRef}
           type="button"
           className="inline-flex size-11 items-center justify-center rounded-lg text-slate-800 hover:bg-canvas-muted lg:hidden"
           aria-expanded={menuOpen}

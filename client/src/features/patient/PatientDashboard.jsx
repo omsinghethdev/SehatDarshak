@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { ArrowRight, Building2, HandHelping, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
-import { Link } from 'react-router';
+import { Building2, HandHelping, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
 import { Button, ButtonLink } from '../../components/common/Button';
+import { QuickActionCard } from '../../components/common/QuickActionCard';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { LoadingState } from '../../components/feedback/LoadingState';
@@ -13,32 +13,6 @@ import { departmentService } from '../departments/departmentService';
 import { StatusLegend } from '../queue/StatusLegend';
 import { TokenCard } from '../queue/TokenCard';
 import { queueService } from '../queue/queueService';
-
-function QuickAction({ to, icon: Icon, title, description }) {
-  const body = (
-    <>
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand-50">
-        <Icon aria-hidden="true" className="size-6 text-brand-700" />
-      </span>
-      <span className="min-w-0">
-        <span className="flex items-center gap-1 font-semibold text-slate-900">
-          {title}
-          {to && <ArrowRight aria-hidden="true" className="size-4" />}
-        </span>
-        <span className="mt-0.5 block text-sm text-slate-700">{description}</span>
-      </span>
-    </>
-  );
-
-  const base = 'flex h-full gap-4 rounded-xl border border-line bg-white p-5';
-  return to ? (
-    <Link to={to} className={`${base} hover:border-brand-600 hover:bg-brand-50/40`}>
-      {body}
-    </Link>
-  ) : (
-    <div className={`${base} bg-canvas-muted`}>{body}</div>
-  );
-}
 
 function ActiveTokens({ status, data, error, reload }) {
   if (status === 'error') return <ErrorState error={error} onRetry={reload} />;
@@ -108,49 +82,6 @@ export function PatientDashboard() {
         </Notice>
       )}
 
-      <section aria-labelledby="actions-heading">
-        <h2 id="actions-heading" className="sr-only">
-          Quick actions
-        </h2>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <li>
-            <QuickAction
-              to={PATHS.bookToken}
-              icon={Ticket}
-              title="Book a token"
-              description="Join the queue for an OPD department."
-            />
-          </li>
-          <li>
-            <QuickAction to={statusAction.to} icon={ListOrdered} title="View queue status" description={statusAction.description} />
-          </li>
-          <li>
-            <QuickAction
-              to={PATHS.departments}
-              icon={Building2}
-              title="Hospital information"
-              description="See the OPD departments."
-            />
-          </li>
-          <li>
-            <QuickAction
-              to={PATHS.navigation}
-              icon={MapIcon}
-              title="Hospital map"
-              description="Find departments and facilities on each floor."
-            />
-          </li>
-          <li>
-            <QuickAction
-              to={PATHS.assistance}
-              icon={HandHelping}
-              title="Ask for help"
-              description="Request non-emergency help from hospital staff."
-            />
-          </li>
-        </ul>
-      </section>
-
       <section id="active-tokens" tabIndex={-1} aria-labelledby="tokens-heading" className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -166,6 +97,49 @@ export function PatientDashboard() {
           )}
         </div>
         <ActiveTokens {...tokensState} />
+      </section>
+
+      <section aria-labelledby="actions-heading">
+        <h2 id="actions-heading" className="text-xl font-bold tracking-tight text-slate-900">
+          What would you like to do?
+        </h2>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          <li>
+            <QuickActionCard
+              to={PATHS.bookToken}
+              icon={Ticket}
+              title="Book a token"
+              description="Join the queue for an OPD department."
+            />
+          </li>
+          <li>
+            <QuickActionCard to={statusAction.to} icon={ListOrdered} title="View queue status" description={statusAction.description} />
+          </li>
+          <li>
+            <QuickActionCard
+              to={PATHS.departments}
+              icon={Building2}
+              title="Hospital information"
+              description="See the OPD departments."
+            />
+          </li>
+          <li>
+            <QuickActionCard
+              to={PATHS.navigation}
+              icon={MapIcon}
+              title="Hospital map"
+              description="Find departments and facilities on each floor."
+            />
+          </li>
+          <li>
+            <QuickActionCard
+              to={PATHS.assistance}
+              icon={HandHelping}
+              title="Ask for help"
+              description="Request non-emergency help from hospital staff."
+            />
+          </li>
+        </ul>
       </section>
 
       <StatusLegend />

@@ -1,4 +1,5 @@
 import { API_ERROR_CODES, ApiError } from '../../services/apiClient';
+import { MOCK_DEMO_ACCOUNTS } from './mockDemoAccounts';
 import { toErrorDetails, validateLogin, validateRegistration } from './validation';
 
 /*
@@ -13,13 +14,8 @@ import { toErrorDetails, validateLogin, validateRegistration } from './validatio
 const ACCOUNTS_STORAGE_KEY = 'sehatdarsak.mockAccounts';
 const SIMULATED_LATENCY_MS = 500;
 
-/** Canonical demo patient (docs/SHARED_INTEGRATION_CONTRACT.md §6). It has no password. */
-const DEMO_PATIENT = Object.freeze({
-  id: 'user_demo_01',
-  name: 'Asha Devi',
-  identifier: 'demo.patient',
-  role: 'patient',
-});
+/** Usernames reserved by the simulated demo accounts (which have no passwords). */
+const RESERVED_IDENTIFIERS = new Set(MOCK_DEMO_ACCOUNTS.map((account) => account.identifier));
 
 function wait() {
   return new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY_MS));
@@ -109,7 +105,7 @@ export const mockAuthService = {
     if (Object.keys(errors).length > 0) throw validationError(errors);
 
     const accounts = readAccounts();
-    if (identifier === DEMO_PATIENT.identifier || accounts.some((item) => item.identifier === identifier)) {
+    if (RESERVED_IDENTIFIERS.has(identifier) || accounts.some((item) => item.identifier === identifier)) {
       throw new ApiError({
         code: API_ERROR_CODES.CONFLICT,
         message: 'That username is already taken. Please choose a different one.',
@@ -130,10 +126,17 @@ export const mockAuthService = {
     return issueSession(account);
   },
 
-  /** Sign in as the documented fictional demo patient without a password. */
-  async loginAsDemoPatient() {
+  /** Simulated demo accounts offered on the sign-in page (mock mode only). */
+  demoAccounts: MOCK_DEMO_ACCOUNTS.map(({ key, buttonLabel, description }) => ({ key, buttonLabel, description })),
+
+  /** Sign in as one of the simulated demo accounts, without a password. */
+  async loginAsDemoAccount(key) {
     requireWebCrypto();
     await wait();
-    return issueSession(DEMO_PATIENT);
+    const account = MOCK_DEMO_ACCOUNTS.find((item) => item.key === key);
+    if (!account) {
+      throw new ApiError({ code: API_ERROR_CODES.NOT_FOUND, message: 'Demo account not found.', status: 404 });
+    }
+    return issueSession(account.user);
   },
 };

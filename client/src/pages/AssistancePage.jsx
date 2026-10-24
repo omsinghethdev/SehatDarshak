@@ -7,6 +7,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
+import { PageHeader } from '../components/layout/PageHeader';
 import { AssistanceRequestCard } from '../features/assistance/AssistanceRequestCard';
 import { AssistanceRequestForm } from '../features/assistance/AssistanceRequestForm';
 import { AssistanceStatusBadge } from '../features/assistance/AssistanceStatusBadge';
@@ -146,7 +147,6 @@ export function AssistancePage() {
   const { isMockAuth } = useAuth();
   const [submitted, setSubmitted] = useState(null);
   const [announcement, setAnnouncement] = useState('');
-  const formHeadingRef = useRef(null);
 
   const loadDepartments = useCallback((signal) => departmentService.listDepartments({ signal }), []);
   const departments = useAsyncData(loadDepartments);
@@ -168,11 +168,7 @@ export function AssistancePage() {
       <SubmissionConfirmation
         request={submitted}
         department={departmentsById?.get(submitted.departmentId)}
-        onSendAnother={() => {
-          // The clicked button disappears with the confirmation; keep focus on the form section.
-          setSubmitted(null);
-          formHeadingRef.current?.focus();
-        }}
+        onSendAnother={() => setSubmitted(null)}
       />
     );
   } else if (departments.status === 'error') {
@@ -194,14 +190,11 @@ export function AssistancePage() {
 
   return (
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Patient support</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Ask for assistance</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          Ask hospital staff for non-emergency help, such as finding a department, mobility support,
-          or a question about your visit.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Patient support"
+        title="Ask for assistance"
+        description="Ask hospital staff for non-emergency help, such as finding a department, mobility support, or a question about your visit."
+      />
 
       {isMockAuth && (
         <Notice tone="warning" title="Demo mode">
@@ -210,8 +203,8 @@ export function AssistancePage() {
         </Notice>
       )}
 
-      <section aria-labelledby="request-form-heading" className="space-y-5 rounded-2xl border border-line bg-white p-5 shadow-sm sm:p-8">
-        <h2 id="request-form-heading" ref={formHeadingRef} tabIndex={-1} className="flex items-center gap-2 text-xl font-bold text-slate-900">
+      <section aria-labelledby="request-form-heading" className="space-y-5 rounded-xl border border-line bg-white p-5 shadow-raised sm:p-8">
+        <h2 id="request-form-heading" className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <ShieldAlert aria-hidden="true" className="size-5 text-brand-700" />
           New request
         </h2>
