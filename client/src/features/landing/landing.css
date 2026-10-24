@@ -3,7 +3,7 @@
  * default; motion is added only by .jn-motion / .ln-motion, which components set only for users
  * without a reduced-motion preference. Only transform, opacity, and stroke properties animate.
  *
- * Journey network timeline (.jn-intro, 7 s):
+ * Journey network timeline (.jn-intro, repeating every 7 s):
  *   0–1.6 s  the hospital system: points and lines appear
  *   1.6–3.4 s the problem: points wander, some lines come apart, queue indicators pile up
  *   3.4–5.6 s the solution: the route draws itself, queue indicators line up
@@ -193,11 +193,6 @@
   color: #fff;
 }
 
-.jn-control:hover {
-  background: var(--color-canvas-muted);
-  color: var(--jn-ink);
-}
-
 /* Fewer points on small screens: same story, less work. */
 @media (max-width: 639px) {
   .jn-extra {
@@ -209,7 +204,7 @@
 
 .jn-intro .jn-link {
   stroke-dasharray: 1;
-  animation: jn-link-draw var(--jn-intro) var(--jn-ease) var(--d, 0ms) both;
+  animation: jn-link-draw var(--jn-intro) var(--jn-ease) var(--d, 0ms) infinite both;
 }
 
 .jn-intro .jn-break {
@@ -217,11 +212,11 @@
 }
 
 .jn-intro .jn-dot {
-  animation: jn-dot-wander var(--jn-intro) var(--jn-ease) var(--d, 0ms) both;
+  animation: jn-dot-wander var(--jn-intro) var(--jn-ease) var(--d, 0ms) infinite both;
 }
 
 .jn-intro .jn-place {
-  animation: jn-place-in var(--jn-intro) var(--jn-ease) var(--d, 0ms) both;
+  animation: jn-place-in var(--jn-intro) var(--jn-ease) var(--d, 0ms) infinite both;
 }
 
 .jn-intro .jn-route {
@@ -229,23 +224,23 @@
 }
 
 .jn-intro .jn-route-find {
-  animation: jn-route-find var(--jn-intro) var(--jn-ease) both;
+  animation: jn-route-find var(--jn-intro) var(--jn-ease) infinite both;
 }
 
 .jn-intro .jn-route-help {
-  animation: jn-route-help var(--jn-intro) var(--jn-ease) both;
+  animation: jn-route-help var(--jn-intro) var(--jn-ease) infinite both;
 }
 
 .jn-intro .jn-chip {
-  animation: jn-chip-settle var(--jn-intro) var(--jn-ease) var(--d, 0ms) both;
+  animation: jn-chip-settle var(--jn-intro) var(--jn-ease) var(--d, 0ms) infinite both;
 }
 
 .jn-intro .jn-dest-ring {
-  animation: jn-dest-in var(--jn-intro) var(--jn-ease) both;
+  animation: jn-dest-in var(--jn-intro) var(--jn-ease) infinite both;
 }
 
 .jn-intro .jn-label-primary {
-  animation: jn-label-in var(--jn-intro) var(--jn-ease) both;
+  animation: jn-label-in var(--jn-intro) var(--jn-ease) infinite both;
 }
 
 /* ---- Motion: quiet loop (after the intro, or straight away) ---- */
@@ -255,9 +250,7 @@
 }
 
 .jn-intro .jn-dest-primary {
-  animation:
-    jn-dest-in var(--jn-intro) var(--jn-ease) both,
-    jn-breathe 3.6s ease-in-out var(--jn-intro) infinite;
+  animation: jn-dest-in var(--jn-intro) var(--jn-ease) infinite both;
 }
 
 .jn-motion .jn-dot-float {
@@ -265,9 +258,7 @@
 }
 
 .jn-intro .jn-dot-float {
-  animation:
-    jn-dot-wander var(--jn-intro) var(--jn-ease) var(--d, 0ms) both,
-    jn-float 9s ease-in-out var(--jn-intro) infinite;
+  animation: jn-dot-wander var(--jn-intro) var(--jn-ease) var(--d, 0ms) infinite both;
 }
 
 .jn-paused,

@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 import { FULL_ROUTE, LINKS, PATIENTS, PLACES, QUEUE, ROUTE, STAGES, VIEWBOX, pointOf } from './journeyGeometry';
@@ -7,29 +6,26 @@ import './landing.css';
 
 /*
  * "From confusion to clarity": an abstract network that starts busy and uncertain, then a single
- * route connects it (about 7 seconds), and settles into a quiet loop. It is an illustration, not
- * live data, and says so. All timing lives in landing.css; this component only renders the
- * composition and handles highlighting, replay, and pause.
+ * route connects it before the sequence repeats. It is an illustration, not live data, and says
+ * so. All timing lives in landing.css; this component only renders the composition and handles
+ * highlighting and pausing while offscreen.
  *
- * - `intro`: play the opening sequence (otherwise start from the settled composition).
  * - `reducedMotion`: no motion at all; the settled composition is shown complete and still.
  * The journey steps beside it are real buttons, so every highlight is reachable by keyboard and
  * screen reader; hovering points in the drawing is a mouse-only extra.
  */
-export function JourneyNetwork({ intro, reducedMotion }) {
+export function JourneyNetwork({ reducedMotion }) {
   const { t } = useTranslation();
-  const [run, setRun] = useState(0);
-  const [playIntro, setPlayIntro] = useState(intro);
-  const [paused, setPaused] = useState(false);
   const [pinned, setPinned] = useState(null);
   const [preview, setPreview] = useState(null);
   const rootRef = useRef(null);
   const svgRef = useRef(null);
   const captionId = useId();
   const motion = !reducedMotion;
+  const playIntro = motion;
   const active = preview ?? pinned;
 
-  // Pause while the hero is scrolled out of view (saves work), and whenever the user paused.
+  // Pause while the hero is scrolled out of view to avoid running animations offscreen.
   const [offscreen, setOffscreen] = useState(false);
   useEffect(() => {
     if (!motion || !rootRef.current || !('IntersectionObserver' in window)) return undefined;
@@ -37,19 +33,13 @@ export function JourneyNetwork({ intro, reducedMotion }) {
     observer.observe(rootRef.current);
     return () => observer.disconnect();
   }, [motion]);
-  const halted = paused || offscreen;
+  const halted = offscreen;
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg?.pauseAnimations) return;
     if (halted) svg.pauseAnimations();
     else svg.unpauseAnimations();
-  }, [halted, run]);
-
-  function replay() {
-    setPaused(false);
-    setPlayIntro(true);
-    setRun((value) => value + 1);
-  }
+  }, [halted]);
 
   const stageButton = (stage) => (
     <button
@@ -80,7 +70,6 @@ export function JourneyNetwork({ intro, reducedMotion }) {
       className={cn('jn', motion && 'jn-motion', motion && playIntro && 'jn-intro', halted && 'jn-paused')}
     >
       <svg
-        key={run}
         ref={svgRef}
         viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
         role="img"
@@ -171,10 +160,10 @@ export function JourneyNetwork({ intro, reducedMotion }) {
 
         {motion && (
           <circle r="5" className="jn-pulse" opacity="0">
-            <animateMotion dur="6s" begin={playIntro ? '6.6s' : '0.8s'} repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
+            <animateMotion dur="6s" begin="6.6s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.72;1" calcMode="linear">
               <mpath href={`#${captionId}-route`} />
             </animateMotion>
-            <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.06;0.66;0.72;1" dur="6s" begin={playIntro ? '6.6s' : '0.8s'} repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.06;0.66;0.72;1" dur="6s" begin="6.6s" repeatCount="indefinite" />
           </circle>
         )}
       </svg>
@@ -190,20 +179,8 @@ export function JourneyNetwork({ intro, reducedMotion }) {
         ))}
       </ol>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-3">
         <p className="text-xs font-medium tracking-wide text-slate-600">{t('home.journey.illustrationNote')}</p>
-        {motion && (
-          <div className="flex gap-1">
-            <button type="button" onClick={() => setPaused((value) => !value)} className="jn-control inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-slate-700">
-              {paused ? <Play aria-hidden="true" className="size-4" /> : <Pause aria-hidden="true" className="size-4" />}
-              {paused ? t('home.journey.play') : t('home.journey.pause')}
-            </button>
-            <button type="button" onClick={replay} className="jn-control inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-slate-700">
-              <RotateCcw aria-hidden="true" className="size-4" />
-              {t('home.journey.replay')}
-            </button>
-          </div>
-        )}
       </div>
     </figure>
   );

@@ -183,9 +183,6 @@ const hi = {
         helpDescription: 'मदद डेस्क तक का आगे का रास्ता दिखाता है',
       },
       places: { registration: 'पंजीकरण', opd: 'OPD', assistance: 'मदद' },
-      pause: 'एनिमेशन रोकें',
-      play: 'एनिमेशन चलाएँ',
-      replay: 'फिर से चलाएँ',
     },
     story: {
       eyebrow: 'यह कैसे काम करता है',

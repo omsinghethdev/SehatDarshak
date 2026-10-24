@@ -90,8 +90,7 @@ export function HomePage() {
   useDocumentTitle(t('home.documentTitle'));
   const { isAuthenticated } = useAuth();
   const reducedMotion = useReducedMotion();
-  // First open of the site on "/": hero text rises in and the journey network plays its opening
-  // sequence. On later visits the network starts settled (it can be replayed).
+  // Reveal the hero text on the first open of "/"; the journey animation loops independently.
   const reveal = useLandingReveal();
   const riseClass = reveal ? 'intro-rise' : undefined;
   const riseDelay = (ms) => (reveal ? { '--intro-delay': `${ms}ms` } : undefined);
@@ -131,7 +130,7 @@ export function HomePage() {
           </div>
 
           <div className="mx-auto w-full max-w-xl lg:max-w-none">
-            <JourneyNetwork intro={reveal} reducedMotion={reducedMotion} />
+            <JourneyNetwork reducedMotion={reducedMotion} />
           </div>
         </Container>
       </section>

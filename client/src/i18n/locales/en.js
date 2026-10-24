@@ -179,9 +179,6 @@ const en = {
         helpDescription: 'highlights the route on to the assistance desk',
       },
       places: { registration: 'Registration', opd: 'OPD', assistance: 'Assistance' },
-      pause: 'Pause animation',
-      play: 'Play animation',
-      replay: 'Replay',
     },
     story: {
       eyebrow: 'How it works',
