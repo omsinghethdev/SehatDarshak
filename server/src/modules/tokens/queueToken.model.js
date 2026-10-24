@@ -19,6 +19,31 @@ export const statusTransitions = {
 export const oneActiveTokenIndexName = 'one_active_token_per_patient_department';
 export const oneCalledTokenIndexName = 'one_called_token_per_department';
 
+export const statusChangeActions = ['call_next', 'status_update'];
+
+// One successful status change, appended in the same atomic update that changes `status`
+// (docs/DATABASE_SCHEMA.md → statusHistory). Never returned in patient or staff responses.
+const statusChangeSchema = new mongoose.Schema({
+  fromStatus: { type: String, enum: tokenStatuses, required: true },
+  toStatus: { type: String, enum: tokenStatuses, required: true },
+  action: { type: String, enum: statusChangeActions, required: true },
+  actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  actorRole: { type: String, required: true },
+  occurredAt: { type: Date, required: true },
+});
+
+export function statusChange(actor, fromStatus, toStatus, action) {
+  return {
+    _id: new mongoose.Types.ObjectId(),
+    fromStatus,
+    toStatus,
+    action,
+    actorId: actor._id,
+    actorRole: actor.role,
+    occurredAt: new Date(),
+  };
+}
+
 // Random, unguessable IDs in the same "prefix_value" style as other resource IDs.
 const generateTokenId = () => `token_${randomBytes(12).toString('hex')}`;
 
@@ -36,6 +61,10 @@ const queueTokenSchema = new mongoose.Schema(
     completedAt: { type: Date },
     estimatedWaitMinutes: { type: Number },
     patientsAheadSnapshot: { type: Number },
+    // The patient's hospital visit (encounter) this token belongs to; see visits/visit.model.js.
+    // Absent on tokens created before visits existed until the backfill migration runs.
+    visitId: { type: String, ref: 'Visit' },
+    statusHistory: { type: [statusChangeSchema], default: undefined, select: false },
   },
   { timestamps: true },
 );
@@ -61,5 +90,11 @@ queueTokenSchema.index(
 );
 queueTokenSchema.index({ departmentId: 1, sequence: 1 }, { unique: true });
 queueTokenSchema.index({ departmentId: 1, status: 1, sequence: 1 });
+// Reporting and visit lookups.
+queueTokenSchema.index({ issuedAt: 1, departmentId: 1 });
+queueTokenSchema.index({ status: 1, completedAt: 1 });
+queueTokenSchema.index({ visitId: 1 });
+queueTokenSchema.index({ patientId: 1, issuedAt: -1 });
+queueTokenSchema.index({ 'statusHistory.occurredAt': -1 });
 
 export const QueueToken = mongoose.models.QueueToken || mongoose.model('QueueToken', queueTokenSchema);

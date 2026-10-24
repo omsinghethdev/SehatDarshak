@@ -12,6 +12,9 @@ import { findEnvironmentProblems, readDevAccounts, seedDevUsers } from '../src/s
 import { findHospitalDataProblems } from '../src/seed/validateHospitalData.js';
 import { connectTestDatabase, dropTestDatabase } from './helpers/database.js';
 
+// The sign-in checks below issue access tokens, which need a signing secret (as in the other suites).
+process.env.AUTH_SECRET = 'test-only-secret-that-is-at-least-32-characters';
+
 const databaseUnavailable = await connectTestDatabase('devseed');
 
 // Test-only placeholder passwords; never real credentials.

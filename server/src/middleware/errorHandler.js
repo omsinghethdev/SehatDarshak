@@ -27,6 +27,9 @@ export function errorHandler(error, _request, response, next) {
   }
 
   if (error instanceof HttpError) {
+    if (error.retryAfterSeconds) {
+      response.set('Retry-After', String(error.retryAfterSeconds));
+    }
     sendError(response, error.status, error.code, error.message, error.details);
     return;
   }

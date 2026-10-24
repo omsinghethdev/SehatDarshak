@@ -190,3 +190,8 @@ export const mockAssistanceDemo = {
 export function readMockAssistanceRequests() {
   return loadStore().requests.map(toPublicRequest);
 }
+
+/** Mock-internal: stored requests for the mock admin reports (aggregate use only). */
+export function readMockAssistanceRecords() {
+  return loadStore().requests.map(({ id, patientId, departmentId, status, createdAt }) => ({ id, patientId, departmentId, status, createdAt }));
+}

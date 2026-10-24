@@ -1,4 +1,7 @@
+import { getHospitalTimeZone } from '../../config/hospital.js';
 import { Department } from '../departments/department.model.js';
+import { Visit, visitIdForToken } from '../visits/visit.model.js';
+import { toServiceDate } from '../../utils/dates.js';
 import { conflictError, notFoundError } from '../../utils/httpError.js';
 import {
   QueueToken,
@@ -63,6 +66,9 @@ export async function createQueueToken(patient, departmentId) {
 
   const sequence = await nextTokenSequence(departmentId);
   const patientsAhead = await countPatientsAhead({ departmentId, sequence, status: 'waiting' });
+  const issuedAt = new Date();
+  const timeZone = getHospitalTimeZone();
+  const visitId = visitIdForToken({ issuedAt, patientId: patient._id }, timeZone);
 
   let token;
   try {
@@ -72,6 +78,8 @@ export async function createQueueToken(patient, departmentId) {
       patientId: patient._id,
       departmentId,
       status: 'waiting',
+      issuedAt,
+      visitId,
       estimatedWaitMinutes: patientsAhead * simulatedMinutesPerPatient,
       patientsAheadSnapshot: patientsAhead,
     });
@@ -83,7 +91,36 @@ export async function createQueueToken(patient, departmentId) {
     throw error;
   }
 
+  await recordVisit(visitId, patient._id, issuedAt, timeZone);
   return toPublicToken(token, patientsAhead);
+}
+
+// Opens the day's visit record after the token exists, so a visit is never recorded without a
+// token. Idempotent: later tokens on the same day find the existing record.
+async function recordVisit(visitId, patientId, issuedAt, timeZone) {
+  try {
+    await Visit.updateOne(
+      { _id: visitId },
+      {
+        $setOnInsert: {
+          patientId,
+          serviceDate: toServiceDate(issuedAt, timeZone),
+          firstTokenAt: issuedAt,
+          source: 'token',
+        },
+      },
+      { upsert: true },
+    );
+  } catch (error) {
+    // Two first tokens of the day can race to insert the same visit; the loser finds it existing.
+    if (error?.code === duplicateKeyErrorCode) {
+      return;
+    }
+    // The token is already issued and the visit is fully derivable from it: reports and visit
+    // reads group tokens by visitId, and `npm run migrate:up` recreates missing visit records.
+    // So the patient's request still succeeds; the failure is logged without personal data.
+    console.error(`Visit record ${visitId.slice(0, 15)}… could not be saved: ${error?.name ?? 'Error'}`);
+  }
 }
 
 function canViewToken(user, token) {

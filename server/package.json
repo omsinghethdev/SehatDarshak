@@ -11,6 +11,8 @@
     "start": "node src/server.js",
     "seed": "node src/seed/seedDemoData.js",
     "seed:dev-users": "node src/seed/seedDevUsers.js",
+    "migrate:up": "node src/migrations/run.js up",
+    "migrate:down": "node src/migrations/run.js down",
     "test": "node --test"
   },
   "dependencies": {

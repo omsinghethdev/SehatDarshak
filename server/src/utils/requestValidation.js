@@ -90,3 +90,95 @@ export function parsePagination(query) {
 
   return { page, limit, skip: (page - 1) * limit };
 }
+
+// Query flags such as "?isActive=true"; only the exact strings "true" and "false" are accepted.
+export function parseOptionalBooleanQuery(value, field) {
+  if (isOmitted(value)) {
+    return undefined;
+  }
+  if (value !== 'true' && value !== 'false') {
+    throw fieldError(field, 'Must be true or false');
+  }
+  return value === 'true';
+}
+
+// Request-body booleans must be real JSON booleans, not strings.
+export function parseBoolean(value, field) {
+  if (typeof value !== 'boolean') {
+    throw fieldError(field, 'Must be true or false');
+  }
+  return value;
+}
+
+const objectIdPattern = /^[a-f0-9]{24}$/i;
+
+// User IDs are MongoDB ObjectIds (24 hexadecimal characters).
+export function parseUserId(value, field) {
+  if (typeof value !== 'string' || !objectIdPattern.test(value)) {
+    throw fieldError(field, 'Must be a valid user ID');
+  }
+  return value.toLowerCase();
+}
+
+export function parseOptionalUserId(value, field) {
+  return isOmitted(value) ? undefined : parseUserId(value, field);
+}
+
+// Optional body text. `undefined` means "not provided". With `nullable`, null or blank text means
+// "clear this value" and returns null.
+export function parseOptionalText(value, field, maxLength, { nullable = false, pattern, patternMessage } = {}) {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null || (typeof value === 'string' && !value.trim())) {
+    if (nullable) {
+      return null;
+    }
+    throw fieldError(field, 'Required');
+  }
+  if (typeof value !== 'string') {
+    throw fieldError(field, 'Must be text');
+  }
+
+  const text = value.trim();
+  if (text.length > maxLength) {
+    throw fieldError(field, `Must be at most ${maxLength} characters`);
+  }
+  if (pattern && !pattern.test(text)) {
+    throw fieldError(field, patternMessage ?? 'Has an invalid format');
+  }
+  return text;
+}
+
+// A resource ID that may be set to null to remove an assignment.
+export function parseNullableResourceId(value, field) {
+  if (value === undefined) {
+    return undefined;
+  }
+  return value === null ? null : parseResourceId(value, field);
+}
+
+const searchMaxLength = 100;
+
+// Free-text search (`q`). Returned as a literal-match regular expression source, so characters
+// such as "." or "(" in a search never act as regex operators.
+export function parseOptionalSearch(value, field = 'q') {
+  if (isOmitted(value)) {
+    return undefined;
+  }
+  if (typeof value !== 'string') {
+    throw fieldError(field, 'Must be text');
+  }
+  const text = value.trim();
+  if (!text) {
+    return undefined;
+  }
+  if (text.length > searchMaxLength) {
+    throw fieldError(field, `Must be at most ${searchMaxLength} characters`);
+  }
+  return text;
+}
+
+export function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

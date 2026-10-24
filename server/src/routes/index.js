@@ -1,3 +1,4 @@
+import { adminRouter } from '../modules/admin/admin.routes.js';
 import { assistanceRequestRouter } from '../modules/assistance/assistanceRequest.routes.js';
 import { authRouter } from '../modules/auth/auth.routes.js';
 import { dashboardRouter } from '../modules/dashboard/dashboard.routes.js';
@@ -18,4 +19,5 @@ export function registerApiRoutes(app) {
   app.use('/api/queues', queueRouter);
   app.use('/api/assistance-requests', assistanceRequestRouter);
   app.use('/api/dashboard', dashboardRouter);
+  app.use('/api/admin', adminRouter);
 }

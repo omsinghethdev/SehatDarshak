@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '../components/layout/AppLayout';
-import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 import { AssistancePage } from '../pages/AssistancePage';
 import { BookTokenPage } from '../pages/BookTokenPage';
 import { DashboardPage } from '../pages/DashboardPage';
@@ -20,6 +19,10 @@ import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RouteErrorPage } from './RouteErrorPage';
 import { PATHS } from './paths';
+
+// Admin pages load as one on-demand chunk the first time an admin opens an admin route.
+const loadAdminRoutes = () => import('../pages/admin/adminRouteComponents');
+const adminComponent = (name) => async () => ({ Component: (await loadAdminRoutes())[name] });
 
 export const router = createBrowserRouter([
   {
@@ -72,9 +75,30 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            // Dashboard statistics are admin-only.
+            // Administration is admin-only; the server also enforces it on every /api/admin request.
             element: <ProtectedRoute allowedRoles={['admin']} />,
-            children: [{ path: PATHS.admin, element: <AdminDashboardPage /> }],
+            children: [
+              {
+                // Loaded on demand: the administration code is a separate chunk.
+                lazy: adminComponent('AdminLayout'),
+                children: [
+                  { path: PATHS.admin, lazy: adminComponent('AdminDashboardPage') },
+                  { path: PATHS.adminDoctors, lazy: adminComponent('DoctorDirectoryPage') },
+                  { path: PATHS.adminDoctorNew, lazy: adminComponent('DoctorCreatePage') },
+                  { path: PATHS.adminDoctor, lazy: adminComponent('DoctorDetailPage') },
+                  { path: PATHS.adminStaff, lazy: adminComponent('StaffMemberDirectoryPage') },
+                  { path: PATHS.adminStaffNew, lazy: adminComponent('StaffMemberCreatePage') },
+                  { path: PATHS.adminStaffMember, lazy: adminComponent('StaffMemberDetailPage') },
+                  { path: PATHS.adminVisits, lazy: adminComponent('VisitsPage') },
+                  { path: PATHS.adminVisit, lazy: adminComponent('VisitDetailPage') },
+                  { path: PATHS.adminPatient, lazy: adminComponent('PatientDetailPage') },
+                  { path: PATHS.adminDepartments, lazy: adminComponent('DepartmentsWardsPage') },
+                  { path: PATHS.adminDepartment, lazy: adminComponent('DepartmentDetailPage') },
+                  { path: PATHS.adminWard, lazy: adminComponent('WardDetailPage') },
+                  { path: PATHS.adminActivity, lazy: adminComponent('ActivityPage') },
+                ],
+              },
+            ],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

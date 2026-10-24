@@ -13,6 +13,19 @@ export const PATHS = Object.freeze({
   staffQueue: '/staff/queue',
   staffAssistance: '/staff/assistance',
   admin: '/admin',
+  adminDoctors: '/admin/doctors',
+  adminDoctorNew: '/admin/doctors/new',
+  adminDoctor: '/admin/doctors/:staffId',
+  adminStaff: '/admin/staff',
+  adminStaffNew: '/admin/staff/new',
+  adminStaffMember: '/admin/staff/:staffId',
+  adminVisits: '/admin/visits',
+  adminVisit: '/admin/visits/:visitId',
+  adminPatient: '/admin/patients/:patientId',
+  adminDepartments: '/admin/departments',
+  adminDepartment: '/admin/departments/:departmentId',
+  adminWard: '/admin/wards/:wardId',
+  adminActivity: '/admin/activity',
   scan: '/scan',
   qrCodes: '/qr-codes',
   bookToken: '/queue/book',
@@ -49,3 +62,11 @@ export function assistancePath(departmentId) {
     ? `${PATHS.assistance}?department=${encodeURIComponent(departmentId)}`
     : PATHS.assistance;
 }
+
+/** Admin record pages. Doctors and general staff are one account type with separate sections. */
+export const adminStaffPath = (staffType, staffId) =>
+  `${staffType === 'doctor' ? PATHS.adminDoctors : PATHS.adminStaff}/${encodeURIComponent(staffId)}`;
+export const adminVisitPath = (visitId) => `${PATHS.adminVisits}/${encodeURIComponent(visitId)}`;
+export const adminPatientPath = (patientId) => `/admin/patients/${encodeURIComponent(patientId)}`;
+export const adminDepartmentPath = (departmentId) => `${PATHS.adminDepartments}/${encodeURIComponent(departmentId)}`;
+export const adminWardPath = (wardId) => `/admin/wards/${encodeURIComponent(wardId)}`;

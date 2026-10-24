@@ -356,3 +356,13 @@ export function readMockQueueTokens() {
   const store = loadStore();
   return store.tokens.map((token) => toPublicToken(store, token));
 }
+
+/**
+ * Mock-internal: stored token records including owner and timestamps, for the mock admin
+ * reports only (never returned to patient or staff views).
+ */
+export function readMockQueueRecords() {
+  return loadStore().tokens.map(({ id, displayNumber, departmentId, patientId, status, createdAt, updatedAt }) => ({
+    id, displayNumber, departmentId, patientId, status, createdAt, updatedAt,
+  }));
+}
