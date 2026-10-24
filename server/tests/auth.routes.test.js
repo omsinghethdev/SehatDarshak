@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { createApp } from '../src/app.js';
 import { User } from '../src/modules/users/user.model.js';
-import { verifyAccessToken } from '../src/utils/accessToken.js';
+import { signAccessToken, verifyAccessToken } from '../src/utils/accessToken.js';
 import { connectTestDatabase, dropTestDatabase } from './helpers/database.js';
 import { bearer, request } from './helpers/http.js';
 
@@ -193,6 +193,34 @@ describe('auth routes', { skip: databaseUnavailable }, () => {
 
       const response = await me(bearer(body.data.accessToken));
       assert.equal(response.status, 401);
+    });
+  });
+
+  describe('GET /api/patients/me', () => {
+    const patientMe = (headers) => request(app, { path: '/api/patients/me', headers });
+
+    test('returns the authenticated patient\'s safe profile', async () => {
+      const { body } = await register(validRegistration);
+      const response = await patientMe(bearer(body.data.accessToken));
+
+      assert.equal(response.status, 200);
+      assert.deepEqual(response.body, { data: { user: body.data.user } });
+      assertNoSecrets(response, validRegistration.password);
+    });
+
+    test('is limited to authenticated patients', async () => {
+      const staff = await User.create({
+        name: 'Test Staff',
+        identifier: 'test.staff',
+        passwordHash: 'unused',
+        role: 'staff',
+      });
+
+      assert.equal((await patientMe({})).status, 401);
+      assert.equal((await patientMe(bearer('invalid.jwt.value'))).status, 401);
+      const forbidden = await patientMe(bearer(signAccessToken({ id: staff._id, role: 'staff' })));
+      assert.equal(forbidden.status, 403);
+      assert.equal(forbidden.body.error.code, 'FORBIDDEN');
     });
   });
 });

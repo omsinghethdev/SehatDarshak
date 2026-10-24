@@ -6,7 +6,10 @@ const scryptAsync = promisify(scrypt);
 const algorithm = 'scrypt';
 const keyLength = 64;
 const saltLength = 16;
-const costParameters = { N: 16384, r: 8, p: 1 };
+// N=2^14, r=8, p=5 is one of the OWASP Password Storage Cheat Sheet's equivalent
+// minimum scrypt configurations (16 MiB of memory per hash). Parameters are stored
+// with each hash, so hashes created with older parameters still verify.
+const costParameters = { N: 16384, r: 8, p: 5 };
 
 // Stored format: scrypt$N$r$p$<salt base64>$<hash base64>
 export async function hashPassword(password) {

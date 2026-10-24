@@ -120,3 +120,61 @@ test('unexpected errors return a safe internal error response', async () => {
   });
   assert.doesNotMatch(JSON.stringify(response.body), /Sensitive implementation detail/);
 });
+
+test('oversized JSON bodies return a validation error instead of a server error', async () => {
+  const response = await request(createApp(), {
+    method: 'POST',
+    path: '/api/health',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ padding: 'x'.repeat(200 * 1024) }),
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: { code: 'VALIDATION_ERROR', message: 'Request body is too large' },
+  });
+});
+
+test('unsupported request body charsets return a validation error', async () => {
+  const response = await request(createApp(), {
+    method: 'POST',
+    path: '/api/health',
+    headers: { 'content-type': 'application/json; charset=latin1' },
+    body: '{}',
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: { code: 'VALIDATION_ERROR', message: 'Unsupported request body charset' },
+  });
+});
+
+test('malformed percent-encoding in path parameters returns a validation error', async () => {
+  const app = createApp({
+    registerRoutes(testApp) {
+      testApp.get('/api/test-param/:value', (request, response) => {
+        response.json({ data: { value: request.params.value } });
+      });
+    },
+  });
+  const response = await request(app, { path: '/api/test-param/%E0%A4%A' });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: { code: 'VALIDATION_ERROR', message: 'Malformed URL encoding' },
+  });
+});
+
+test('request bodies that fail to decode return a validation error', async () => {
+  const response = await request(createApp(), {
+    method: 'POST',
+    path: '/api/health',
+    headers: { 'content-type': 'application/json', 'content-encoding': 'gzip' },
+    body: 'notgzip',
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: { code: 'VALIDATION_ERROR', message: 'Invalid request body' },
+  });
+});

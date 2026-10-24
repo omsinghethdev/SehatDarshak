@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { randomBytes, scryptSync } from 'node:crypto';
 import { test } from 'node:test';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../src/app.js';
@@ -124,6 +125,16 @@ test('auth configuration requires a sufficiently long secret', () => {
   assert.equal(getAuthConfig({ secret: testSecret }).expiresIn, '1h');
 });
 
+test('auth configuration rejects invalid token lifetimes at startup instead of at login', () => {
+  for (const expiresIn of ['abc', '3600', '0h', '1.5h', '-1h', '1 h', '1hour']) {
+    assert.throws(() => getAuthConfig({ secret: testSecret, expiresIn }), /AUTH_TOKEN_EXPIRES_IN/, expiresIn);
+  }
+  for (const expiresIn of ['30s', '15m', '1h', '7d']) {
+    assert.equal(getAuthConfig({ secret: testSecret, expiresIn }).expiresIn, expiresIn);
+    assert.ok(signAccessToken({ id: 'patient1', role: 'patient' }, getAuthConfig({ secret: testSecret, expiresIn })));
+  }
+});
+
 test('password hashing uses a salted hash and verifies correctly', async () => {
   const first = await hashPassword('correct horse battery');
   const second = await hashPassword('correct horse battery');
@@ -133,4 +144,19 @@ test('password hashing uses a salted hash and verifies correctly', async () => {
   assert.equal(await verifyPassword('correct horse battery', first), true);
   assert.equal(await verifyPassword('wrong password', first), false);
   assert.equal(await verifyPassword('anything', 'not-a-valid-hash'), false);
+});
+
+test('new password hashes use the OWASP-equivalent scrypt cost N=2^14, r=8, p=5', async () => {
+  const [algorithm, N, r, p] = (await hashPassword('correct horse battery')).split('$');
+
+  assert.deepEqual([algorithm, N, r, p], ['scrypt', '16384', '8', '5']);
+});
+
+test('hashes stored with the previous cost parameters still verify', async () => {
+  const salt = randomBytes(16);
+  const hash = scryptSync('legacy password', salt, 64, { N: 16384, r: 8, p: 1 });
+  const legacyHash = ['scrypt', 16384, 8, 1, salt.toString('base64'), hash.toString('base64')].join('$');
+
+  assert.equal(await verifyPassword('legacy password', legacyHash), true);
+  assert.equal(await verifyPassword('wrong password', legacyHash), false);
 });
