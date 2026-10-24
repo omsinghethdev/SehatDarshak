@@ -26,7 +26,7 @@ function readSessionForCurrentMode() {
 
 /**
  * Session state for the app. A session is created only from an auth-service response
- * (`login`, `register`, or the mock-only `loginAsDemoAccount`).
+ * (`login`, `register`, or the mock-only `loginAsDemoAccount` / `registerDemoAccount`).
  *
  * `authEvent` ("signedIn" | "registered") is kept in memory only, so pages can show a
  * one-time confirmation after sign-in without it reappearing on refresh.
@@ -58,6 +58,14 @@ export function AuthProvider({ children }) {
     () =>
       authService.loginAsDemoAccount
         ? async (key) => startSession(await authService.loginAsDemoAccount(key), 'signedIn')
+        : null,
+    [startSession],
+  );
+
+  const registerDemoAccount = useMemo(
+    () =>
+      authService.registerDemoAccount
+        ? async (kind, details) => startSession(await authService.registerDemoAccount(kind, details), 'registered')
         : null,
     [startSession],
   );
@@ -100,10 +108,12 @@ export function AuthProvider({ children }) {
       register,
       demoAccounts: authService.demoAccounts,
       loginAsDemoAccount,
+      demoRegistrationKinds: authService.demoRegistrationKinds,
+      registerDemoAccount,
       logout,
       dismissAuthEvent,
     }),
-    [session, authEvent, login, register, loginAsDemoAccount, logout, dismissAuthEvent],
+    [session, authEvent, login, register, loginAsDemoAccount, registerDemoAccount, logout, dismissAuthEvent],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

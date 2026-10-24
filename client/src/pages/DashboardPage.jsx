@@ -9,6 +9,7 @@ import { PatientDashboard } from '../features/patient/PatientDashboard';
 import { StaffHome } from '../features/staff/StaffHome';
 
 const AUTH_EVENT_KEYS = { signedIn: 'dashboard.signedIn', registered: 'dashboard.registered' };
+const REGISTERED_KEYS = { staff: 'dashboard.registeredStaff', admin: 'dashboard.registeredAdmin' };
 
 /** Landing page after sign-in: the patient dashboard, or the staff/admin home. */
 export function DashboardPage() {
@@ -17,7 +18,9 @@ export function DashboardPage() {
   const { user, role, isMockAuth, authEvent, dismissAuthEvent } = useAuth();
 
   // Show the sign-in confirmation once, then clear it so it does not reappear on return visits.
-  const [confirmation] = useState(() => AUTH_EVENT_KEYS[authEvent] ?? null);
+  const [confirmation] = useState(() =>
+    authEvent === 'registered' && REGISTERED_KEYS[role] ? REGISTERED_KEYS[role] : (AUTH_EVENT_KEYS[authEvent] ?? null),
+  );
   useEffect(() => {
     dismissAuthEvent();
   }, [dismissAuthEvent]);

@@ -56,7 +56,8 @@ const en = {
       'Accounts are stored only in this browser and are not sent to a hospital server. This mode is not secure. Use fictional details only — never a real name or a password you use elsewhere.',
     accountsTitle: 'Simulated demo accounts',
     accountsBody:
-      'Development only. These fictional accounts let you try each role without a password. They are not real hospital accounts.',
+      'Development only. These fictional accounts let you try each role without a password. They are not real hospital accounts, and signing in with them does not create an account. To make your own demo account, use the link under each one.',
+    registerLink: 'Create your own {category} account',
     accounts: {
       patient: { button: 'Continue as demo patient', description: 'Asha Devi — patient' },
       staff_opd: { button: 'Continue as demo staff (Demo OPD)', description: 'Staff assigned to Demo OPD' },
@@ -133,6 +134,8 @@ const en = {
     registerTitle: 'Register as a patient',
     registerIntro: 'Create a patient account to get queue tokens and follow your turn. You will be signed in straight away.',
     haveAccount: 'Already have an account?',
+    otherAccounts: 'Staff or administrator?',
+    seeAccountTypes: 'See all account types',
   },
   validation: {
     usernameRequired: 'Enter your username.',
@@ -219,6 +222,8 @@ const en = {
   dashboard: {
     signedIn: { title: 'You are signed in', body: 'Welcome back.' },
     registered: { title: 'Your patient account has been created', body: 'You are now signed in.' },
+    registeredStaff: { title: 'Your demo staff account has been created', body: 'You are now signed in. This fictional account is stored only in this browser.' },
+    registeredAdmin: { title: 'Your demo administrator account has been created', body: 'You are now signed in. This fictional account is stored only in this browser.' },
     welcome: 'Welcome, {name}',
     intro: 'Here is your OPD visit at a glance.',
     loadingTokens: 'Loading your tokens…',
@@ -600,6 +605,56 @@ const en = {
       queues: 'Department queues',
       locations: 'Rooms and places',
     },
+  },
+  register: {
+    chooseTitle: 'Create an account',
+    chooseIntro: 'Choose the kind of account you need.',
+    kinds: {
+      patient: {
+        label: 'Patient',
+        title: 'Register as a Patient',
+        description: 'Get OPD queue tokens, follow your turn, and ask staff for help.',
+      },
+      staff_opd: {
+        label: 'Staff — Demo OPD',
+        title: 'Register as Staff — Demo OPD',
+        description: 'Manage the Demo OPD queue and its help requests.',
+      },
+      staff_med: {
+        label: 'Staff — General Medicine',
+        title: 'Register as Staff — General Medicine',
+        description: 'Manage the General Medicine queue and its help requests.',
+      },
+      admin: {
+        label: 'Administrator',
+        title: 'Register as Administrator',
+        description: 'See hospital statistics and monitor every queue.',
+      },
+    },
+    badges: {
+      demoOnly: 'Demo account only',
+      demoSignInOnly: 'Demo sign-in only',
+      hospitalOnly: 'Created by the hospital',
+    },
+    backToChoices: 'Choose a different account type',
+    assignedDepartment: 'Assigned department',
+    departmentFixed: 'Set by the option you chose. It cannot be changed here.',
+    departments: { staff_opd: 'Demo OPD', staff_med: 'General Medicine' },
+    createStaff: 'Create demo staff account',
+    createAdmin: 'Create demo administrator account',
+    demoTitle: 'Development-only demo account',
+    demoBody:
+      'This creates a fictional “{category}” account stored only in this browser. It is not a real hospital account and is not connected to any hospital system. Real staff and administrator accounts must be created by the hospital.',
+    adminDevNote: 'Administrator accounts can be created only while the app is being developed (npm run dev).',
+    adminDisabledTitle: 'Administrator accounts cannot be created in this build',
+    adminDisabledBody:
+      'To keep administrator access restricted, new administrator accounts can be created only while the app is being developed. To try the administrator pages, use “Continue as demo administrator” on the sign-in page.',
+    hospitalOnlyTitle: 'This account cannot be created here',
+    hospitalOnlyStaff:
+      'Staff accounts are created by the hospital, not through public registration. Ask your hospital administrator for an account, then sign in.',
+    hospitalOnlyAdmin:
+      'Administrator accounts are created by the hospital, not through public registration. Ask the hospital’s system administrator for access, then sign in.',
+    goToSignIn: 'Go to sign in',
   },
 };
 

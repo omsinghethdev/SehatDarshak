@@ -1,6 +1,6 @@
 import { API_ERROR_CODES, ApiError } from '../services/apiClient';
 import { readSession } from '../services/authStorage';
-import { getMockStaffDepartmentId } from '../features/auth/mockDemoAccounts';
+import { getMockStaffDepartmentId } from '../features/auth/mockAccountStore';
 
 /*
  * Shared helpers for DEVELOPMENT-ONLY mock services. They imitate the server's behaviour

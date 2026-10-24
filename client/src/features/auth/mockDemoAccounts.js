@@ -39,8 +39,3 @@ export const MOCK_DEMO_ACCOUNTS = Object.freeze([
     user: { id: 'user_demo_admin', name: 'Demo Administrator', role: 'admin' },
   },
 ]);
-
-/** Mock-internal lookup of a staff user's assigned department (server-only in the contract). */
-export function getMockStaffDepartmentId(userId) {
-  return MOCK_DEMO_ACCOUNTS.find((account) => account.user.id === userId)?.departmentId ?? null;
-}

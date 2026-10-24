@@ -153,7 +153,7 @@ export function ScanPage() {
             <LogIn aria-hidden="true" className="size-5" />
             {t('layout.signIn')}
           </ButtonLink>
-          <ButtonLink to={PATHS.register} state={returnState} variant="secondary">
+          <ButtonLink to={PATHS.registerPatient} state={returnState} variant="secondary">
             <UserPlus aria-hidden="true" className="size-5" />
             {t('layout.register')}
           </ButtonLink>

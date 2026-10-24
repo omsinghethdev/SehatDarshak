@@ -119,7 +119,7 @@ export function HomePage() {
                 </ButtonLink>
               ) : (
                 <>
-                  <ButtonLink to={PATHS.register} className="px-6">
+                  <ButtonLink to={PATHS.registerPatient} className="px-6">
                     {t('auth.registerTitle')}
                     <ArrowRight aria-hidden="true" className="size-5" />
                   </ButtonLink>

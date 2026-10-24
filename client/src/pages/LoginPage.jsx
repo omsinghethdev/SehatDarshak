@@ -19,8 +19,13 @@ export function LoginPage() {
       <LoginForm />
       <p className="border-t border-line pt-6 text-sm">
         {t('auth.newPatient')}{' '}
-        <Link to={PATHS.register} state={location.state} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
+        <Link to={PATHS.registerPatient} state={location.state} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
           {t('auth.createAnAccount')}
+        </Link>
+        <br />
+        {t('auth.otherAccounts')}{' '}
+        <Link to={PATHS.register} state={location.state} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
+          {t('auth.seeAccountTypes')}
         </Link>
       </p>
     </StatusPageLayout>

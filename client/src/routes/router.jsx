@@ -10,7 +10,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { NavigationPage } from '../pages/NavigationPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { QrCodesPage } from '../pages/QrCodesPage';
-import { RegisterPage } from '../pages/RegisterPage';
+import { RegisterAccountPage, RegisterPage } from '../pages/RegisterPage';
 import { ScanPage } from '../pages/ScanPage';
 import { StaffAssistancePage } from '../pages/StaffAssistancePage';
 import { StaffQueuePage } from '../pages/StaffQueuePage';
@@ -37,6 +37,10 @@ export const router = createBrowserRouter([
             children: [
               { path: PATHS.login, element: <LoginPage /> },
               { path: PATHS.register, element: <RegisterPage /> },
+              { path: PATHS.registerPatient, element: <RegisterAccountPage kind="patient" /> },
+              { path: PATHS.registerStaffOpd, element: <RegisterAccountPage kind="staff_opd" /> },
+              { path: PATHS.registerStaffMed, element: <RegisterAccountPage kind="staff_med" /> },
+              { path: PATHS.registerAdmin, element: <RegisterAccountPage kind="admin" /> },
             ],
           },
           {

@@ -15,7 +15,10 @@ export const apiAuthService = {
     return data;
   },
 
-  // Simulated demo accounts exist only in mock mode.
+  // Simulated demo accounts exist only in mock mode. The contract has no endpoint for creating
+  // staff or administrator accounts, so they cannot be registered here.
   demoAccounts: null,
   loginAsDemoAccount: null,
+  demoRegistrationKinds: [],
+  registerDemoAccount: null,
 };
