@@ -80,7 +80,7 @@ export function TokenStatusPage() {
     [tokenId],
   );
   const { status, data, error, reload, setData } = useAsyncData(load);
-  const token = data?.token;
+  const token = data?.token?.id === tokenId ? data.token : undefined;
   useDocumentTitle(token ? `Token ${token.displayNumber}` : 'Queue status');
 
   const applyStatus = useCallback(

@@ -1,56 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Construction } from 'lucide-react';
 import { Container } from '../components/common/Container';
-import { EmptyState } from '../components/feedback/EmptyState';
-import { Notice } from '../components/feedback/Notice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { PatientDashboard } from '../features/patient/PatientDashboard';
-
-const ROLE_LABELS = { patient: 'Patient', staff: 'Hospital staff', admin: 'Administrator' };
+import { StaffHome } from '../features/staff/StaffHome';
 
 const AUTH_EVENT_MESSAGES = {
   signedIn: { title: 'You are signed in', body: 'Welcome back.' },
   registered: { title: 'Your patient account has been created', body: 'You are now signed in.' },
 };
 
-function OtherRoleDashboard({ user, role, isMockAuth }) {
-  return (
-    <>
-      <section aria-labelledby="account-heading" className="rounded-xl border border-line bg-white p-6">
-        <h2 id="account-heading" className="text-lg font-semibold text-slate-900">
-          Your account
-        </h2>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <dt className="text-sm text-slate-600">Name</dt>
-            <dd className="font-medium text-slate-900">{user.name}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-slate-600">Account type</dt>
-            <dd className="font-medium text-slate-900">{ROLE_LABELS[role] ?? role}</dd>
-          </div>
-        </dl>
-      </section>
-
-      {isMockAuth && (
-        <Notice tone="warning" title="Demo account">
-          You are signed in with a development-only demo account stored in this browser. It is not
-          connected to the hospital service.
-        </Notice>
-      )}
-
-      <EmptyState
-        icon={Construction}
-        title="Staff and admin tools are on the way"
-        description="Queue management and monitoring will appear here once they are available."
-      />
-    </>
-  );
-}
-
-/** Landing page after sign-in: the patient dashboard, or a placeholder for other roles. */
+/** Landing page after sign-in: the patient dashboard, or the staff/admin home. */
 export function DashboardPage() {
   useDocumentTitle('Dashboard');
   const { user, role, isMockAuth, authEvent, dismissAuthEvent } = useAuth();
@@ -76,7 +37,7 @@ export function DashboardPage() {
       {role === 'patient' ? (
         <PatientDashboard />
       ) : (
-        <OtherRoleDashboard user={user} role={role} isMockAuth={isMockAuth} />
+        <StaffHome user={user} role={role} isMockAuth={isMockAuth} />
       )}
     </Container>
   );

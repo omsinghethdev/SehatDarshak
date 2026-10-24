@@ -60,9 +60,13 @@ export function BookTokenPage() {
     ]);
     return { departments, activeTokens };
   }, []);
-  const { status, data, error, reload } = useAsyncData(load);
+  const { status, data, error, reload, setData } = useAsyncData(load);
 
   function handleBookAnother() {
+    // Show the new token as active straight away so its department is not briefly selectable
+    // while the list reloads (the service would reject a second booking anyway).
+    const booked = bookedToken;
+    setData((current) => current && { ...current, activeTokens: [...current.activeTokens, booked] });
     setBookedToken(null);
     reload();
   }

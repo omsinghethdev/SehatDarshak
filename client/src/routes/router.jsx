@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '../components/layout/AppLayout';
+import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 import { AssistancePage } from '../pages/AssistancePage';
 import { BookTokenPage } from '../pages/BookTokenPage';
 import { DashboardPage } from '../pages/DashboardPage';
@@ -9,6 +10,8 @@ import { LoginPage } from '../pages/LoginPage';
 import { NavigationPage } from '../pages/NavigationPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RegisterPage } from '../pages/RegisterPage';
+import { StaffAssistancePage } from '../pages/StaffAssistancePage';
+import { StaffQueuePage } from '../pages/StaffQueuePage';
 import { TokenStatusPage } from '../pages/TokenStatusPage';
 import { UnauthorizedPage } from '../pages/UnauthorizedPage';
 import { GuestRoute } from './GuestRoute';
@@ -49,6 +52,20 @@ export const router = createBrowserRouter([
               { path: PATHS.tokenStatus, element: <TokenStatusPage /> },
               { path: PATHS.assistance, element: <AssistancePage /> },
             ],
+          },
+          {
+            // Queue and assistance management: assigned-department staff or admin (API contract).
+            // The server/mock also enforces department scope on every request.
+            element: <ProtectedRoute allowedRoles={['staff', 'admin']} />,
+            children: [
+              { path: PATHS.staffQueue, element: <StaffQueuePage /> },
+              { path: PATHS.staffAssistance, element: <StaffAssistancePage /> },
+            ],
+          },
+          {
+            // Dashboard statistics are admin-only.
+            element: <ProtectedRoute allowedRoles={['admin']} />,
+            children: [{ path: PATHS.admin, element: <AdminDashboardPage /> }],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

@@ -15,6 +15,7 @@ export const apiAuthService = {
     return data;
   },
 
-  // The demo-patient shortcut exists only in mock mode.
-  loginAsDemoPatient: null,
+  // Simulated demo accounts exist only in mock mode.
+  demoAccounts: null,
+  loginAsDemoAccount: null,
 };

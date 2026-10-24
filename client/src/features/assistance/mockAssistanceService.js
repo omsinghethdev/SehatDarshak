@@ -1,13 +1,23 @@
-import { mockError, readStore, requireMockUser, simulateLatency, writeStore } from '../../lib/mockBackend';
+import {
+  assertMockDepartmentAccess,
+  mockError,
+  readStore,
+  requireMockUser,
+  simulateLatency,
+  writeStore,
+} from '../../lib/mockBackend';
 import { API_ERROR_CODES } from '../../services/apiClient';
 import { MOCK_DEPARTMENTS } from '../departments/mockDepartments';
 import { toErrorDetails } from '../auth/validation';
 import { validateAssistanceRequest } from './assistanceRules';
 
 /*
- * DEVELOPMENT-ONLY mock assistance requests, stored in this browser's localStorage and
- * scoped to the signed-in mock patient. Nothing is sent to hospital staff.
+ * DEVELOPMENT-ONLY mock assistance requests: one store in this browser's localStorage shared by
+ * the patient view (own requests only) and the staff/admin view (department-scoped). Nothing is
+ * sent to real hospital staff. The only status change is open → acknowledged (`acknowledgeIn`).
  */
+
+const ASSISTANCE_STATUSES = ['open', 'acknowledged'];
 
 const STORE_KEY = 'sehatdarsak.mockAssistance';
 const MAX_LIMIT = 100;
@@ -60,6 +70,29 @@ function parsePositiveInt(value, fallback) {
   return Number.isFinite(number) && number > 0 ? number : fallback;
 }
 
+function paginate(list, page, limit) {
+  const safePage = parsePositiveInt(page, 1);
+  const safeLimit = Math.min(parsePositiveInt(limit, 20), MAX_LIMIT);
+  const start = (safePage - 1) * safeLimit;
+  return {
+    items: list.slice(start, start + safeLimit).map(toPublicRequest),
+    meta: { page: safePage, limit: safeLimit, total: list.length },
+  };
+}
+
+const newestFirst = (a, b) => b.createdAt.localeCompare(a.createdAt);
+
+/** The single place a request's status changes. */
+function acknowledgeIn(store, request, user) {
+  if (request.status !== 'open') {
+    throw mockError(API_ERROR_CODES.CONFLICT, 'This request has already been acknowledged.');
+  }
+  request.status = 'acknowledged';
+  request.acknowledgedBy = user.id;
+  request.acknowledgedAt = new Date().toISOString();
+  writeStore(STORE_KEY, store);
+}
+
 export const mockAssistanceService = {
   async createRequest({ departmentId, location, message }) {
     await simulateLatency(600);
@@ -92,18 +125,48 @@ export const mockAssistanceService = {
   async listMyRequests({ page = 1, limit = 10 } = {}) {
     await simulateLatency();
     const user = requireMockUser(['patient']);
-    const safePage = parsePositiveInt(page, 1);
-    const safeLimit = Math.min(parsePositiveInt(limit, 20), MAX_LIMIT);
-
     const own = loadStore()
       .requests.filter((request) => request.patientId === user.id)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    const start = (safePage - 1) * safeLimit;
+      .sort(newestFirst);
+    return paginate(own, page, limit);
+  },
+};
 
-    return {
-      items: own.slice(start, start + safeLimit).map(toPublicRequest),
-      meta: { page: safePage, limit: safeLimit, total: own.length },
-    };
+/** Staff/admin endpoints. Staff see only their assigned department; admins see all. */
+export const mockStaffAssistanceService = {
+  /** GET /assistance-requests?status=&page=&limit= */
+  async listRequests({ status, page = 1, limit = 20 } = {}) {
+    await simulateLatency();
+    const user = requireMockUser(['staff', 'admin']);
+    if (status && !ASSISTANCE_STATUSES.includes(status)) {
+      throw mockError(API_ERROR_CODES.VALIDATION_ERROR, 'status must be open or acknowledged', [
+        { field: 'status', message: 'Invalid status' },
+      ]);
+    }
+    const permitted = loadStore()
+      .requests.filter((request) => {
+        if (status && request.status !== status) return false;
+        try {
+          assertMockDepartmentAccess(user, request.departmentId);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .sort(newestFirst);
+    return paginate(permitted, page, limit);
+  },
+
+  /** PATCH /assistance-requests/:requestId/acknowledge → `{ id, status }` */
+  async acknowledge(requestId) {
+    await simulateLatency(400);
+    const user = requireMockUser(['staff', 'admin']);
+    const store = loadStore();
+    const request = store.requests.find((item) => item.id === requestId);
+    if (!request) throw mockError(API_ERROR_CODES.NOT_FOUND, 'This request could not be found.');
+    assertMockDepartmentAccess(user, request.departmentId);
+    acknowledgeIn(store, request, user);
+    return { id: request.id, status: request.status };
   },
 };
 
@@ -118,11 +181,12 @@ export const mockAssistanceDemo = {
     const store = loadStore();
     const request = store.requests.find((item) => item.id === requestId && item.patientId === user.id);
     if (!request) throw mockError(API_ERROR_CODES.NOT_FOUND, 'This request could not be found.');
-    if (request.status !== 'open') {
-      throw mockError(API_ERROR_CODES.CONFLICT, 'This request has already been acknowledged.');
-    }
-    request.status = 'acknowledged';
-    writeStore(STORE_KEY, store);
+    acknowledgeIn(store, request, { id: 'mock_demo_simulation' });
     return toPublicRequest(request);
   },
 };
+
+/** Mock-internal read used only by the frontend-only admin summary. */
+export function readMockAssistanceRequests() {
+  return loadStore().requests.map(toPublicRequest);
+}

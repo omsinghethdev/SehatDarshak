@@ -10,12 +10,21 @@ const PUBLIC_ITEMS = [
 ];
 
 function getSignedInItems(role) {
+  if (role === 'patient') {
+    return [
+      { to: PATHS.dashboard, label: 'Dashboard' },
+      { to: PATHS.bookToken, label: 'Book a token' },
+      { to: PATHS.departments, label: 'Departments' },
+      { to: PATHS.navigation, label: 'Hospital map' },
+      { to: PATHS.assistance, label: 'Get help' },
+    ];
+  }
   return [
     { to: PATHS.dashboard, label: 'Dashboard' },
-    ...(role === 'patient' ? [{ to: PATHS.bookToken, label: 'Book a token' }] : []),
-    { to: PATHS.departments, label: 'Departments' },
+    ...(role === 'admin' ? [{ to: PATHS.admin, label: 'Overview' }] : []),
+    { to: PATHS.staffQueue, label: 'Queue' },
+    { to: PATHS.staffAssistance, label: 'Requests' },
     { to: PATHS.navigation, label: 'Hospital map' },
-    ...(role === 'patient' ? [{ to: PATHS.assistance, label: 'Get help' }] : []),
   ];
 }
 
@@ -33,7 +42,8 @@ export function MainNav({ orientation = 'horizontal', onNavigate, id }) {
     <nav id={id} aria-label="Main">
       <ul className={cn('flex', vertical ? 'flex-col gap-1' : 'items-center gap-1')}>
         {items.map((item) => {
-          const current = `${pathname}${hash}` === item.to;
+          const exactMatch = items.some((other) => other.to === `${pathname}${hash}`);
+          const current = exactMatch ? item.to === `${pathname}${hash}` : item.to === pathname;
           return (
             <li key={item.to}>
               <Link

@@ -1,6 +1,7 @@
 import { USE_MOCK_SERVICES } from '../../services/serviceMode';
 import { apiQueueService } from './apiQueueService';
-import { mockQueueDemo, mockQueueService } from './mockQueueService';
+import { apiStaffQueueService } from './apiStaffQueueService';
+import { mockQueueDemo, mockQueueService, mockStaffQueueService } from './mockQueueService';
 
 /**
  * Patient queue-token service. Both implementations share one interface:
@@ -10,6 +11,15 @@ import { mockQueueDemo, mockQueueService } from './mockQueueService';
  *   getTokenStatus(tokenId, { signal }) → Promise<QueueTokenStatus>
  */
 export const queueService = USE_MOCK_SERVICES ? mockQueueService : apiQueueService;
+
+/**
+ * Staff/admin queue service (department-scoped on the server). Both implementations share:
+ *   listDepartmentQueue(departmentId, { page, limit, signal }) → Promise<{ items, meta }>
+ *   callNext(departmentId)                                    → Promise<{ id, displayNumber, status }>
+ *   updateTokenStatus(tokenId, status)                        → Promise<{ id, status }>
+ * Invalid transitions and a second `called` token are rejected with 409 CONFLICT.
+ */
+export const staffQueueService = USE_MOCK_SERVICES ? mockStaffQueueService : apiStaffQueueService;
 
 /** Demo-only simulation controls; `null` when connected to the real API. */
 export const queueDemoControls = USE_MOCK_SERVICES ? mockQueueDemo : null;

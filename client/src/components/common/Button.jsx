@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { cn } from '../../utils/cn';
 
 const BASE =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 aria-disabled:cursor-not-allowed aria-disabled:opacity-60';
 
 const VARIANTS = {
   primary: 'bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900',

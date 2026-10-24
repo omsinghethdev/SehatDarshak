@@ -1,5 +1,6 @@
 import { API_ERROR_CODES, ApiError } from '../services/apiClient';
 import { readSession } from '../services/authStorage';
+import { getMockStaffDepartmentId } from '../features/auth/mockDemoAccounts';
 
 /*
  * Shared helpers for DEVELOPMENT-ONLY mock services. They imitate the server's behaviour
@@ -54,4 +55,14 @@ export function requireMockUser(allowedRoles) {
     throw mockError(API_ERROR_CODES.FORBIDDEN, 'You do not have access to this.');
   }
   return session.user;
+}
+
+/**
+ * Mock equivalent of the server's department scoping: admins may access every department;
+ * staff only their assigned one (docs/API_CONTRACT.md → Authentication and authorization).
+ */
+export function assertMockDepartmentAccess(user, departmentId) {
+  if (user.role === 'admin') return;
+  if (user.role === 'staff' && getMockStaffDepartmentId(user.id) === departmentId) return;
+  throw mockError(API_ERROR_CODES.FORBIDDEN, 'You are not assigned to this department.');
 }

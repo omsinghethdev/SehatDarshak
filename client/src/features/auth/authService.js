@@ -6,7 +6,7 @@ import { mockAuthService } from './mockAuthService';
  * The single auth service used by the app. Both implementations share one interface:
  *   login({ identifier, password })        → Promise<{ accessToken, user }>
  *   register({ name, identifier, password }) → Promise<{ accessToken, user }>
- *   loginAsDemoPatient                     → function in mock mode, otherwise null
+ *   demoAccounts / loginAsDemoAccount(key) → simulated accounts in mock mode, otherwise null
  * Errors are always `ApiError`s using the contract's error codes.
  *
  * Switch with VITE_AUTH_MODE ("api" or "mock"); see authConfig.js.
