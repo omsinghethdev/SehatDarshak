@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Building2, RefreshCw, Ticket } from 'lucide-react';
+import { ArrowLeft, Building2, Database, RefreshCw } from 'lucide-react';
 import { useParams } from 'react-router';
 import { Button, ButtonLink } from '../components/common/Button';
 import { Container } from '../components/common/Container';
@@ -11,15 +11,42 @@ import { DemoQueueControls } from '../features/queue/DemoQueueControls';
 import { StatusBadge } from '../features/queue/StatusBadge';
 import { StatusLegend } from '../features/queue/StatusLegend';
 import { TokenMetrics } from '../features/queue/TokenMetrics';
+import { TokenNextStep } from '../features/queue/TokenNextStep';
+import { TurnAlert } from '../features/queue/TurnAlert';
+import { WaitingGuidance } from '../features/queue/WaitingGuidance';
+import { useTurnAlerts } from '../features/queue/useTurnAlerts';
 import { isActiveStatus } from '../features/queue/queueStatus';
 import { QUEUE_POLL_INTERVAL_MS, queueService } from '../features/queue/queueService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { PATHS, bookTokenPath } from '../routes/paths';
+import { useTranslation } from '../hooks/useTranslation';
+import { ListenButton } from '../components/common/ListenButton';
+import { estimateLabel, formatEstimate, getWaitEstimate, isReliableCount } from '../features/queue/waitEstimate';
+import { PATHS } from '../routes/paths';
+import { getErrorContent } from '../utils/errorMessages';
 
-function formatTime(date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function formatTime(date, locale) {
+  return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+/** Plain-language summary of the token for the "Listen" button. */
+function tokenSpeech(token, departmentName, t) {
+  const parts = [
+    t('tokenSpeech.number', { number: token.displayNumber }),
+    t('tokenSpeech.department', { department: departmentName ?? t('queue.yourDepartment') }),
+    t('tokenSpeech.status', { status: t(`status.${token.status}.label`) }),
+  ];
+  if (token.status === 'waiting') {
+    if (isReliableCount(token.patientsAhead)) parts.push(t('alerts.approaching.ahead', { count: token.patientsAhead }));
+    const estimate = getWaitEstimate(token);
+    if (estimate.kind === 'service' || estimate.kind === 'calculated') {
+      parts.push(t('tokenSpeech.wait', { wait: formatEstimate(estimate.minutes, t), label: estimateLabel(estimate, t) }));
+    }
+  } else {
+    parts.push(t(`status.${token.status}.description`));
+  }
+  return parts.join(' ');
 }
 
 /**
@@ -55,7 +82,15 @@ function useTokenStatusPolling(token, onStatus) {
     const id = setInterval(() => {
       if (!document.hidden) refresh();
     }, QUEUE_POLL_INTERVAL_MS);
-    return () => clearInterval(id);
+    // Polling pauses while the tab is hidden; catch up as soon as the patient returns.
+    function handleVisibility() {
+      if (!document.hidden) refresh();
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [active, refresh]);
 
   return { lastUpdated, setLastUpdated, refreshError, refreshing, refresh };
@@ -64,6 +99,7 @@ function useTokenStatusPolling(token, onStatus) {
 export function TokenStatusPage() {
   const { tokenId } = useParams();
   const { isMockAuth } = useAuth();
+  const { t, language } = useTranslation();
 
   const load = useCallback(
     async (signal) => {
@@ -81,22 +117,23 @@ export function TokenStatusPage() {
   );
   const { status, data, error, reload, setData } = useAsyncData(load);
   const token = data?.token?.id === tokenId ? data.token : undefined;
-  useDocumentTitle(token ? `Token ${token.displayNumber}` : 'Queue status');
+  useDocumentTitle(token ? `${t('queue.token')} ${token.displayNumber}` : t('queue.statusTitle'));
 
   const applyStatus = useCallback(
     (update) => setData((current) => (current ? { ...current, token: { ...current.token, ...update } } : current)),
     [setData],
   );
   const { lastUpdated, setLastUpdated, refreshError, refreshing, refresh } = useTokenStatusPolling(token, applyStatus);
+  const { alert, dismiss: dismissAlert } = useTurnAlerts(token);
 
   if (status === 'error') {
     return (
       <Container className="max-w-3xl space-y-6 py-10 sm:py-14">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Queue status</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t('queue.statusTitle')}</h1>
         <ErrorState error={error} onRetry={reload} />
         <ButtonLink to={PATHS.dashboard} variant="secondary">
           <ArrowLeft aria-hidden="true" className="size-5" />
-          Back to dashboard
+          {t('common.backToDashboard')}
         </ButtonLink>
       </Container>
     );
@@ -105,19 +142,22 @@ export function TokenStatusPage() {
   if (!token) {
     return (
       <Container className="max-w-3xl py-10 sm:py-14">
-        <LoadingState label="Loading your token…" />
+        <LoadingState label={t('queue.loadingToken')} />
       </Container>
     );
   }
 
   const active = isActiveStatus(token.status);
+  const departmentName = data.department?.name;
 
   return (
     <Container className="max-w-3xl space-y-6 py-10 sm:py-14">
       <ButtonLink to={PATHS.dashboard} variant="ghost" className="-ml-3">
         <ArrowLeft aria-hidden="true" className="size-5" />
-        Back to dashboard
+        {t('common.backToDashboard')}
       </ButtonLink>
+
+      <TurnAlert alert={alert} departmentName={departmentName} onDismiss={dismissAlert} />
 
       <section
         aria-labelledby="token-heading"
@@ -129,61 +169,66 @@ export function TokenStatusPage() {
       >
         <h1 id="token-heading">
           <span className="block text-sm font-semibold tracking-wide text-brand-700 uppercase">
-            Queue token
+            {t('queue.yourToken')}
           </span>
           <span className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">{token.displayNumber}</span>
         </h1>
         <p className="mt-2 flex items-center gap-1.5 text-lg font-medium text-slate-800">
           <Building2 aria-hidden="true" className="size-5 text-slate-500" />
-          {data.department?.name ?? 'Department not available'}
+          {departmentName ?? t('queue.departmentUnavailable')}
         </p>
 
-        {/* Announces status and position changes to screen readers as they happen. */}
-        <div aria-live="polite" className="mt-6 space-y-4 border-t border-line pt-6">
+        {/* Status changes and turn alerts are announced by <TurnAlert>, not by this panel,
+            so screen-reader users hear each important update once. */}
+        <div className="mt-6 space-y-4 border-t border-line pt-6">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-slate-600">Status:</span>
+            <span className="text-sm text-slate-600">{t('queue.statusLabel')}</span>
             <StatusBadge status={token.status} />
-            {!active && <span className="text-sm font-medium text-slate-700">No longer active</span>}
+            {!active && <span className="text-sm font-medium text-slate-700">{t('queue.noLongerActive')}</span>}
           </div>
-          <TokenMetrics token={token} size="lg" />
+          <TokenMetrics token={token} size="lg" showBasis showStatusDescription={false} />
+          {token.status === 'waiting' && (
+            <p className="text-sm text-slate-600">{t('queue.estimateDisclaimer')}</p>
+          )}
+          <ListenButton text={() => tokenSpeech(token, departmentName, t)} label={t('speech.listenStatus')} />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            Last updated {formatTime(lastUpdated)}
-            {active && ` · updates automatically every ${QUEUE_POLL_INTERVAL_MS / 1000} seconds`}
-          </p>
+          <div className="space-y-1">
+            <p>
+              {t('queue.lastUpdated', { time: formatTime(lastUpdated, language.locale) })}
+              {active && ` · ${t('queue.autoUpdates', { seconds: QUEUE_POLL_INTERVAL_MS / 1000 })}`}
+            </p>
+            <p className="flex items-center gap-1.5">
+              <Database aria-hidden="true" className="size-4 shrink-0" />
+              {isMockAuth ? t('queue.sourceDemo') : t('queue.sourceService')}
+            </p>
+          </div>
           {active && (
             <Button variant="ghost" onClick={refresh} aria-disabled={refreshing || undefined} className="-ml-5 self-start sm:ml-0 sm:-mr-5 sm:self-auto">
               <RefreshCw aria-hidden="true" className={refreshing ? 'size-4 animate-spin' : 'size-4'} />
-              {refreshing ? 'Refreshing…' : 'Refresh now'}
+              {refreshing ? t('queue.refreshing') : t('queue.refreshNow')}
             </Button>
           )}
         </div>
       </section>
 
       {refreshError && (
-        <Notice tone="warning" role="alert" title="Could not refresh the status">
-          Showing the last known status. We will keep trying automatically.
+        <Notice tone="warning" role="alert" title={t('queue.outOfDateTitle')}>
+          {getErrorContent(refreshError, t, language.code).description}{' '}
+          {t('queue.outOfDateBody', { time: formatTime(lastUpdated, language.locale) })}
+          {active && ` ${t('queue.keepTrying')}`}
         </Notice>
       )}
 
-      {!active && (
-        <Notice tone="info" title="This token is no longer active">
-          If you still need to see a doctor in this department, you can book a new token.
-          <div className="mt-3">
-            <ButtonLink to={bookTokenPath(token.departmentId)}>
-              <Ticket aria-hidden="true" className="size-5" />
-              Book a new token
-            </ButtonLink>
-          </div>
-        </Notice>
+      <TokenNextStep token={token} departmentName={departmentName} />
+
+      {(token.status === 'waiting' || token.status === 'called') && (
+        <WaitingGuidance token={token} department={data.department} />
       )}
 
-      <Notice tone={isMockAuth ? 'warning' : 'info'} title={isMockAuth ? 'Demo data' : 'About waiting times'}>
-        {isMockAuth
-          ? 'This token, its queue position, and its waiting time are simulated and stored only in this browser. They do not reflect a real hospital queue.'
-          : 'Waiting times are simulated estimates and may change. Please stay near the department.'}
+      <Notice tone={isMockAuth ? 'warning' : 'info'} title={isMockAuth ? t('demo.dataTitle') : t('queue.aboutWaitingTitle')}>
+        {isMockAuth ? t('demo.tokenBody') : t('queue.aboutWaitingBody')}
       </Notice>
 
       <DemoQueueControls

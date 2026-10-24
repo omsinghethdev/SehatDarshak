@@ -1,23 +1,22 @@
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { LocationGlyph } from './LocationGlyph';
-import { getLocationType, hasValidGeometry } from './locationTypes';
+import { useTranslation } from '../../hooks/useTranslation';
+import { getLocationType, hasValidGeometry, typeLabel } from './locationTypes';
 
 /**
  * Text alternative to the SVG map: every location on the floor as a selectable list item,
  * numbered to match the markers on the map.
  */
 export function LocationList({ floor, numbering, selectedId, departmentsById, onSelect }) {
+  const { t } = useTranslation();
   return (
     <section aria-labelledby="location-list-heading" className="space-y-4">
       <div>
         <h2 id="location-list-heading" className="text-xl font-bold text-slate-900">
-          All locations on the {floor.displayName}
+          {t('map.listTitle', { floor: floor.displayName })}
         </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          The same {floor.locations.length} locations as the map, as a list. Select one to see its
-          details.
-        </p>
+        <p className="mt-1 text-sm text-slate-600">{t('map.listIntro', { count: floor.locations.length })}</p>
       </div>
       <ol className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
         {floor.locations.map((location) => {
@@ -40,17 +39,17 @@ export function LocationList({ floor, numbering, selectedId, departmentsById, on
                 <span className="min-w-0 flex-1">
                   <span className="block font-semibold text-slate-900">{location.displayName}</span>
                   <span className="block text-sm text-slate-700">
-                    {type.label}
+                    {typeLabel(type, t)}
                     {department && ` · ${department.name}`}
                   </span>
                   {!hasValidGeometry(location) && (
-                    <span className="block text-sm text-slate-600">Position not available on the map</span>
+                    <span className="block text-sm text-slate-600">{t('map.noPosition')}</span>
                   )}
                 </span>
                 {selected && (
                   <span className="flex items-center gap-1 text-sm font-semibold text-slate-900">
                     <CheckCircle2 aria-hidden="true" className="size-4" />
-                    Selected
+                    {t('common.selected')}
                   </span>
                 )}
               </button>

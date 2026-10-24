@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { LocationMarker } from './LocationGlyph';
-import { LOCATION_TYPES, getLocationType, hasValidGeometry } from './locationTypes';
+import { useTranslation } from '../../hooks/useTranslation';
+import { LOCATION_TYPES, getLocationType, hasValidGeometry, typeLabel } from './locationTypes';
 
 const LABEL_FONT_SIZE = 19;
 const LINE_HEIGHT = 22;
@@ -100,6 +101,7 @@ function fillFor(prefix, roomType, type) {
 }
 
 function MapLocation({ item, number, prefix, selected, onSelect }) {
+  const { t } = useTranslation();
   const type = getLocationType(item.roomType);
   const lines = labelLines(item);
 
@@ -115,7 +117,7 @@ function MapLocation({ item, number, prefix, selected, onSelect }) {
       role="button"
       tabIndex={0}
       aria-pressed={selected}
-      aria-label={`${number}. ${item.displayName}, ${type.label}`}
+      aria-label={`${number}. ${item.displayName}, ${typeLabel(type, t)}`}
       onClick={() => onSelect(item.id)}
       onKeyDown={handleKeyDown}
       className="group cursor-pointer outline-none"
@@ -175,6 +177,7 @@ function MapLocation({ item, number, prefix, selected, onSelect }) {
  * container width without distortion.
  */
 export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
+  const { t } = useTranslation();
   const prefix = `map${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const drawable = floor.locations.filter(hasValidGeometry);
 
@@ -186,7 +189,7 @@ export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
         viewBox={`0 0 ${floor.width} ${floor.height}`}
         preserveAspectRatio="xMidYMid meet"
         role="group"
-        aria-label={`${floor.displayName} map with ${drawable.length} selectable locations`}
+        aria-label={t('map.svgLabel', { floor: floor.displayName, count: drawable.length })}
         className="block h-auto w-full min-w-[40rem]"
       >
         <PatternDefs prefix={prefix} />

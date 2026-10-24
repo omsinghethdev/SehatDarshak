@@ -1,6 +1,10 @@
 import { CheckCircle2, Clock } from 'lucide-react';
+import { englishTranslator } from '../../i18n/translate';
 
-/** Safety wording shown near the form and after every submission. */
+/**
+ * Safety wording shown near the form and after every submission. Patient pages show the
+ * translated version (assistance.safety); staff tools use this English text.
+ */
 export const ASSISTANCE_SAFETY_NOTICE =
   "Assistance requests are for non-emergency help. Sending a request does not guarantee an immediate response. For emergencies, contact hospital staff directly or use the hospital's designated emergency process.";
 
@@ -13,20 +17,23 @@ export const LOCATION_MAX = 120;
 export const MESSAGE_MIN = 10;
 export const MESSAGE_MAX = 500;
 
-/** Validate the documented request fields: departmentId, location, message. */
-export function validateAssistanceRequest({ departmentId, location, message }) {
+/**
+ * Validate the documented request fields: departmentId, location, message.
+ * `t` defaults to English (used by the mock to imitate server messages); forms pass messageRef.
+ */
+export function validateAssistanceRequest({ departmentId, location, message }, t = englishTranslator.t) {
   const errors = {};
-  if (!departmentId) errors.departmentId = 'Choose the department you need help with.';
+  if (!departmentId) errors.departmentId = t('validation.assistanceDepartment');
 
   const trimmedLocation = location.trim();
-  if (!trimmedLocation) errors.location = 'Tell us where you are or where help is needed.';
-  else if (trimmedLocation.length < LOCATION_MIN) errors.location = `Use at least ${LOCATION_MIN} characters.`;
-  else if (trimmedLocation.length > LOCATION_MAX) errors.location = `Use ${LOCATION_MAX} characters or fewer.`;
+  if (!trimmedLocation) errors.location = t('validation.locationRequired');
+  else if (trimmedLocation.length < LOCATION_MIN) errors.location = t('validation.tooShort', { min: LOCATION_MIN });
+  else if (trimmedLocation.length > LOCATION_MAX) errors.location = t('validation.tooLong', { max: LOCATION_MAX });
 
   const trimmedMessage = message.trim();
-  if (!trimmedMessage) errors.message = 'Describe the help you need.';
-  else if (trimmedMessage.length < MESSAGE_MIN) errors.message = `Please add a little more detail (at least ${MESSAGE_MIN} characters).`;
-  else if (trimmedMessage.length > MESSAGE_MAX) errors.message = `Use ${MESSAGE_MAX} characters or fewer.`;
+  if (!trimmedMessage) errors.message = t('validation.messageRequired');
+  else if (trimmedMessage.length < MESSAGE_MIN) errors.message = t('validation.messageTooShort', { min: MESSAGE_MIN });
+  else if (trimmedMessage.length > MESSAGE_MAX) errors.message = t('validation.tooLong', { max: MESSAGE_MAX });
 
   return errors;
 }

@@ -2,12 +2,14 @@ import { LogOut, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { Button, ButtonLink } from '../common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../hooks/useTranslation';
 import { PATHS } from '../../routes/paths';
 import { cn } from '../../utils/cn';
 
 export function AuthActions({ stacked = false, onNavigate }) {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t, tx } = useTranslation();
 
   async function handleSignOut() {
     onNavigate?.();
@@ -22,13 +24,11 @@ export function AuthActions({ stacked = false, onNavigate }) {
       <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'items-center')}>
         <p className={cn('items-center gap-2 px-2 text-sm text-slate-700', stacked ? 'flex' : 'hidden xl:flex')}>
           <UserRound aria-hidden="true" className="size-4" />
-          <span>
-            Signed in as <span className="font-semibold text-slate-900">{user.name}</span>
-          </span>
+          <span>{tx('layout.signedInAs', { name: <span className="font-semibold text-slate-900">{user.name}</span> })}</span>
         </p>
         <Button variant="secondary" onClick={handleSignOut}>
           <LogOut aria-hidden="true" className="size-4" />
-          Sign out
+          {t('layout.signOut')}
         </Button>
       </div>
     );
@@ -37,10 +37,10 @@ export function AuthActions({ stacked = false, onNavigate }) {
   return (
     <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'items-center')}>
       <ButtonLink to={PATHS.login} variant="ghost" onClick={onNavigate}>
-        Sign in
+        {t('layout.signIn')}
       </ButtonLink>
       <ButtonLink to={PATHS.register} onClick={onNavigate}>
-        Register
+        {t('layout.register')}
       </ButtonLink>
     </div>
   );

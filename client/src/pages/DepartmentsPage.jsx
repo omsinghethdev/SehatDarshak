@@ -11,11 +11,13 @@ import { departmentService } from '../features/departments/departmentService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
 import { PATHS, bookTokenPath } from '../routes/paths';
 
 /** Read-only hospital information: the list of OPD departments. */
 export function DepartmentsPage() {
-  useDocumentTitle('Hospital departments');
+  const { t } = useTranslation();
+  useDocumentTitle(t('departments.title'));
   const { role, isMockAuth } = useAuth();
 
   const load = useCallback((signal) => departmentService.listDepartments({ signal }), []);
@@ -25,14 +27,14 @@ export function DepartmentsPage() {
   if (status === 'error') {
     content = <ErrorState error={error} onRetry={reload} />;
   } else if (!departments) {
-    content = <LoadingState label="Loading departments…" />;
+    content = <LoadingState label={t('departments.loading')} />;
   } else if (departments.length === 0) {
     content = (
       <EmptyState
         icon={Building2}
-        title="No departments to show"
-        description="Department information is not available right now."
-        action={<Button variant="secondary" onClick={reload}>Check again</Button>}
+        title={t('departments.emptyTitle')}
+        description={t('departments.emptyBody')}
+        action={<Button variant="secondary" onClick={reload}>{t('common.checkAgain')}</Button>}
       />
     );
   } else {
@@ -51,8 +53,8 @@ export function DepartmentsPage() {
               <div className="mt-auto pt-5">
                 <ButtonLink to={bookTokenPath(department.id)} variant="secondary">
                   <Ticket aria-hidden="true" className="size-4" />
-                  Book a token
-                  <span className="sr-only"> for {department.name}</span>
+                  {t('nav.bookToken')}
+                  <span className="sr-only"> — {department.name}</span>
                 </ButtonLink>
               </div>
             )}
@@ -65,14 +67,14 @@ export function DepartmentsPage() {
   return (
     <Container className="space-y-8 py-10 sm:py-14">
       <PageHeader
-        eyebrow="Hospital information"
-        title="OPD departments"
-        description="The outpatient departments you can visit."
+        eyebrow={t('dashboard.actions.infoTitle')}
+        title={t('departments.title')}
+        description={t('departments.intro')}
       />
 
       {isMockAuth && (
-        <Notice tone="warning" title="Demo data">
-          These departments are fictional examples for demonstration only.
+        <Notice tone="warning" title={t('demo.dataTitle')}>
+          {t('demo.departmentsBody')}
         </Notice>
       )}
 
@@ -80,15 +82,15 @@ export function DepartmentsPage() {
 
       <Notice
         tone="info"
-        title="Looking for a department?"
+        title={t('departments.lookingTitle')}
         action={
           <ButtonLink to={PATHS.navigation} variant="secondary">
             <MapIcon aria-hidden="true" className="size-4" />
-            Open the hospital map
+            {t('departments.openMap')}
           </ButtonLink>
         }
       >
-        The hospital map shows where departments and facilities are on each floor.
+        {t('departments.lookingBody')}
       </Notice>
     </Container>
   );

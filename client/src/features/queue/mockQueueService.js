@@ -8,6 +8,7 @@ import {
 } from '../../lib/mockBackend';
 import { API_ERROR_CODES } from '../../services/apiClient';
 import { MOCK_DEPARTMENTS } from '../departments/mockDepartments';
+import { AVERAGE_SERVICE_MINUTES } from './queueAssistantConfig';
 import { QUEUE_STATUSES, STATUS_DETAILS, STATUS_TRANSITIONS, isActiveStatus } from './queueStatus';
 
 /*
@@ -22,7 +23,8 @@ import { QUEUE_STATUSES, STATUS_DETAILS, STATUS_TRANSITIONS, isActiveStatus } fr
 
 const STORE_KEY = 'sehatdarsak.mockQueue';
 const STORE_VERSION = 2;
-const SIMULATED_MINUTES_PER_PATIENT = 5;
+// Same configurable average the client uses for its fallback estimate.
+const SIMULATED_MINUTES_PER_PATIENT = AVERAGE_SERVICE_MINUTES;
 const ESTIMATE_LABEL = 'Simulated estimate';
 const FIRST_DISPLAY_NUMBER = 101;
 const MAX_LIMIT = 100;

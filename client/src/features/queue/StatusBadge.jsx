@@ -1,17 +1,19 @@
+import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 import { STATUS_DETAILS } from './queueStatus';
 
 /** Status pill with icon and text label (never colour alone). */
 export function StatusBadge({ status, className }) {
+  const { t } = useTranslation();
   const details = STATUS_DETAILS[status];
   if (!details) {
     return (
       <span className={cn('inline-flex rounded-full border border-slate-300 px-3 py-1 text-sm', className)}>
-        Unknown status
+        {t('status.unknown')}
       </span>
     );
   }
-  const { icon: Icon, label, badgeClass } = details;
+  const { icon: Icon, badgeClass } = details;
 
   return (
     <span
@@ -22,7 +24,7 @@ export function StatusBadge({ status, className }) {
       )}
     >
       <Icon aria-hidden="true" className="size-4" />
-      {label}
+      {t(`status.${status}.label`, { defaultValue: details.label })}
     </span>
   );
 }

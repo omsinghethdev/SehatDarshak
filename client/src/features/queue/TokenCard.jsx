@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { ButtonLink } from '../../components/common/Button';
 import { tokenStatusPath } from '../../routes/paths';
+import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 import { StatusBadge } from './StatusBadge';
 import { TokenMetrics } from './TokenMetrics';
@@ -10,6 +11,7 @@ import { isActiveStatus } from './queueStatus';
 export function TokenCard({ token, department, showStatusLink = true, className }) {
   const headingId = `token-${token.id}-heading`;
   const active = isActiveStatus(token.status);
+  const { t } = useTranslation();
 
   return (
     <article
@@ -22,9 +24,9 @@ export function TokenCard({ token, department, showStatusLink = true, className 
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-600">{department?.name ?? 'Department'}</p>
+          <p className="text-sm font-medium text-slate-600">{department?.name ?? t('queue.department')}</p>
           <h3 id={headingId} className="mt-1">
-            <span className="sr-only">Token </span>
+            <span className="sr-only">{t('queue.token')} </span>
             <span className="text-3xl font-bold tracking-tight text-slate-900">{token.displayNumber}</span>
           </h3>
         </div>
@@ -36,8 +38,8 @@ export function TokenCard({ token, department, showStatusLink = true, className 
       {showStatusLink && (
         <div className="mt-6">
           <ButtonLink to={tokenStatusPath(token.id)} variant="secondary" className="w-full sm:w-auto">
-            View queue status
-            <span className="sr-only"> for token {token.displayNumber}</span>
+            {t('queue.viewStatus')}
+            <span className="sr-only"> — {t('queue.token')} {token.displayNumber}</span>
             <ArrowRight aria-hidden="true" className="size-4" />
           </ButtonLink>
         </div>

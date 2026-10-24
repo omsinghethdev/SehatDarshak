@@ -23,3 +23,10 @@ export function bookTokenPath(departmentId) {
     ? `${PATHS.bookToken}?department=${encodeURIComponent(departmentId)}`
     : PATHS.bookToken;
 }
+
+/** Assistance page, optionally pre-selecting a department (the patient can still change it). */
+export function assistancePath(departmentId) {
+  return departmentId
+    ? `${PATHS.assistance}?department=${encodeURIComponent(departmentId)}`
+    : PATHS.assistance;
+}
