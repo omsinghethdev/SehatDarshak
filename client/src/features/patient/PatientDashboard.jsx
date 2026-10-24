@@ -1,18 +1,21 @@
 import { useCallback } from 'react';
-import { Building2, HandHelping, History, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
+import { Building2, HandHelping, History, ListOrdered, Map as MapIcon, RefreshCw, Ticket } from 'lucide-react';
 import { Button, ButtonLink } from '../../components/common/Button';
 import { QuickActionCard } from '../../components/common/QuickActionCard';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { LoadingState } from '../../components/feedback/LoadingState';
 import { Notice } from '../../components/feedback/Notice';
+import { RefreshErrorNotice } from '../../components/feedback/RefreshErrorNotice';
 import { useAsyncData } from '../../hooks/useAsyncData';
 import { useAuth } from '../../hooks/useAuth';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 import { useTranslation } from '../../hooks/useTranslation';
 import { PATHS, tokenStatusPath } from '../../routes/paths';
 import { departmentService } from '../departments/departmentService';
 import { StatusLegend } from '../queue/StatusLegend';
 import { TokenCard } from '../queue/TokenCard';
+import { DASHBOARD_REFRESH_INTERVAL_MS } from '../../lib/refreshIntervals';
 import { queueService } from '../queue/queueService';
 
 function ActiveTokens({ status, data, error, reload }) {
@@ -62,6 +65,21 @@ export function PatientDashboard() {
   const tokensState = useAsyncData(load);
   const tokens = tokensState.data?.tokens;
 
+  // Background refresh of the tokens only (the department list rarely changes). It starts once
+  // the first load succeeded; until then the loading/error states and their Retry apply.
+  const { setData: setTokensData } = tokensState;
+  const refreshTokens = useCallback(
+    async (signal) => {
+      const latest = await queueService.listActiveTokens({ signal });
+      if (!signal.aborted) setTokensData((current) => (current ? { ...current, tokens: latest } : current));
+    },
+    [setTokensData],
+  );
+  const autoRefresh = useAutoRefresh(refreshTokens, {
+    intervalMs: DASHBOARD_REFRESH_INTERVAL_MS,
+    enabled: Boolean(tokensState.data),
+  });
+
   let statusAction;
   if (!tokens) {
     statusAction = { description: t('dashboard.checkingTokens') };
@@ -91,13 +109,22 @@ export function PatientDashboard() {
               {t('dashboard.activeTokens')}
             </h2>
             <p className="mt-1 text-sm text-slate-600">{t('dashboard.tokenExplained')}</p>
+            {tokens && (
+              <p className="mt-1 text-sm text-slate-600">
+                {t('autoRefresh.note', { seconds: DASHBOARD_REFRESH_INTERVAL_MS / 1000 })}
+              </p>
+            )}
           </div>
           {tokens?.length > 0 && (
-            <Button variant="ghost" onClick={tokensState.reload}>
+            <Button variant="ghost" onClick={autoRefresh.refresh} aria-disabled={autoRefresh.refreshing || undefined}>
+              <RefreshCw aria-hidden="true" className={autoRefresh.refreshing ? 'size-4 animate-spin' : 'size-4'} />
               {t('common.refresh')}
             </Button>
           )}
         </div>
+        {tokens && (
+          <RefreshErrorNotice error={autoRefresh.error} onRetry={autoRefresh.refresh} retrying={autoRefresh.refreshing} />
+        )}
         <ActiveTokens {...tokensState} />
       </section>
 

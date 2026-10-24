@@ -257,6 +257,11 @@ const en = {
     reload: 'Reload home page',
     body: 'The page could not be displayed. Please reload and try again.',
   },
+  autoRefresh: {
+    note: 'Updates automatically every {seconds} seconds.',
+    failedTitle: 'Could not update this list',
+    failedBody: 'The details below are from the last successful update. We will keep trying automatically.',
+  },
   dashboard: {
     signedIn: { title: 'You are signed in', body: 'Welcome back.' },
     registered: { title: 'Your patient account has been created', body: 'You are now signed in.' },

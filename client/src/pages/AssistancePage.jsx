@@ -7,6 +7,7 @@ import { EmptyState } from '../components/feedback/EmptyState';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
+import { RefreshErrorNotice } from '../components/feedback/RefreshErrorNotice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
 import { PageHeader } from '../components/layout/PageHeader';
 import { AssistanceRequestCard } from '../features/assistance/AssistanceRequestCard';
@@ -16,6 +17,8 @@ import { useAssistanceHistory } from '../features/assistance/useAssistanceHistor
 import { departmentService } from '../features/departments/departmentService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
+import { ASSISTANCE_REFRESH_INTERVAL_MS } from '../lib/refreshIntervals';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useTranslation } from '../hooks/useTranslation';
 import { ListenButton } from '../components/common/ListenButton';
@@ -83,7 +86,10 @@ function SubmissionConfirmation({ request, department, onSendAnother }) {
 
 function RequestHistory({ history, departmentsById, onAnnounce }) {
   const { t } = useTranslation();
-  const { status, items, error, reload, hasMore, loadMore, loadingMore, moreError, replaceItem, meta } = history;
+  const { status, items, error, reload, refresh, hasMore, loadMore, loadingMore, moreError, replaceItem, meta } = history;
+  // Background refresh of the requests already shown, so staff acknowledgements appear without a
+  // reload. Read-only: it never creates or acknowledges a request. Starts after the first load.
+  const autoRefresh = useAutoRefresh(refresh, { intervalMs: ASSISTANCE_REFRESH_INTERVAL_MS, enabled: status === 'success' });
 
   let content;
   if (status === 'error') {
@@ -138,14 +144,26 @@ function RequestHistory({ history, departmentsById, onAnnounce }) {
             {t('assistance.yourRequests')}
           </h2>
           <p className="mt-1 text-sm text-slate-600">{t('assistance.historyIntro')}</p>
+          {status === 'success' && (
+            <p className="mt-1 text-sm text-slate-600">
+              {t('autoRefresh.note', { seconds: ASSISTANCE_REFRESH_INTERVAL_MS / 1000 })}
+            </p>
+          )}
         </div>
         {status !== 'error' && (
-          <Button variant="ghost" onClick={reload} aria-disabled={status === 'loading' || undefined}>
-            <RefreshCw aria-hidden="true" className={status === 'loading' ? 'size-4 animate-spin' : 'size-4'} />
+          <Button
+            variant="ghost"
+            onClick={status === 'success' ? autoRefresh.refresh : reload}
+            aria-disabled={status === 'loading' || autoRefresh.refreshing || undefined}
+          >
+            <RefreshCw aria-hidden="true" className={status === 'loading' || autoRefresh.refreshing ? 'size-4 animate-spin' : 'size-4'} />
             {t('common.refresh')}
           </Button>
         )}
       </div>
+      {status === 'success' && (
+        <RefreshErrorNotice error={autoRefresh.error} onRetry={autoRefresh.refresh} retrying={autoRefresh.refreshing} />
+      )}
       {content}
     </section>
   );

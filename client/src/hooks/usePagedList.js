@@ -1,19 +1,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { fetchLoadedPages } from '../lib/autoRefresh';
 
 /**
  * A paginated list loaded page by page. `fetchPage({ page, limit, signal })` must resolve to
  * `{ items, meta: { page, limit, total } }` and be stable (useCallback); changing it reloads.
+ *
+ * `refresh(signal)` re-reads the pages already shown, in the background (e.g. from
+ * useAutoRefresh): items stay on screen while it runs and are left as they are if it fails (the
+ * error is thrown to the caller). A reload or "load more" that starts meanwhile wins: the
+ * refresh result is then dropped, so it can never overwrite newer data.
  */
 export function usePagedList(fetchPage, pageSize = 10) {
   const [state, setState] = useState({ status: 'loading', items: [], meta: null, error: null });
   const [loadingMore, setLoadingMore] = useState(false);
   const [moreError, setMoreError] = useState(null);
   const controllerRef = useRef(null);
+  // Bumped by every first-page load and "load more"; a refresh applies only if it is unchanged.
+  const versionRef = useRef(0);
+  const stateRef = useRef(state);
+  const loadingMoreRef = useRef(false);
+  useEffect(() => {
+    stateRef.current = state;
+    loadingMoreRef.current = loadingMore;
+  });
 
   const loadFirstPage = useCallback(async () => {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
+    versionRef.current += 1;
     setState((current) => ({ ...current, status: 'loading', error: null }));
     setMoreError(null);
     try {
@@ -32,6 +47,7 @@ export function usePagedList(fetchPage, pageSize = 10) {
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !state.meta) return;
+    versionRef.current += 1;
     setLoadingMore(true);
     setMoreError(null);
     try {
@@ -47,6 +63,19 @@ export function usePagedList(fetchPage, pageSize = 10) {
     }
   }, [fetchPage, pageSize, loadingMore, state.meta]);
 
+  const refresh = useCallback(
+    async (signal) => {
+      const current = stateRef.current;
+      // Nothing to refresh before the first page has loaded (its own error state has Retry).
+      if (current.status !== 'success' || loadingMoreRef.current) return;
+      const version = versionRef.current;
+      const { items, meta } = await fetchLoadedPages(fetchPage, { loadedPages: current.meta?.page ?? 1, pageSize, signal });
+      if (signal?.aborted || version !== versionRef.current) return;
+      setState((latest) => ({ ...latest, status: 'success', items, meta, error: null }));
+    },
+    [fetchPage, pageSize],
+  );
+
   const replaceItem = useCallback((updated) => {
     setState((current) => ({
       ...current,
@@ -57,5 +86,5 @@ export function usePagedList(fetchPage, pageSize = 10) {
   const total = state.meta?.total;
   const hasMore = typeof total === 'number' && state.items.length < total;
 
-  return { ...state, hasMore, loadingMore, moreError, reload: loadFirstPage, loadMore, replaceItem };
+  return { ...state, hasMore, loadingMore, moreError, reload: loadFirstPage, refresh, loadMore, replaceItem };
 }
