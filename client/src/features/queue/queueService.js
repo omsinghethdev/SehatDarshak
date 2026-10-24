@@ -7,9 +7,11 @@ import { mockQueueDemo, mockQueueService, mockStaffQueueService } from './mockQu
 /**
  * Patient queue-token service. Both implementations share one interface:
  *   listActiveTokens({ signal })        → Promise<QueueToken[]>
+ *   listTokenHistory({ status, page, limit, signal }) → Promise<{ items, meta }>  (finished tokens only)
  *   createToken(departmentId)           → Promise<QueueToken>   (409 CONFLICT if already active)
  *   getToken(tokenId, { signal })       → Promise<QueueToken>
  *   getTokenStatus(tokenId, { signal }) → Promise<QueueTokenStatus>
+ *   cancelToken(tokenId)                → Promise<QueueToken>   (own waiting token only; 409 otherwise)
  */
 export const queueService = USE_MOCK_SERVICES ? mockQueueService : apiQueueService;
 

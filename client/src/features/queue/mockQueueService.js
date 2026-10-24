@@ -9,7 +9,7 @@ import {
 import { API_ERROR_CODES } from '../../services/apiClient';
 import { MOCK_DEPARTMENTS } from '../departments/mockDepartments';
 import { AVERAGE_SERVICE_MINUTES } from './queueAssistantConfig';
-import { QUEUE_STATUSES, STATUS_DETAILS, STATUS_TRANSITIONS, isActiveStatus } from './queueStatus';
+import { QUEUE_STATUSES, STATUS_DETAILS, STATUS_TRANSITIONS, TERMINAL_STATUSES, isActiveStatus } from './queueStatus';
 
 /*
  * DEVELOPMENT-ONLY mock queue: one store in this browser's localStorage shared by the
@@ -192,6 +192,41 @@ export const mockQueueService = {
       .map((token) => toPublicToken(store, token));
   },
 
+  /**
+   * GET /patients/me/queue-tokens — like the server: own finished tokens only, newest first.
+   * The mock records no call or completion times, so those are always null here.
+   */
+  async listTokenHistory({ status, page = 1, limit = 10 } = {}) {
+    await simulateLatency();
+    const user = requireMockUser(['patient']);
+    if (status && !TERMINAL_STATUSES.includes(status)) {
+      throw mockError(API_ERROR_CODES.VALIDATION_ERROR, `status: Must be one of: ${TERMINAL_STATUSES.join(', ')}`, [
+        { field: 'status', message: 'Invalid status' },
+      ]);
+    }
+    const own = loadStore()
+      .tokens.filter(
+        (token) => token.patientId === user.id && (status ? token.status === status : TERMINAL_STATUSES.includes(token.status)),
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+
+    const safePage = parsePositiveInt(page, 1);
+    const safeLimit = Math.min(parsePositiveInt(limit, 20), MAX_LIMIT);
+    const start = (safePage - 1) * safeLimit;
+    return {
+      items: own.slice(start, start + safeLimit).map((token) => ({
+        id: token.id,
+        displayNumber: token.displayNumber,
+        departmentId: token.departmentId,
+        status: token.status,
+        issuedAt: token.createdAt,
+        calledAt: null,
+        completedAt: null,
+      })),
+      meta: { page: safePage, limit: safeLimit, total: own.length },
+    };
+  },
+
   async createToken(departmentId) {
     await simulateLatency(600);
     const user = requireMockUser(['patient']);
@@ -231,6 +266,22 @@ export const mockQueueService = {
     const user = requireMockUser(['patient']);
     const store = loadStore();
     return toPublicToken(store, findOwnedToken(store, tokenId, user));
+  },
+
+  /** POST /queue-tokens/:tokenId/cancel — like the server: own token, waiting only, 404 for others. */
+  async cancelToken(tokenId) {
+    await simulateLatency();
+    const user = requireMockUser(['patient']);
+    const store = loadStore();
+    const token = store.tokens.find((item) => item.id === tokenId && item.patientId === user.id);
+    if (!token) throw mockError(API_ERROR_CODES.NOT_FOUND, 'This token could not be found.');
+    if (token.status !== 'waiting') {
+      throw mockError(API_ERROR_CODES.CONFLICT, `Only a waiting token can be cancelled. This token is ${token.status}.`);
+    }
+    token.status = 'cancelled';
+    token.updatedAt = new Date().toISOString();
+    writeStore(STORE_KEY, store);
+    return toPublicToken(store, token);
   },
 
   async getTokenStatus(tokenId) {

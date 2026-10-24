@@ -7,6 +7,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { departmentService } from '../features/departments/departmentService';
+import { CancelTokenSection } from '../features/queue/CancelTokenSection';
 import { DemoQueueControls } from '../features/queue/DemoQueueControls';
 import { StatusBadge } from '../features/queue/StatusBadge';
 import { StatusLegend } from '../features/queue/StatusLegend';
@@ -24,7 +25,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useTranslation } from '../hooks/useTranslation';
 import { ListenButton } from '../components/common/ListenButton';
 import { estimateLabel, formatEstimate, getWaitEstimate, isReliableCount } from '../features/queue/waitEstimate';
-import { PATHS } from '../routes/paths';
+import { PATHS, bookTokenPath } from '../routes/paths';
 import { getErrorContent } from '../utils/errorMessages';
 
 function formatTime(date, locale) {
@@ -127,6 +128,24 @@ export function TokenStatusPage() {
   const { lastUpdated, setLastUpdated, refreshError, refreshing, refresh } = useTokenStatusPolling(token, applyStatus);
   const { alert, dismiss: dismissAlert } = useTurnAlerts(token);
 
+  // Result of the patient's own cancel request, shown once and focused so it is read out.
+  const [cancelNotice, setCancelNotice] = useState(null); // { kind: 'cancelled' | 'conflict', tokenId }
+  const cancelNoticeRef = useRef(null);
+  useEffect(() => {
+    if (cancelNotice) cancelNoticeRef.current?.focus();
+  }, [cancelNotice]);
+
+  function handleCancelled(updated) {
+    applyStatus(updated); // only after the server confirmed the cancellation
+    setLastUpdated(new Date());
+    setCancelNotice({ kind: 'cancelled', tokenId: updated.id });
+  }
+
+  function handleCancelConflict() {
+    refresh(); // the status changed on the server (e.g. called); show what it is now
+    setCancelNotice({ kind: 'conflict', tokenId });
+  }
+
   if (status === 'error') {
     return (
       <Container className="max-w-3xl space-y-6 py-10 sm:py-14">
@@ -159,6 +178,28 @@ export function TokenStatusPage() {
       </ButtonLink>
 
       <TurnAlert alert={alert} departmentName={departmentName} onDismiss={dismissAlert} />
+
+      {cancelNotice?.tokenId === token.id && (
+        <div ref={cancelNoticeRef} tabIndex={-1}>
+          {cancelNotice.kind === 'cancelled' ? (
+            <Notice
+              tone="success"
+              title={t('queue.cancel.doneTitle', { number: token.displayNumber })}
+              action={
+                <ButtonLink to={bookTokenPath(token.departmentId)} variant="secondary">
+                  {t('queue.cancel.bookAgain')}
+                </ButtonLink>
+              }
+            >
+              {t('queue.cancel.doneBody')}
+            </Notice>
+          ) : (
+            <Notice tone="warning" title={t('queue.cancel.conflictTitle')}>
+              {t('queue.cancel.conflictBody')}
+            </Notice>
+          )}
+        </div>
+      )}
 
       <section
         aria-labelledby="token-heading"
@@ -230,6 +271,8 @@ export function TokenStatusPage() {
       {(token.status === 'waiting' || token.status === 'called') && (
         <WaitingGuidance token={token} department={data.department} />
       )}
+
+      {active && <CancelTokenSection token={token} onCancelled={handleCancelled} onConflict={handleCancelConflict} />}
 
       <Notice tone={isMockAuth ? 'warning' : 'info'} title={isMockAuth ? t('demo.dataTitle') : t('queue.aboutWaitingTitle')}>
         {isMockAuth ? t('demo.tokenBody') : t('queue.aboutWaitingBody')}

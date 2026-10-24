@@ -14,6 +14,7 @@ import { RegisterAccountPage, RegisterPage } from '../pages/RegisterPage';
 import { ScanPage } from '../pages/ScanPage';
 import { StaffAssistancePage } from '../pages/StaffAssistancePage';
 import { StaffQueuePage } from '../pages/StaffQueuePage';
+import { TokenHistoryPage } from '../pages/TokenHistoryPage';
 import { TokenStatusPage } from '../pages/TokenStatusPage';
 import { UnauthorizedPage } from '../pages/UnauthorizedPage';
 import { GuestRoute } from './GuestRoute';
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
             children: [
               { path: PATHS.bookToken, element: <BookTokenPage /> },
               { path: PATHS.tokenStatus, element: <TokenStatusPage /> },
+              { path: PATHS.tokenHistory, element: <TokenHistoryPage /> },
               { path: PATHS.assistance, element: <AssistancePage /> },
             ],
           },

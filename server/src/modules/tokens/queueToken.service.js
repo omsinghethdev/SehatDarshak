@@ -4,6 +4,7 @@ import {
   QueueToken,
   activeTokenStatuses,
   oneActiveTokenIndexName,
+  terminalTokenStatuses,
 } from './queueToken.model.js';
 import { nextTokenSequence } from './tokenCounter.model.js';
 
@@ -120,10 +121,60 @@ export async function getQueueTokenStatus(user, tokenId) {
   return toTokenStatus(token, await countPatientsAhead(token));
 }
 
+// A patient may withdraw their own token only while it is still waiting. Ownership and status
+// are part of the update filter, so the check and the change happen in one atomic operation:
+// a concurrent call-next (waiting → called) or staff change can never be overwritten.
+// Other patients' tokens are reported as missing, exactly like reads.
+export async function cancelOwnQueueToken(patient, tokenId) {
+  const owned = { _id: tokenId, patientId: patient._id };
+
+  const updated = await QueueToken.findOneAndUpdate(
+    { ...owned, status: 'waiting' },
+    { $set: { status: 'cancelled' } },
+    { new: true, lean: true },
+  );
+  if (updated) {
+    return toPublicToken(updated, 0);
+  }
+
+  const current = await QueueToken.findOne(owned).select('status').lean();
+  if (!current) {
+    throw notFoundError('Queue token not found');
+  }
+  throw conflictError(`Only a waiting token can be cancelled. This token is ${current.status}.`);
+}
+
 export async function listActiveTokensForPatient(patient) {
   const tokens = await QueueToken.find({ patientId: patient._id, status: { $in: activeTokenStatuses } })
     .sort({ issuedAt: 1, _id: 1 })
     .lean();
 
   return Promise.all(tokens.map(async (token) => toPublicToken(token, await countPatientsAhead(token))));
+}
+
+// A finished token as its patient sees it in their history: the token's own fields and the
+// timestamps the server actually recorded (calledAt by call-next, completedAt on completion;
+// null when that step never happened). No queue position or estimate: they no longer apply.
+function toHistoryToken(token) {
+  return {
+    id: token._id,
+    displayNumber: token.displayNumber,
+    departmentId: token.departmentId,
+    status: token.status,
+    issuedAt: token.issuedAt.toISOString(),
+    calledAt: token.calledAt?.toISOString() ?? null,
+    completedAt: token.completedAt?.toISOString() ?? null,
+  };
+}
+
+// The patient's own finished tokens, newest first; _id breaks ties so pages never overlap.
+// Active tokens are never included: they stay on GET /api/patients/me/queue-tokens/active.
+export async function listTokenHistoryForPatient(patient, { status }, { page, limit, skip }) {
+  const filter = { patientId: patient._id, status: status ?? { $in: terminalTokenStatuses } };
+  const [tokens, total] = await Promise.all([
+    QueueToken.find(filter).sort({ issuedAt: -1, _id: -1 }).skip(skip).limit(limit).lean(),
+    QueueToken.countDocuments(filter),
+  ]);
+
+  return { data: tokens.map(toHistoryToken), meta: { page, limit, total } };
 }

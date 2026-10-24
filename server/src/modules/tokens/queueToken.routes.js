@@ -4,6 +4,7 @@ import { parseEnumValue, parseObjectBody, parseResourceId } from '../../utils/re
 import { updateTokenStatus } from '../queues/queue.service.js';
 import { tokenStatuses } from './queueToken.model.js';
 import {
+  cancelOwnQueueToken,
   createQueueToken,
   getQueueToken,
   getQueueTokenStatus,
@@ -31,7 +32,16 @@ queueTokenRouter.get('/:tokenId/status', async (request, response) => {
   response.status(200).json({ data: await getQueueTokenStatus(request.user, tokenId) });
 });
 
-// Patients can never change queue statuses.
+// A patient withdraws their own waiting token. The patient comes from the JWT; the body must be
+// empty (or absent), so no patient, status, or other field can be supplied by the client.
+queueTokenRouter.post('/:tokenId/cancel', authorizeRoles('patient'), async (request, response) => {
+  const tokenId = parseResourceId(request.params.tokenId, 'tokenId');
+  parseObjectBody(request.body ?? {}, []);
+
+  response.status(200).json({ data: await cancelOwnQueueToken(request.user, tokenId) });
+});
+
+// Apart from cancelling their own waiting token (above), patients can never change queue statuses.
 queueTokenRouter.patch('/:tokenId/status', authorizeRoles('staff', 'admin'), async (request, response) => {
   const tokenId = parseResourceId(request.params.tokenId, 'tokenId');
   const body = parseObjectBody(request.body, ['status']);

@@ -16,6 +16,7 @@ export const PATHS = Object.freeze({
   scan: '/scan',
   qrCodes: '/qr-codes',
   bookToken: '/queue/book',
+  tokenHistory: '/queue/history',
   tokenStatus: '/queue/tokens/:tokenId',
   unauthorized: '/unauthorized',
 });
