@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { MapPinOff, QrCode } from 'lucide-react';
+import { MapPinOff } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink } from '../components/common/Button';
 import { Container } from '../components/common/Container';
@@ -188,12 +188,6 @@ export function NavigationPage() {
         eyebrow={t('dashboard.actions.infoTitle')}
         title={t('nav.map')}
         description={t('map.intro')}
-        actions={
-          <ButtonLink to={PATHS.scan} variant="secondary">
-            <QrCode aria-hidden="true" className="size-5" />
-            {t('scan.title')}
-          </ButtonLink>
-        }
       />
 
       <div className="space-y-3">

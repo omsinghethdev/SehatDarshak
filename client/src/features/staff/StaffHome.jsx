@@ -1,4 +1,4 @@
-import { BarChart3, HandHelping, ListOrdered, Map as MapIcon } from 'lucide-react';
+import { BarChart3, HandHelping, ListOrdered, Map as MapIcon, QrCode } from 'lucide-react';
 import { QuickActionCard } from '../../components/common/QuickActionCard';
 import { Notice } from '../../components/feedback/Notice';
 import { PATHS } from '../../routes/paths';
@@ -13,6 +13,7 @@ export function StaffHome({ user, role, isMockAuth }) {
       : []),
     { to: PATHS.staffQueue, icon: ListOrdered, title: 'Queue management', description: 'Call the next patient and update consultation status.' },
     { to: PATHS.staffAssistance, icon: HandHelping, title: 'Assistance requests', description: 'Review and acknowledge patient requests.' },
+    { to: PATHS.scan, icon: QrCode, title: 'Scan a hospital QR code', description: 'Check a hospital QR code and open the place or queue it points to.' },
     { to: PATHS.navigation, icon: MapIcon, title: 'Hospital map', description: 'Find departments and facilities on each floor.' },
   ];
 

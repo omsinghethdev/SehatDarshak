@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const APP_NAME = 'SehatDarsak';
+const APP_NAME = 'Sehat Darshak';
 
 export function useDocumentTitle(title) {
   useEffect(() => {

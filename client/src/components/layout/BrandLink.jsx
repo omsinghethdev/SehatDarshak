@@ -16,7 +16,7 @@ export function BrandLink({ className, onClick }) {
       <span className="flex size-9 items-center justify-center rounded-lg bg-brand-700">
         <HeartPulse aria-hidden="true" className="size-5 text-white" />
       </span>
-      <span className="text-xl tracking-tight">SehatDarsak</span>
+      <span className="text-xl tracking-tight">Sehat Darshak</span>
     </Link>
   );
 }

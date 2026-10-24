@@ -23,7 +23,7 @@ const en = {
     signOut: 'Sign out',
     signIn: 'Sign in',
     register: 'Register',
-    brandHome: 'SehatDarsak — home',
+    brandHome: 'Sehat Darshak — home',
   },
   nav: {
     mainLabel: 'Main',
@@ -45,7 +45,7 @@ const en = {
       "Waiting times are estimates and may vary. Assistance requests are for non-emergency help and are not an emergency medical service. For emergencies, contact hospital staff directly or use the hospital's designated emergency process.",
     navLabel: 'Footer',
     quickLinks: 'Quick links',
-    copyright: '© {year} SehatDarsak. Demonstration project using fictional data.',
+    copyright: '© {year} Sehat Darshak. Demonstration project using fictional data.',
   },
   demo: {
     bannerTitle: 'Demo mode:',
@@ -158,7 +158,7 @@ const en = {
     badge: 'For government hospital OPDs',
     title: 'Know your turn. Find your way. Get help when you need it.',
     intro:
-      'SehatDarsak makes OPD visits less uncertain. Get a queue token, follow your place in line, find departments on a simple floor map, and ask hospital staff for assistance — in the language you prefer.',
+      'Sehat Darshak makes OPD visits less uncertain. Get a queue token, follow your place in line, find departments on a simple floor map, and ask hospital staff for assistance — in the language you prefer.',
     goToDashboard: 'Go to your dashboard',
     example: {
       yourToken: 'Your token',
@@ -496,7 +496,7 @@ const en = {
   scan: {
     eyebrow: 'Hospital QR codes',
     title: 'Scan a hospital QR code',
-    intro: 'Scan a SehatDarsak QR code at the hospital to see where a room is, find a department, or join its queue.',
+    intro: 'Scan a Sehat Darshak QR code at the hospital to see where a room is, find a department, or join its queue.',
     phoneTipTitle: 'Easiest way: use your phone camera',
     phoneTip: 'Open your phone camera, point it at the QR code, and tap the link that appears. You can also scan with the camera below if your browser supports it.',
     cameraTitle: 'Scan with this device',
@@ -540,16 +540,16 @@ const en = {
     manualHint: 'For example: {example}',
     manualRequired: 'Enter the link printed under the QR code.',
     open: 'Open',
-    privacy: 'SehatDarsak only opens its own pages from a QR code. It never opens other websites, and a QR code never signs you in.',
+    privacy: 'Sehat Darshak only opens its own pages from a QR code. It never opens other websites, and a QR code never signs you in.',
     demoCodesLink: 'Show demo QR codes',
     invalid: {
       title: 'This QR code cannot be used',
       tryAgain: 'Please try again or ask hospital staff for help.',
       empty: 'The QR code was empty.',
-      tooLong: 'The QR code contains too much text to be a SehatDarsak code.',
-      notUrl: 'This is not a SehatDarsak link.',
+      tooLong: 'The QR code contains too much text to be a Sehat Darshak code.',
+      notUrl: 'This is not a Sehat Darshak link.',
       externalUrl: 'This QR code points to another website. For your safety it was not opened.',
-      unsupportedRoute: 'This link is not a SehatDarsak hospital QR code.',
+      unsupportedRoute: 'This link is not a Sehat Darshak hospital QR code.',
       unsupportedType: 'This kind of QR code is not supported.',
       unsupportedVersion: 'This QR code was made for a different version of the app.',
       missingId: 'This QR code does not say which place it is for.',
@@ -585,7 +585,7 @@ const en = {
   },
   qr: {
     title: 'Demo QR codes',
-    intro: 'Print or open these codes to try QR entry. Each code opens a SehatDarsak page; it never signs anyone in.',
+    intro: 'Print or open these codes to try QR entry. Each code opens a Sehat Darshak page; it never signs anyone in.',
     loading: 'Preparing QR codes…',
     print: 'Print codes',
     download: 'Download SVG',
