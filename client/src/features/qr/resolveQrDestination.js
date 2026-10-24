@@ -1,6 +1,7 @@
 import { API_ERROR_CODES } from '../../services/apiClient';
 import { departmentService } from '../departments/departmentService';
 import { findDepartmentLocations, findLocation } from '../navigation/locationLookup';
+import { tokenLookupService } from '../queue/queueService';
 
 /** The QR code's ID does not exist in the hospital data. */
 export class UnknownDestinationError extends Error {
@@ -15,6 +16,17 @@ export class IncompleteMapError extends Error {
   constructor() {
     super('Some floor maps could not be loaded');
     this.code = 'MAP_INCOMPLETE';
+  }
+}
+
+/**
+ * The scanned token does not exist or this account may not see it. The server answers both with
+ * 404 so a token's existence is never revealed; this error keeps them indistinguishable too.
+ */
+export class TokenUnavailableError extends Error {
+  constructor() {
+    super('Queue token not available');
+    this.code = 'TOKEN_UNAVAILABLE';
   }
 }
 
@@ -34,6 +46,24 @@ async function loadDepartment(departmentId, signal) {
  */
 export async function resolveQrDestination({ type, id }, signal) {
   if (type === 'hospital') return { type };
+
+  if (type === 'token') {
+    let token;
+    try {
+      token = await tokenLookupService.getToken(id, { signal });
+    } catch (error) {
+      if (error?.code === API_ERROR_CODES.NOT_FOUND || error?.code === API_ERROR_CODES.FORBIDDEN) {
+        throw new TokenUnavailableError();
+      }
+      throw error;
+    }
+    // The department name is helpful context; a failure here must not hide the token.
+    const department = await departmentService.getDepartment(token.departmentId, { signal }).catch((error) => {
+      if (error?.name === 'AbortError') throw error;
+      return null;
+    });
+    return { type, token, department };
+  }
 
   if (type === 'department' || type === 'queue') {
     const department = await loadDepartment(id, signal);

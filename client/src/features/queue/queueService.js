@@ -1,3 +1,4 @@
+import { readSession } from '../../services/authStorage';
 import { USE_MOCK_SERVICES } from '../../services/serviceMode';
 import { apiQueueService } from './apiQueueService';
 import { apiStaffQueueService } from './apiStaffQueueService';
@@ -20,6 +21,19 @@ export const queueService = USE_MOCK_SERVICES ? mockQueueService : apiQueueServi
  * Invalid transitions and a second `called` token are rejected with 409 CONFLICT.
  */
 export const staffQueueService = USE_MOCK_SERVICES ? mockStaffQueueService : apiStaffQueueService;
+
+/**
+ * Look up one token for any signed-in role (GET /queue-tokens/:tokenId), e.g. from a token QR.
+ * The server returns it only to the patient who owns it, staff of its department, and admins;
+ * everyone else gets NOT_FOUND, so a token's existence is not revealed.
+ *   getToken(tokenId, { signal }) → Promise<QueueToken>
+ */
+export const tokenLookupService = USE_MOCK_SERVICES
+  ? {
+      getToken: (tokenId, options) =>
+        (readSession()?.user.role === 'patient' ? mockQueueService : mockStaffQueueService).getToken(tokenId, options),
+    }
+  : { getToken: (tokenId, options) => apiQueueService.getToken(tokenId, options) };
 
 /** Demo-only simulation controls; `null` when connected to the real API. */
 export const queueDemoControls = USE_MOCK_SERVICES ? mockQueueDemo : null;

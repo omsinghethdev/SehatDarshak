@@ -10,17 +10,22 @@ import { PATHS } from '../../routes/paths';
  *   /scan?type=department&id=<departmentId>&v=1 A department (e.g. dept_demo_opd)
  *   /scan?type=location&id=<locationId>&v=1     A mapped place (e.g. room_registration)
  *   /scan?type=queue&id=<departmentId>&v=1      A department's queue entry point
+ *   /scan?type=token&id=<tokenId>&v=1           A patient's queue token, for hospital staff to look up
  *
- * IDs are the existing department / map-location IDs from the services. `v` is optional and must
+ * IDs are the existing department / map-location / queue-token IDs from the services. A token QR
+ * carries only the token ID — never patient details or credentials — and grants nothing by itself:
+ * the token is shown only to callers the server already allows to read it. `v` is optional and must
  * be "1". The URL's origin must be this app's own origin (or VITE_PUBLIC_APP_URL). Anything else —
  * another site, another path, unknown parameters, malformed IDs — is rejected, and the app never
  * redirects to a URL taken from a QR code: it only navigates to paths it builds itself.
  */
 
 export const QR_PAYLOAD_VERSION = '1';
-export const QR_TYPES = Object.freeze(['hospital', 'department', 'location', 'queue']);
-const TYPES_WITH_ID = new Set(['department', 'location', 'queue']);
+export const QR_TYPES = Object.freeze(['hospital', 'department', 'location', 'queue', 'token']);
+const TYPES_WITH_ID = new Set(['department', 'location', 'queue', 'token']);
 const ID_PATTERN = /^[a-z0-9_]{1,64}$/;
+// Token IDs follow the server's resource-ID rule (parseResourceId), e.g. token_3f9a… or token_mock_<uuid>.
+const TOKEN_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const MAX_LENGTH = 512;
 
 /** Public base URL for generated QR codes (VITE_PUBLIC_APP_URL), if it is a valid http(s) URL. */
@@ -83,8 +88,16 @@ export function parseQrPayload(input) {
   if (!TYPES_WITH_ID.has(type)) return { ok: true, payload: { type } };
   const id = params.get('id');
   if (!id) return fail('missingId');
-  if (!ID_PATTERN.test(id)) return fail('invalidId');
+  if (!(type === 'token' ? TOKEN_ID_PATTERN : ID_PATTERN).test(id)) return fail('invalidId');
   return { ok: true, payload: { type, id } };
+}
+
+/**
+ * The QR payload for a queue token the service has returned: only its ID. Returns null for a
+ * missing or malformed ID, so no code is ever generated for an unconfirmed token.
+ */
+export function tokenQrPayload(tokenId) {
+  return typeof tokenId === 'string' && TOKEN_ID_PATTERN.test(tokenId) ? { type: 'token', id: tokenId } : null;
 }
 
 /** The in-app path for a validated payload (the only thing the app ever navigates to). */

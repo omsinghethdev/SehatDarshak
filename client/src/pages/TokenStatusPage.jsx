@@ -12,6 +12,7 @@ import { StatusBadge } from '../features/queue/StatusBadge';
 import { StatusLegend } from '../features/queue/StatusLegend';
 import { TokenMetrics } from '../features/queue/TokenMetrics';
 import { TokenNextStep } from '../features/queue/TokenNextStep';
+import { TokenQrCard } from '../features/queue/TokenQrCard';
 import { TurnAlert } from '../features/queue/TurnAlert';
 import { WaitingGuidance } from '../features/queue/WaitingGuidance';
 import { useTurnAlerts } from '../features/queue/useTurnAlerts';
@@ -220,6 +221,9 @@ export function TokenStatusPage() {
           {active && ` ${t('queue.keepTrying')}`}
         </Notice>
       )}
+
+      {/* Only for a token the service returned and that is still in the queue. */}
+      {active && <TokenQrCard token={token} />}
 
       <TokenNextStep token={token} departmentName={departmentName} />
 

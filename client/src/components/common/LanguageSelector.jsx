@@ -27,8 +27,10 @@ export function LanguageSelector({ className }) {
                 onClick={() => setLanguage(option.code)}
                 className={cn(
                   'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-base font-semibold transition-colors motion-safe:active:translate-y-px',
+                  // The selected language is tinted rather than filled, so it never competes
+                  // with the page's primary call to action; aria-pressed conveys the state.
                   selected
-                    ? 'border-brand-700 bg-brand-700 text-white'
+                    ? 'border-brand-700 bg-brand-50 text-brand-900 ring-1 ring-brand-700 ring-inset'
                     : 'border-slate-400 bg-white text-slate-800 hover:border-brand-700 hover:bg-brand-50',
                 )}
               >

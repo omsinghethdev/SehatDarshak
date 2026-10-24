@@ -12,7 +12,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { PATHS, bookTokenPath, mapLocationPath, tokenStatusPath } from '../../routes/paths';
 import { getLocationType, typeLabel } from '../navigation/locationTypes';
+import { StatusBadge } from '../queue/StatusBadge';
+import { TokenMetrics } from '../queue/TokenMetrics';
 import { queueService } from '../queue/queueService';
+import { isActiveStatus } from '../queue/queueStatus';
 import { resolveQrDestination } from './resolveQrDestination';
 
 /** Queue action for a department: patients book (or open their existing token); others see why not. */
@@ -63,6 +66,55 @@ function RoomList({ map }) {
  * The destination behind a validated QR payload, loaded from the existing services. Actions only
  * link to existing routes, which keep their own sign-in and role checks.
  */
+/**
+ * A queue token opened from its QR. Shows only the token's own fields (number, department,
+ * status, simulated estimate) — the API returns no patient details — and the next step for
+ * the viewer's role. The server decides who may see the token at all.
+ */
+function TokenScanResult({ token, department, demoNotice, scanAgain }) {
+  const { t } = useTranslation();
+  const { role } = useAuth();
+  const active = isActiveStatus(token.status);
+
+  return (
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow={t('scan.resultEyebrow')}
+        title={t('scan.token.title', { number: token.displayNumber })}
+        description={department?.name ?? t('queue.departmentUnavailable')}
+      />
+      {demoNotice}
+      <section aria-labelledby="scan-token-heading" className="space-y-4 rounded-xl border border-line bg-white p-5 sm:p-6">
+        <h2 id="scan-token-heading" className="sr-only">
+          {t('scan.token.detailsHeading')}
+        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-slate-600">{t('queue.statusLabel')}</span>
+          <StatusBadge status={token.status} />
+          {!active && <span className="text-sm font-medium text-slate-700">{t('queue.noLongerActive')}</span>}
+        </div>
+        {/* Status guidance is written for the patient ("go to the room now"), so staff see only the facts. */}
+        <TokenMetrics token={token} showStatusDescription={role === 'patient'} />
+        <p className="text-sm text-slate-600">{t('scan.token.privacy')}</p>
+      </section>
+      <div className="flex flex-wrap gap-3">
+        {role === 'patient' ? (
+          <ButtonLink to={tokenStatusPath(token.id)}>
+            <Ticket aria-hidden="true" className="size-5" />
+            {t('scan.token.openYourToken')}
+          </ButtonLink>
+        ) : (
+          <ButtonLink to={`${PATHS.staffQueue}?department=${encodeURIComponent(token.departmentId)}`}>
+            <Ticket aria-hidden="true" className="size-5" />
+            {t('scan.token.openQueue')}
+          </ButtonLink>
+        )}
+      </div>
+      {scanAgain}
+    </div>
+  );
+}
+
 export function ScanResult({ type, id }) {
   const { t } = useTranslation();
   const { role, isMockAuth } = useAuth();
@@ -84,6 +136,16 @@ export function ScanResult({ type, id }) {
 
   if (destination.status === 'error') {
     const code = destination.error?.code;
+    if (code === 'TOKEN_UNAVAILABLE') {
+      return (
+        <div className="space-y-6">
+          <Notice tone="error" role="alert" title={t('scan.token.unavailableTitle')}>
+            {t('scan.token.unavailableBody')}
+          </Notice>
+          {scanAgain}
+        </div>
+      );
+    }
     if (code === 'UNKNOWN_DESTINATION') {
       return (
         <div className="space-y-6">
@@ -106,7 +168,9 @@ export function ScanResult({ type, id }) {
       </div>
     );
   }
-  if (!destination.data) return <LoadingState label={t('scan.loadingDestination')} />;
+  if (!destination.data) {
+    return <LoadingState label={t(type === 'token' ? 'scan.token.loading' : 'scan.loadingDestination')} />;
+  }
 
   const data = destination.data;
   const demoNotice = isMockAuth && (
@@ -114,6 +178,10 @@ export function ScanResult({ type, id }) {
       {t('scan.demoBody')}
     </Notice>
   );
+
+  if (data.type === 'token') {
+    return <TokenScanResult token={data.token} department={data.department} demoNotice={demoNotice} scanAgain={scanAgain} />;
+  }
 
   if (data.type === 'hospital') {
     return (

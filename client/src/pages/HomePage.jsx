@@ -1,16 +1,23 @@
 import {
+  Accessibility,
   ArrowRight,
-  BellRing,
-  ClipboardList,
+  Building2,
   Clock,
+  HandHelping,
+  Hourglass,
+  Keyboard,
   Languages,
   LayoutDashboard,
   ListOrdered,
+  LogIn,
   Map as MapIcon,
   MapPin,
   ShieldCheck,
+  Smartphone,
   Ticket,
+  Type,
   Users,
+  Volume2,
 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { ButtonLink } from '../components/common/Button';
@@ -27,14 +34,27 @@ import { cn } from '../utils/cn';
 // Text lives in the dictionaries under home.*; only icons and keys are listed here.
 const FEATURES = [
   { icon: Ticket, key: 'tokens' },
+  { icon: Hourglass, key: 'tracking' },
   { icon: MapIcon, key: 'maps' },
-  { icon: BellRing, key: 'help' },
+  { icon: HandHelping, key: 'help' },
+  { icon: Languages, key: 'languages' },
+  { icon: Accessibility, key: 'accessible' },
 ];
 
 const STEPS = [
-  { icon: Languages, key: 'register' },
-  { icon: ClipboardList, key: 'department' },
+  { icon: LogIn, key: 'register' },
+  { icon: Building2, key: 'department' },
+  { icon: Ticket, key: 'token' },
   { icon: MapPin, key: 'track' },
+];
+
+const ACCESS_POINTS = [
+  { icon: Languages, key: 'language' },
+  { icon: Type, key: 'reading' },
+  { icon: Keyboard, key: 'keyboard' },
+  { icon: Smartphone, key: 'touch' },
+  { icon: Volume2, key: 'listen' },
+  { icon: HandHelping, key: 'assistance' },
 ];
 
 const STAFF_POINTS = [
@@ -152,7 +172,7 @@ export function HomePage() {
   return (
     <>
       <section aria-labelledby="hero-heading" className="border-b border-line">
-        <Container className="grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_1fr] lg:py-24">
+        <Container className="grid items-center gap-12 pt-10 pb-14 sm:py-20 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:py-24">
           <div>
             <p
               className={cn(
@@ -164,42 +184,51 @@ export function HomePage() {
               <ShieldCheck aria-hidden="true" className="size-4" />
               {t('home.badge')}
             </p>
+            {/* Balanced wrapping avoids a one-word last line; Devanagari needs more line height
+                and normal tracking so matras and conjuncts never touch the line above. */}
             <h1
               id="hero-heading"
-              className={cn('mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl', riseClass)}
+              className={cn(
+                'mt-5 max-w-2xl text-[2.25rem] leading-[1.1] font-bold tracking-tight text-balance text-slate-900 sm:text-5xl sm:leading-[1.06] xl:text-[3.25rem]',
+                '[&:lang(hi)]:leading-[1.3] [&:lang(hi)]:tracking-normal',
+                riseClass,
+              )}
               style={riseDelay(80)}
             >
               {t('home.title')}
             </h1>
-            <p className={cn('mt-6 max-w-xl text-lg text-slate-700', riseClass)} style={riseDelay(160)}>
+            <p
+              className={cn('mt-5 max-w-[36rem] text-[1.0625rem] leading-relaxed text-pretty text-slate-700 sm:text-lg', riseClass)}
+              style={riseDelay(160)}
+            >
               {t('home.intro')}
             </p>
-            <div className={cn('mt-8 flex flex-col gap-3 sm:flex-row', riseClass)} style={riseDelay(240)}>
+            <div className={cn('mt-8 flex flex-col gap-3 sm:flex-row sm:items-center', riseClass)} style={riseDelay(240)}>
               {isAuthenticated ? (
-                <ButtonLink to={PATHS.dashboard} className="landing-cta px-6">
+                <ButtonLink to={PATHS.dashboard} className="landing-cta min-h-12 px-6 shadow-raised">
                   {t('home.goToDashboard')}
                   <ArrowRight aria-hidden="true" className="landing-cta-arrow size-5" />
                 </ButtonLink>
               ) : (
                 <>
-                  <ButtonLink to={PATHS.registerPatient} className="landing-cta px-6">
+                  <ButtonLink to={PATHS.registerPatient} className="landing-cta min-h-12 px-6 shadow-raised">
                     {t('auth.registerTitle')}
                     <ArrowRight aria-hidden="true" className="landing-cta-arrow size-5" />
                   </ButtonLink>
-                  <ButtonLink to={PATHS.login} variant="secondary" className="landing-cta px-6">
+                  <ButtonLink to={PATHS.login} variant="secondary" className="landing-cta min-h-12 px-6">
                     {t('layout.signIn')}
                   </ButtonLink>
                 </>
               )}
             </div>
-            <LanguageSelector className="mt-5 flex-wrap" />
+            <LanguageSelector className="mt-8 flex-wrap" />
           </div>
 
           <ExampleVisit animate={reveal} />
         </Container>
       </section>
 
-      <section id="features" tabIndex={-1} aria-labelledby="features-heading" className="py-16 sm:py-20">
+      <section id="features" tabIndex={-1} aria-labelledby="features-heading" className="py-16 sm:py-24">
         <Container>
           <SectionHeading
             id="features-heading"
@@ -207,14 +236,17 @@ export function HomePage() {
             title={t('home.features.title')}
             description={t('home.features.description')}
           />
-          <ul className="mt-10 grid gap-6 md:grid-cols-3">
+          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, key }) => (
-              <li key={key} className="hover-card rounded-xl border border-line bg-white p-6">
-                <span className="hover-icon flex size-11 items-center justify-center rounded-lg bg-brand-50">
+              // On phones the icon sits beside the text, so six cards don't make a very long column.
+              <li key={key} className="hover-card flex gap-4 rounded-xl border border-line bg-white p-5 sm:block sm:p-6">
+                <span className="hover-icon flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand-50">
                   <Icon aria-hidden="true" className="size-6 text-brand-700" />
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{t(`home.features.${key}.title`)}</h3>
-                <p className="mt-2 text-slate-700">{t(`home.features.${key}.description`)}</p>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-semibold text-slate-900 sm:mt-4">{t(`home.features.${key}.title`)}</h3>
+                  <p className="mt-1 text-slate-700 sm:mt-2">{t(`home.features.${key}.description`)}</p>
+                </div>
               </li>
             ))}
           </ul>
@@ -225,33 +257,87 @@ export function HomePage() {
         id="how-it-works"
         tabIndex={-1}
         aria-labelledby="how-heading"
-        className="border-y border-line bg-canvas-muted py-16 sm:py-20"
+        className="border-y border-line bg-canvas-muted py-16 sm:py-24"
       >
         <Container>
-          <SectionHeading id="how-heading" eyebrow={t('nav.howItWorks')} title={t('home.steps.title')} />
-          <ol className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map(({ icon: Icon, key }, index) => (
-              <li key={key} className="hover-step flex gap-4">
-                <span
-                  aria-hidden="true"
-                  className="hover-step-number flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-700 font-bold text-white"
-                >
-                  {index + 1}
-                </span>
-                <div>
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-                    <Icon aria-hidden="true" className="hover-step-icon size-5 text-brand-700" />
-                    {t(`home.steps.${key}.title`)}
-                  </h3>
-                  <p className="mt-1 text-slate-700">{t(`home.steps.${key}.description`)}</p>
-                </div>
-              </li>
-            ))}
+          <SectionHeading
+            id="how-heading"
+            eyebrow={t('nav.howItWorks')}
+            title={t('home.steps.title')}
+            description={t('home.steps.description')}
+          />
+          {/* A vertical timeline on small screens and a horizontal one on wide screens. The order
+              is carried by the <ol> and the visible step numbers, not by colour. */}
+          <ol className="mt-10 grid lg:grid-cols-4 lg:gap-8">
+            {STEPS.map(({ icon: Icon, key }, index) => {
+              const last = index === STEPS.length - 1;
+              return (
+                <li key={key} className={cn('hover-step flex gap-4 lg:flex-col lg:gap-5', !last && 'pb-8 lg:pb-0')}>
+                  <div className="flex flex-col items-center lg:flex-row">
+                    <span
+                      aria-hidden="true"
+                      className="hover-step-number flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-700 font-bold text-white"
+                    >
+                      {index + 1}
+                    </span>
+                    {!last && (
+                      <span aria-hidden="true" className="mt-2 w-px flex-1 bg-brand-200 lg:mt-0 lg:ml-4 lg:h-px lg:w-auto" />
+                    )}
+                  </div>
+                  <div className="min-w-0 pt-1.5 lg:pt-0">
+                    <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                      <Icon aria-hidden="true" className="hover-step-icon size-5 shrink-0 text-brand-700" />
+                      <span>
+                        <span className="sr-only">{t('home.steps.stepLabel', { number: index + 1 })} </span>
+                        {t(`home.steps.${key}.title`)}
+                      </span>
+                    </h3>
+                    <p className="mt-1 text-slate-700">{t(`home.steps.${key}.description`)}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
+          <p className="mt-10 flex max-w-2xl items-start gap-2 text-sm text-slate-700">
+            <Clock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand-700" />
+            {t('home.steps.estimateNote')}
+          </p>
         </Container>
       </section>
 
-      <section aria-labelledby="staff-heading" className="py-16 sm:py-20">
+      <section id="accessibility" aria-labelledby="access-heading" className="py-16 sm:py-24">
+        <Container className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
+          <div>
+            <SectionHeading
+              id="access-heading"
+              eyebrow={t('home.access.eyebrow')}
+              title={t('home.access.title')}
+              description={t('home.access.description')}
+            />
+            <h3 id="notice-heading" className="sr-only">
+              {t('home.notice.heading')}
+            </h3>
+            <Notice tone="warning" title={t('home.notice.title')} className="mt-8 max-w-xl">
+              {t('home.notice.body')}
+            </Notice>
+          </div>
+          <ul className="grid content-start gap-x-8 gap-y-7 sm:grid-cols-2">
+            {ACCESS_POINTS.map(({ icon: Icon, key }) => (
+              <li key={key} className="flex gap-4">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50">
+                  <Icon aria-hidden="true" className="size-5 text-brand-700" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-slate-900">{t(`home.access.${key}.title`)}</h3>
+                  <p className="mt-1 text-slate-700">{t(`home.access.${key}.description`)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
+
+      <section aria-labelledby="staff-heading" className="border-y border-line bg-canvas-muted py-16 sm:py-24">
         <Container className="grid gap-10 lg:grid-cols-2">
           <SectionHeading
             id="staff-heading"
@@ -273,14 +359,36 @@ export function HomePage() {
         </Container>
       </section>
 
-      <section aria-labelledby="notice-heading" className="pb-16 sm:pb-20">
+      <section aria-labelledby="cta-heading" className="py-16 sm:py-24">
         <Container>
-          <h2 id="notice-heading" className="sr-only">
-            {t('home.notice.heading')}
-          </h2>
-          <Notice tone="warning" title={t('home.notice.title')}>
-            {t('home.notice.body')}
-          </Notice>
+          <div className="flex flex-col gap-8 rounded-2xl border border-brand-200 bg-brand-50 px-6 py-10 sm:px-10 sm:py-12 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <h2 id="cta-heading" className="text-3xl font-bold tracking-tight text-balance text-slate-900">
+                {t('home.cta.title')}
+              </h2>
+              <p className="mt-3 text-lg text-pretty text-slate-700">
+                {isAuthenticated ? t('home.cta.signedInDescription') : t('home.cta.description')}
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+              {isAuthenticated ? (
+                <ButtonLink to={PATHS.dashboard} className="landing-cta min-h-12 px-6 shadow-raised">
+                  {t('home.goToDashboard')}
+                  <ArrowRight aria-hidden="true" className="landing-cta-arrow size-5" />
+                </ButtonLink>
+              ) : (
+                <>
+                  <ButtonLink to={PATHS.registerPatient} className="landing-cta min-h-12 px-6 shadow-raised">
+                    {t('auth.registerTitle')}
+                    <ArrowRight aria-hidden="true" className="landing-cta-arrow size-5" />
+                  </ButtonLink>
+                  <ButtonLink to={PATHS.login} variant="secondary" className="landing-cta min-h-12 px-6">
+                    {t('layout.signIn')}
+                  </ButtonLink>
+                </>
+              )}
+            </div>
+          </div>
         </Container>
       </section>
     </>

@@ -246,6 +246,23 @@ export const mockQueueService = {
 const ACTIVE_ORDER = { called: 0, in_consultation: 1, waiting: 2 };
 
 export const mockStaffQueueService = {
+  /**
+   * GET /queue-tokens/:tokenId as staff or admin (e.g. from a token QR). Like the server, only
+   * tokens in a department the user manages are returned; any other token looks missing (404).
+   */
+  async getToken(tokenId) {
+    await simulateLatency();
+    const user = requireMockUser(['staff', 'admin']);
+    const store = loadStore();
+    const token = findToken(store, tokenId);
+    try {
+      assertMockDepartmentAccess(user, token.departmentId);
+    } catch {
+      throw mockError(API_ERROR_CODES.NOT_FOUND, 'This token could not be found.');
+    }
+    return toPublicToken(store, token);
+  },
+
   /** GET /queues/:departmentId — active tokens in queue order, then finished ones (newest first). */
   async listDepartmentQueue(departmentId, { page = 1, limit = MAX_LIMIT } = {}) {
     await simulateLatency();

@@ -169,11 +169,15 @@ const en = {
     },
     features: {
       title: 'Built around a patient’s hospital visit',
-      description: 'Three simple tools for the moments that cause the most confusion during an OPD visit.',
+      description: 'Simple tools for the moments that cause the most confusion during an OPD visit.',
       tokens: {
-        title: 'Queue tokens and status',
+        title: 'Book a queue token',
+        description: 'Choose an open OPD department and get a token number, without standing in a line to ask.',
+      },
+      tracking: {
+        title: 'Track your place in the queue',
         description:
-          'Choose your department and receive a token. See how many people are ahead of you and an estimated waiting time, without standing in line to ask.',
+          'See your token’s status, how many patients are ahead, and a simulated waiting estimate. The page checks for updates every 15 seconds.',
       },
       maps: {
         title: 'Accessible floor maps',
@@ -181,14 +185,40 @@ const en = {
       },
       help: {
         title: 'Ask staff for help',
-        description: 'Send a request for assistance to hospital staff in your department, and see when it has been acknowledged.',
+        description: 'Send a request for non-emergency help to staff in your department, and see when they have acknowledged it.',
+      },
+      languages: {
+        title: 'Hindi and English',
+        description: 'Switch between हिन्दी and English at any time. Your choice is remembered on this device.',
+      },
+      accessible: {
+        title: 'Easy to use',
+        description: 'Large text and buttons, clear focus outlines, and controls that work with a keyboard.',
       },
     },
     steps: {
-      title: 'Three steps for patients',
-      register: { title: 'Register and choose your language', description: 'Create a patient account with a username and pick the language you are most comfortable with.' },
-      department: { title: 'Select a department', description: 'Pick the OPD department you need and receive your queue token.' },
-      track: { title: 'Track your turn and find your way', description: 'Follow your place in the queue and use the floor map to reach the right room.' },
+      title: 'Four steps for patients',
+      description: 'From signing in to reaching the right room.',
+      stepLabel: 'Step {number}:',
+      register: { title: 'Sign in or create an account', description: 'Create a patient account with a username and password, or sign in if you already have one.' },
+      department: { title: 'Choose your OPD department', description: 'Pick the department you need from the list of open departments.' },
+      token: { title: 'Request a queue token', description: 'Get a token number for that department. You can hold one active token per department.' },
+      track: { title: 'Track your turn and find your way', description: 'Follow your token’s status and use the floor map to find the right room.' },
+      estimateNote: 'Waiting times shown in the app are simulated estimates, not guaranteed times.',
+    },
+    access: {
+      eyebrow: 'Accessibility and inclusion',
+      title: 'Designed for every patient who walks in',
+      description: 'A hospital visit can be stressful. Sehat Darshak keeps each step simple, readable, and usable in the way that suits you.',
+      language: { title: 'Your language', description: 'Use the app in Hindi or English, and switch at any time.' },
+      reading: { title: 'Easy to read', description: 'Large, high-contrast text, with statuses shown in words and icons, not colour alone.' },
+      keyboard: { title: 'Works with a keyboard', description: 'Links and buttons can be reached with the keyboard and show a clear focus outline.' },
+      touch: { title: 'Comfortable on a phone', description: 'Buttons and controls are large enough to tap easily.' },
+      listen: { title: 'Hear your status', description: 'On your token page, the Listen button reads your token status aloud.' },
+      assistance: {
+        title: 'Help when you need it',
+        description: 'Send a request to hospital staff if you need help finding a room, mobility support, or an answer to a question.',
+      },
     },
     teams: {
       eyebrow: 'For hospital teams',
@@ -199,6 +229,11 @@ const en = {
         description: 'View your department’s queue, call the next patient, update consultation status, and acknowledge assistance requests.',
       },
       admin: { title: 'For administrators', description: 'Monitor queues across departments with basic aggregate statistics.' },
+    },
+    cta: {
+      title: 'Ready for your OPD visit?',
+      description: 'Create a patient account to book a token, follow your turn, and find your way around the hospital.',
+      signedInDescription: 'Go to your dashboard to book a token or check your queue status.',
     },
     notice: {
       heading: 'Important information',
@@ -248,6 +283,13 @@ const en = {
     },
   },
   queue: {
+    qr: {
+      title: 'QR code for hospital staff',
+      body: 'If hospital staff in your department ask for it, show them this code. Authorised staff can scan it to look up and check your queue token.',
+      privacy: 'The code holds only a reference to this token — not your name or any medical details. Showing, scanning, or downloading it does not change your place in the queue.',
+      alt: 'QR code for queue token {number}',
+      download: 'Download QR code',
+    },
     patientsAhead: 'Patients ahead',
     estimatedWait: 'Estimated wait',
     simulatedEstimate: 'Simulated estimate',
@@ -564,6 +606,7 @@ const en = {
       department: 'Department',
       location: 'Room or place',
       queue: 'Department queue',
+      token: 'Queue token',
     },
     signInTitle: 'Sign in to continue',
     signInBody: 'This QR code is for a {type}. Sign in or create an account to see it. You will come back here afterwards.',
@@ -585,6 +628,17 @@ const en = {
     demoTitle: 'Demo data',
     demoBody: 'This place comes from sample data in this browser. It is not real hospital information.',
     scanAgain: 'Scan another code',
+    token: {
+      loading: 'Loading queue token…',
+      title: 'Queue token {number}',
+      detailsHeading: 'Token details',
+      privacy: 'Only the queue token is shown. Patient details are not included.',
+      openYourToken: 'Open your token page',
+      openQueue: 'Open the department queue',
+      unavailableTitle: 'This token is not available',
+      unavailableBody:
+        'The token does not exist, or this account cannot view it. A queue token can be opened only by its patient, staff of its department, and administrators.',
+    },
   },
   qr: {
     title: 'Demo QR codes',

@@ -14,16 +14,13 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useTranslation } from '../hooks/useTranslation';
-import { encodeQr, qrSvgString } from '../lib/qrcode';
+import { downloadQrSvg } from '../features/qr/downloadQrSvg';
+import { encodeQr } from '../lib/qrcode';
 
 const LOCAL_HOSTS = /^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/;
 
 function downloadSvg(entry) {
-  const blob = new Blob([qrSvgString(entry.qr, { title: entry.label })], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = Object.assign(document.createElement('a'), { href: url, download: entry.fileName });
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadQrSvg(entry.qr, { title: entry.label, fileName: entry.fileName });
 }
 
 /**

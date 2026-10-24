@@ -7,6 +7,8 @@ import { PATHS } from '../../routes/paths';
 
 const PUBLIC_LINKS = [
   { to: PATHS.home, labelKey: 'nav.home' },
+  { to: `${PATHS.home}#features`, labelKey: 'nav.features' },
+  { to: `${PATHS.home}#how-it-works`, labelKey: 'nav.howItWorks' },
   { to: PATHS.login, labelKey: 'layout.signIn' },
   { to: PATHS.register, labelKey: 'layout.register' },
 ];
@@ -25,16 +27,19 @@ export function Footer() {
 
   return (
     <footer className="border-t border-line bg-canvas-muted">
-      <Container className="grid gap-8 py-10 md:grid-cols-[2fr_1fr]">
+      <Container className="grid gap-8 py-12 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:gap-12">
         <div>
           <BrandLink />
-          <p className="mt-3 max-w-xl text-sm text-slate-700">{t('footer.about')}</p>
-          <p className="mt-4 max-w-xl text-sm text-slate-700">{t('footer.safety')}</p>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-700">{t('footer.about')}</p>
+          <p className="mt-4 max-w-xl border-l-2 border-line pl-3 text-sm leading-relaxed text-slate-700">
+            {t('footer.safety')}
+          </p>
         </div>
 
         <nav aria-label={t('footer.navLabel')}>
           <h2 className="text-sm font-semibold text-slate-900">{t('footer.quickLinks')}</h2>
-          <ul className="mt-2 space-y-1">
+          {/* Two compact columns on phones; one column beside the brand text on wider screens. */}
+          <ul className="mt-2 grid grid-cols-2 gap-x-6 md:grid-cols-1">
             {links.map((link) => (
               <li key={link.to}>
                 <Link
