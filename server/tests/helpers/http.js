@@ -7,7 +7,7 @@ export function request(app, { method = 'GET', path, headers = {}, body } = {}) 
       const { port } = server.address();
       const payload = body === undefined ? undefined : JSON.stringify(body);
       const requestHeaders = payload
-        ? { 'content-type': 'application/json', ...headers }
+        ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(payload), ...headers }
         : headers;
 
       const clientRequest = http.request(

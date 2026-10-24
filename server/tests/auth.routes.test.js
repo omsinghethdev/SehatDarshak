@@ -1,26 +1,14 @@
 import assert from 'node:assert/strict';
 import { after, before, beforeEach, describe, test } from 'node:test';
-import mongoose from 'mongoose';
 import { createApp } from '../src/app.js';
 import { User } from '../src/modules/users/user.model.js';
 import { verifyAccessToken } from '../src/utils/accessToken.js';
+import { connectTestDatabase, dropTestDatabase } from './helpers/database.js';
 import { bearer, request } from './helpers/http.js';
 
 process.env.AUTH_SECRET = 'test-only-secret-that-is-at-least-32-characters';
 
-// Uses a dedicated database that is dropped after the run; never point this at real data.
-const testDatabaseUri = process.env.MONGODB_TEST_URI || 'mongodb://127.0.0.1:27017/sehatdarshak_test';
-
-let databaseUnavailable;
-try {
-  await mongoose.connect(testDatabaseUri, { serverSelectionTimeoutMS: 2000 });
-  if (!mongoose.connection.name.endsWith('_test')) {
-    await mongoose.disconnect();
-    throw new Error('test database name must end with "_test"');
-  }
-} catch (error) {
-  databaseUnavailable = `MongoDB test database unavailable (${error.message})`;
-}
+const databaseUnavailable = await connectTestDatabase('auth');
 
 const app = createApp();
 const validRegistration = {
@@ -44,10 +32,7 @@ function assertNoSecrets(response, ...secrets) {
 describe('auth routes', { skip: databaseUnavailable }, () => {
   before(() => User.init());
   beforeEach(() => User.deleteMany({}));
-  after(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.disconnect();
-  });
+  after(dropTestDatabase);
 
   describe('POST /api/auth/register', () => {
     test('creates a patient, signs them in, and returns only safe user data', async () => {

@@ -12,3 +12,4 @@ export const validationError = (message, details) => new HttpError(400, 'VALIDAT
 export const unauthorizedError = (message = 'Authentication required') => new HttpError(401, 'UNAUTHORIZED', message);
 export const forbiddenError = (message = 'You do not have permission to perform this action') => new HttpError(403, 'FORBIDDEN', message);
 export const conflictError = (message) => new HttpError(409, 'CONFLICT', message);
+export const notFoundError = (message) => new HttpError(404, 'NOT_FOUND', message);

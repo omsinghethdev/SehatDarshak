@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true, select: false },
     preferredLanguage: { type: String, enum: supportedLanguages },
     role: { type: String, enum: userRoles, required: true, default: 'patient' },
-    departmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+    departmentId: { type: String, ref: 'Department' },
   },
   { timestamps: true },
 );
