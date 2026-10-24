@@ -5,6 +5,7 @@ import { Container } from '../components/common/Container';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
+import { PageHeader } from '../components/layout/PageHeader';
 import { OperationalSummary } from '../features/admin/OperationalSummary';
 import { loadAdminOverview } from '../features/admin/adminOverviewService';
 import { useAsyncData } from '../hooks/useAsyncData';
@@ -53,14 +54,11 @@ export function AdminDashboardPage() {
 
   return (
     <Container className="space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Administration</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Operations overview</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          Current queue and assistance-request counts for monitoring. Aggregate counts only — no
-          patient details.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Administration"
+        title="Operations overview"
+        description="Current queue and assistance-request counts for monitoring. Aggregate counts only — no patient details."
+      />
 
       {overview.data?.source === 'mock-summary' && (
         <Notice tone="warning" title="Demo figures — frontend-only summary">

@@ -7,6 +7,7 @@ import { EmptyState } from '../components/feedback/EmptyState';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
+import { PageHeader } from '../components/layout/PageHeader';
 import { departmentService } from '../features/departments/departmentService';
 import { FloorMapSvg } from '../features/navigation/FloorMapSvg';
 import { FloorSelector } from '../features/navigation/FloorSelector';
@@ -76,13 +77,16 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
         </Notice>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section aria-labelledby="floor-map-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="floor-map-heading" className="text-xl font-bold text-slate-900">
               {floor.displayName} map
             </h2>
-            <p className="text-sm text-slate-600">Select a numbered location to see its details.</p>
+            <p className="text-sm text-slate-600">
+              Select a numbered location to see its details.
+              <span className="sm:hidden"> On a small screen, swipe the map sideways to see the whole floor.</span>
+            </p>
           </div>
           <FloorMapSvg floor={floor} numbering={numbering} selectedId={selected?.id} onSelect={onSelect} />
           <MapLegend />
@@ -177,13 +181,11 @@ export function NavigationPage() {
 
   return (
     <Container className="space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Hospital information</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Hospital map</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          Find departments, consultation rooms, and facilities on each floor.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Hospital information"
+        title="Hospital map"
+        description="Find departments, consultation rooms, and facilities on each floor."
+      />
 
       <div className="space-y-3">
         {isMockAuth && (

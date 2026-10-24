@@ -82,11 +82,28 @@ export function PatientDashboard() {
         </Notice>
       )}
 
+      <section id="active-tokens" tabIndex={-1} aria-labelledby="tokens-heading" className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="tokens-heading" className="text-2xl font-bold tracking-tight text-slate-900">
+              Your active tokens
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">Waiting times are simulated estimates.</p>
+          </div>
+          {tokens?.length > 0 && (
+            <Button variant="ghost" onClick={tokensState.reload}>
+              Refresh
+            </Button>
+          )}
+        </div>
+        <ActiveTokens {...tokensState} />
+      </section>
+
       <section aria-labelledby="actions-heading">
-        <h2 id="actions-heading" className="sr-only">
-          Quick actions
+        <h2 id="actions-heading" className="text-xl font-bold tracking-tight text-slate-900">
+          What would you like to do?
         </h2>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           <li>
             <QuickActionCard
               to={PATHS.bookToken}
@@ -123,23 +140,6 @@ export function PatientDashboard() {
             />
           </li>
         </ul>
-      </section>
-
-      <section id="active-tokens" tabIndex={-1} aria-labelledby="tokens-heading" className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="tokens-heading" className="text-2xl font-bold tracking-tight text-slate-900">
-              Your active tokens
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">Waiting times are simulated estimates.</p>
-          </div>
-          {tokens?.length > 0 && (
-            <Button variant="ghost" onClick={tokensState.reload}>
-              Refresh
-            </Button>
-          )}
-        </div>
-        <ActiveTokens {...tokensState} />
       </section>
 
       <StatusLegend />

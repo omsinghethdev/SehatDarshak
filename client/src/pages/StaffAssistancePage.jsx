@@ -7,6 +7,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
+import { PageHeader } from '../components/layout/PageHeader';
 import { AssistanceRequestCard } from '../features/assistance/AssistanceRequestCard';
 import { ASSISTANCE_SAFETY_NOTICE } from '../features/assistance/assistanceRules';
 import { staffAssistanceService } from '../features/assistance/assistanceService';
@@ -124,16 +125,11 @@ export function StaffAssistancePage() {
 
   return (
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Staff tools</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Assistance requests</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          {role === 'admin'
-            ? 'Requests from patients across all departments.'
-            : 'Requests from patients in your department.'}{' '}
-          Acknowledge a request to record that a staff member has seen it.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Staff tools"
+        title="Assistance requests"
+        description={`${role === 'admin' ? 'Requests from patients across all departments.' : 'Requests from patients in your department.'} Acknowledge a request to record that a staff member has seen it.`}
+      />
 
       <div className="space-y-3">
         <Notice tone="warning" title="Non-emergency requests">

@@ -19,7 +19,7 @@ export function RegisterPage() {
       <RegisterForm />
       <p className="border-t border-line pt-6 text-sm">
         Already have an account?{' '}
-        <Link to={PATHS.login} className="font-semibold text-brand-800 underline underline-offset-4">
+        <Link to={PATHS.login} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
           Sign in
         </Link>
       </p>

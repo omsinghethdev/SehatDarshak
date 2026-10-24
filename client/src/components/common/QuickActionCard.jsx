@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
+import { cn } from '../../utils/cn';
 
 /** Dashboard shortcut card. Without `to`, it renders as plain (non-link) information. */
 export function QuickActionCard({ to, icon: Icon, title, description }) {
@@ -18,12 +19,12 @@ export function QuickActionCard({ to, icon: Icon, title, description }) {
     </>
   );
 
-  const base = 'flex h-full gap-4 rounded-xl border border-line bg-white p-5';
+  const base = 'flex h-full gap-3 rounded-xl border border-line p-4 sm:gap-4 sm:p-5';
   return to ? (
-    <Link to={to} className={`${base} hover:border-brand-600 hover:bg-brand-50/40`}>
+    <Link to={to} className={cn(base, 'bg-white hover:border-brand-600 hover:bg-brand-50/40')}>
       {body}
     </Link>
   ) : (
-    <div className={`${base} bg-canvas-muted`}>{body}</div>
+    <div className={cn(base, 'bg-canvas-muted')}>{body}</div>
   );
 }

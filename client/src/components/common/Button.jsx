@@ -9,6 +9,7 @@ const VARIANTS = {
   secondary:
     'border border-brand-700 bg-white text-brand-800 hover:bg-brand-50 active:bg-brand-100',
   ghost: 'text-slate-800 hover:bg-canvas-muted active:bg-line',
+  danger: 'border border-red-700 bg-white text-red-800 hover:bg-red-50 active:bg-red-100',
 };
 
 export function buttonClasses({ variant = 'primary', className } = {}) {

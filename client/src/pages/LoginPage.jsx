@@ -16,7 +16,7 @@ export function LoginPage() {
       <LoginForm />
       <p className="border-t border-line pt-6 text-sm">
         New patient?{' '}
-        <Link to={PATHS.register} className="font-semibold text-brand-800 underline underline-offset-4">
+        <Link to={PATHS.register} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
           Create an account
         </Link>
       </p>

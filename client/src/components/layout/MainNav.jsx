@@ -51,9 +51,9 @@ export function MainNav({ orientation = 'horizontal', onNavigate, id }) {
                 onClick={onNavigate}
                 aria-current={current ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-11 items-center rounded-lg px-3 font-medium text-slate-700 hover:bg-canvas-muted hover:text-slate-900',
+                  'flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 font-medium text-slate-700 hover:bg-canvas-muted hover:text-slate-900',
                   current && 'text-brand-800 underline decoration-2 underline-offset-8',
-                  vertical && 'px-4 text-lg',
+                  vertical && 'justify-start px-4 text-lg',
                 )}
               >
                 {item.label}

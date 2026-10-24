@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container } from '../components/common/Container';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
+import { PageHeader } from '../components/layout/PageHeader';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { PatientDashboard } from '../features/patient/PatientDashboard';
@@ -26,13 +27,11 @@ export function DashboardPage() {
     <Container className="space-y-8 py-10 sm:py-14">
       {confirmation && <SuccessMessage title={confirmation.title}>{confirmation.body}</SuccessMessage>}
 
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Dashboard</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Welcome, {user.name}</h1>
-        {role === 'patient' && (
-          <p className="mt-2 text-slate-700">Here is your OPD visit at a glance.</p>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Dashboard"
+        title={<>Welcome, {user.name}</>}
+        description={role === 'patient' ? 'Here is your OPD visit at a glance.' : undefined}
+      />
 
       {role === 'patient' ? (
         <PatientDashboard />

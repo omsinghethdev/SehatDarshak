@@ -6,6 +6,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { SelectField } from '../components/forms/SelectField';
+import { PageHeader } from '../components/layout/PageHeader';
 import { departmentService } from '../features/departments/departmentService';
 import { StaffQueueBoard } from '../features/staff/StaffQueueBoard';
 import { useDepartmentSelection } from '../features/staff/useDepartmentSelection';
@@ -57,14 +58,11 @@ export function StaffQueuePage() {
 
   return (
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
-      <div>
-        <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">Staff tools</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Queue management</h1>
-        <p className="mt-2 max-w-2xl text-slate-700">
-          Call the next patient and update consultation status. Patients see these changes on their
-          token page.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Staff tools"
+        title="Queue management"
+        description="Call the next patient and update consultation status. Patients see these changes on their token page."
+      />
 
       {isMockAuth && (
         <Notice tone="warning" title="Simulated queue">

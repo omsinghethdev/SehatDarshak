@@ -9,15 +9,15 @@ import { formatWaitMinutes } from '../queue/queueStatus';
  * buttons to offer.
  */
 const ROW_ACTIONS = {
-  waiting: [{ status: 'cancelled', label: 'Cancel', confirm: true, variant: 'ghost' }],
+  waiting: [{ status: 'cancelled', label: 'Cancel', confirm: true, variant: 'danger' }],
   called: [
     { status: 'in_consultation', label: 'Start consultation' },
     { status: 'skipped', label: 'Skip', confirm: true, variant: 'secondary' },
-    { status: 'cancelled', label: 'Cancel', confirm: true, variant: 'ghost' },
+    { status: 'cancelled', label: 'Cancel', confirm: true, variant: 'danger' },
   ],
   in_consultation: [
     { status: 'completed', label: 'Complete consultation' },
-    { status: 'cancelled', label: 'Cancel', confirm: true, variant: 'ghost' },
+    { status: 'cancelled', label: 'Cancel', confirm: true, variant: 'danger' },
   ],
 };
 
@@ -61,9 +61,10 @@ export function StaffTokenRow({ token, pendingKey, confirming, onRequest, onConf
   }, [confirmAction]);
 
   return (
-    <li ref={rowRef} className="rounded-xl border border-line bg-white p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
+    <li ref={rowRef} className="rounded-xl border border-line bg-white p-4">
+      {/* One line per token on wide screens: identity, queue position, then actions. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div className="flex items-center gap-3">
           <span className="text-2xl font-bold tracking-tight text-slate-900">{token.displayNumber}</span>
           <StatusBadge status={token.status} />
         </div>
@@ -71,32 +72,40 @@ export function StaffTokenRow({ token, pendingKey, confirming, onRequest, onConf
           <p className="text-sm text-slate-700">
             <span className="font-semibold text-slate-900">{token.patientsAhead}</span> ahead ·{' '}
             {formatWaitMinutes(token.estimatedWaitMinutes)}{' '}
-            <span className="rounded border border-line bg-canvas-muted px-1.5 text-xs font-medium">
+            <span className="rounded border border-line bg-canvas-muted px-1.5 text-xs font-medium whitespace-nowrap">
               {token.estimateLabel || 'Simulated estimate'}
             </span>
           </p>
         )}
-      </div>
 
-      {actions.length > 0 && !confirmAction && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {actions.map((action) => {
-            const key = `${token.id}:${action.status}`;
-            return (
-              <Button
-                key={action.status}
-                data-action={action.status}
-                variant={action.variant ?? 'primary'}
-                onClick={() => onRequest(token, action)}
-                aria-disabled={Boolean(pendingKey) || undefined}
-              >
-                {pendingKey === key ? 'Updating…' : action.label}
-                <span className="sr-only"> token {token.displayNumber}</span>
-              </Button>
-            );
-          })}
-        </div>
-      )}
+        {actions.length > 0 && !confirmAction && (
+          // The main next step comes first; actions that need confirmation are grouped
+          // separately (right-aligned on wide screens) so they are harder to hit by accident.
+          <div className="flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto">
+            {[actions.filter((action) => !action.confirm), actions.filter((action) => action.confirm)].map((group, index) =>
+              group.length > 0 ? (
+                <div key={index} className={index === 1 ? 'flex flex-wrap gap-2 sm:ml-4' : 'flex flex-wrap gap-2'}>
+                  {group.map((action) => {
+                    const key = `${token.id}:${action.status}`;
+                    return (
+                      <Button
+                        key={action.status}
+                        data-action={action.status}
+                        variant={action.variant ?? 'primary'}
+                        onClick={() => onRequest(token, action)}
+                        aria-disabled={Boolean(pendingKey) || undefined}
+                      >
+                        {pendingKey === key ? 'Updating…' : action.label}
+                        <span className="sr-only"> token {token.displayNumber}</span>
+                      </Button>
+                    );
+                  })}
+                </div>
+              ) : null,
+            )}
+          </div>
+        )}
+      </div>
 
       {confirmAction && (
         <ConfirmPrompt
