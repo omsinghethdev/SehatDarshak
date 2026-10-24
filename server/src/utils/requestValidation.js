@@ -26,6 +26,14 @@ export function parseObjectBody(body, allowedFields) {
   return body;
 }
 
+export function parseEnumValue(value, field, allowedValues) {
+  if (typeof value !== 'string' || !allowedValues.includes(value)) {
+    throw fieldError(field, `Must be one of: ${allowedValues.join(', ')}`);
+  }
+
+  return value;
+}
+
 export function isValidResourceId(value) {
   return typeof value === 'string' && resourceIdPattern.test(value);
 }

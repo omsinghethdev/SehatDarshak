@@ -7,7 +7,7 @@ import {
 } from './queueToken.model.js';
 import { nextTokenSequence } from './tokenCounter.model.js';
 
-const duplicateKeyErrorCode = 11000;
+export const duplicateKeyErrorCode = 11000;
 
 // Wait-time estimates are simulated for the MVP and must always carry this label.
 export const estimateLabel = 'Simulated estimate';
@@ -18,7 +18,7 @@ const activeTokenExistsError = () => conflictError('You already have an active t
 const formatDisplayNumber = (departmentCode, sequence) => `${departmentCode}-${String(sequence).padStart(3, '0')}`;
 
 // Live count of waiting tokens issued earlier in the same department.
-async function countPatientsAhead(token) {
+export async function countPatientsAhead(token) {
   if (token.status !== 'waiting') {
     return 0;
   }
@@ -42,7 +42,7 @@ function toTokenStatus(token, patientsAhead) {
 }
 
 // patientId and ordering data are server-only and never included.
-function toPublicToken(token, patientsAhead) {
+export function toPublicToken(token, patientsAhead) {
   const { id, displayNumber, ...rest } = toTokenStatus(token, patientsAhead);
   return { id, displayNumber, departmentId: token.departmentId, ...rest };
 }

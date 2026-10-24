@@ -5,7 +5,19 @@ export const activeTokenStatuses = ['waiting', 'called', 'in_consultation'];
 export const terminalTokenStatuses = ['completed', 'skipped', 'cancelled'];
 export const tokenStatuses = [...activeTokenStatuses, ...terminalTokenStatuses];
 
+// Staff/admin status changes allowed through PATCH /api/queue-tokens/:tokenId/status.
+// waiting -> called is deliberately absent: it only happens through call-next.
+export const statusTransitions = {
+  waiting: ['cancelled'],
+  called: ['in_consultation', 'skipped', 'cancelled'],
+  in_consultation: ['completed', 'cancelled'],
+  completed: [],
+  skipped: [],
+  cancelled: [],
+};
+
 export const oneActiveTokenIndexName = 'one_active_token_per_patient_department';
+export const oneCalledTokenIndexName = 'one_called_token_per_department';
 
 // Random, unguessable IDs in the same "prefix_value" style as other resource IDs.
 const generateTokenId = () => `token_${randomBytes(12).toString('hex')}`;
@@ -36,6 +48,15 @@ queueTokenSchema.index(
     unique: true,
     name: oneActiveTokenIndexName,
     partialFilterExpression: { status: { $in: activeTokenStatuses } },
+  },
+);
+// Database-level guarantee that a department never has two "called" tokens at once.
+queueTokenSchema.index(
+  { departmentId: 1 },
+  {
+    unique: true,
+    name: oneCalledTokenIndexName,
+    partialFilterExpression: { status: 'called' },
   },
 );
 queueTokenSchema.index({ departmentId: 1, sequence: 1 }, { unique: true });

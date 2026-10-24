@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { authenticate, authorizeRoles } from '../../middleware/authenticate.js';
-import { parseObjectBody, parseResourceId } from '../../utils/requestValidation.js';
+import { parseEnumValue, parseObjectBody, parseResourceId } from '../../utils/requestValidation.js';
+import { updateTokenStatus } from '../queues/queue.service.js';
+import { tokenStatuses } from './queueToken.model.js';
 import {
   createQueueToken,
   getQueueToken,
@@ -27,4 +29,13 @@ queueTokenRouter.get('/:tokenId', async (request, response) => {
 queueTokenRouter.get('/:tokenId/status', async (request, response) => {
   const tokenId = parseResourceId(request.params.tokenId, 'tokenId');
   response.status(200).json({ data: await getQueueTokenStatus(request.user, tokenId) });
+});
+
+// Patients can never change queue statuses.
+queueTokenRouter.patch('/:tokenId/status', authorizeRoles('staff', 'admin'), async (request, response) => {
+  const tokenId = parseResourceId(request.params.tokenId, 'tokenId');
+  const body = parseObjectBody(request.body, ['status']);
+  const status = parseEnumValue(body.status, 'status', tokenStatuses);
+
+  response.status(200).json({ data: await updateTokenStatus(request.user, tokenId, status) });
 });
