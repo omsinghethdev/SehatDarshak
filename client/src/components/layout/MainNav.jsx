@@ -6,8 +6,8 @@ import { cn } from '../../utils/cn';
 
 const PUBLIC_ITEMS = [
   { to: PATHS.home, labelKey: 'nav.home' },
-  { to: `${PATHS.home}#features`, labelKey: 'nav.features' },
   { to: `${PATHS.home}#how-it-works`, labelKey: 'nav.howItWorks' },
+  { to: `${PATHS.home}#features`, labelKey: 'nav.features' },
 ];
 
 function getSignedInItems(role) {
