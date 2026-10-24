@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Node.js 20 LTS or later and npm.
-- A MongoDB Atlas connection string when database work begins (not required for the current health-check foundation).
+- A running MongoDB instance and a `MONGODB_URI` value. The provided example uses local MongoDB; MongoDB Atlas may be used with its own connection URI.
 
 ## Install dependencies
 
@@ -23,7 +23,7 @@ cp client/.env.example client/.env
 cp server/.env.example server/.env
 ```
 
-`client/.env` needs `VITE_API_BASE_URL`. `server/.env` needs `PORT`, `MONGODB_URI`, and `AUTH_SECRET`. The current scaffold does not connect to MongoDB or authenticate users yet.
+`client/.env` needs `VITE_API_BASE_URL`. `server/.env` needs `PORT`, `CORS_ORIGIN`, `MONGODB_URI`, and `AUTH_SECRET`. The server connects to MongoDB before it starts listening; the example URI expects a local MongoDB instance to be running. Authentication is not implemented yet.
 
 ## Start the applications
 
