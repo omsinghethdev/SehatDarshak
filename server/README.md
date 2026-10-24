@@ -57,7 +57,8 @@ On macOS, port 5000 is often taken by AirPlay Receiver; set `PORT=5001` (and the
 `npm test` runs unit tests and HTTP-level tests. These files need a reachable MongoDB at
 `MONGODB_TEST_URI`: `auth.routes`, `hospital.routes`, `seed`, `queueTokens`, `queueOperations`,
 `assistanceRequests`, and `dashboard`. Without MongoDB those suites are **skipped**, not failed,
-so check that the summary reports `skipped 0`.
+so check that the summary reports `skipped 0`. [docs/TESTING.md](../docs/TESTING.md) lists which
+cases are covered by existing tests and which are planned.
 
 ## Health check
 
@@ -101,8 +102,19 @@ register/login. Responses use `{ "data": ..., "message"?, "meta"? }`; errors use
 | PATCH | `/assistance-requests/:requestId/acknowledge` | Assigned-department staff, admin |
 | GET | `/dashboard/statistics` | Admin (response shape is a proposal pending team review) |
 
-Public registration only creates patients. Staff and admin accounts must be created directly in
-the database by a maintainer; there is no account-management API in this MVP.
+The table lists the endpoints that are **implemented**. Public registration only creates patients.
+Staff and admin accounts currently have to be created directly in the database by a maintainer.
+
+**Proposed, not implemented yet** (see the
+[implementation status](../docs/API_CONTRACT.md#implementation-status)):
+
+- Admin staff-account endpoints under `/admin/staff`.
+- Staff deactivation, enforced at login and on every request.
+- A staff `departmentId` in login and `/auth/me` responses.
+- A read-only admin audit history of queue-token status changes at
+  `/admin/audit/queue-token-status-changes`.
+
+Token QR lookup needs no new endpoint; it uses `GET /queue-tokens/:tokenId`.
 
 ## Deploying to Render with MongoDB Atlas
 
