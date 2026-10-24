@@ -53,9 +53,10 @@ export function MainNav({ orientation = 'horizontal', onNavigate, id }) {
                 onClick={onNavigate}
                 aria-current={current ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 font-medium text-slate-700 hover:bg-canvas-muted hover:text-slate-900',
+                  'flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-base leading-6 font-medium whitespace-nowrap text-slate-700 hover:bg-canvas-muted hover:text-slate-900',
+                  // The underline is drawn inside the link's fixed-height box, so it never shifts layout.
                   current && 'text-brand-800 underline decoration-2 underline-offset-8',
-                  vertical && 'justify-start px-4 text-lg',
+                  vertical && 'justify-start px-4 text-lg leading-7 whitespace-normal',
                 )}
               >
                 {t(item.labelKey)}

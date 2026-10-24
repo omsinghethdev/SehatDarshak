@@ -30,14 +30,16 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas">
+      {/* Brand, links, and Sign out keep their natural width; only the signed-in name may
+          shrink (it truncates), so labels never wrap or squeeze into each other. */}
       <Container className="flex h-16 items-center justify-between gap-4">
-        <BrandLink onClick={closeMenu} />
+        <BrandLink onClick={closeMenu} className="shrink-0" />
 
-        <div className="hidden lg:block">
+        <div className="hidden shrink-0 lg:block">
           <MainNav />
         </div>
 
-        <div className="hidden lg:block">
+        <div className="hidden min-w-0 lg:flex lg:justify-end">
           <AuthActions />
         </div>
 

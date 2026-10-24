@@ -68,7 +68,7 @@ async function parseJson(response) {
 }
 
 /**
- * Send a JSON request to the SehatDarsak API.
+ * Send a JSON request to the Sehat Darshak API.
  *
  * @param {string} path Path relative to VITE_API_BASE_URL, e.g. `/auth/me`.
  * @param {object} [options]

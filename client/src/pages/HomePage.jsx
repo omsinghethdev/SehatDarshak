@@ -8,13 +8,13 @@ import {
   ListOrdered,
   Map as MapIcon,
   MapPin,
-  QrCode,
   ShieldCheck,
   Ticket,
   Users,
 } from 'lucide-react';
 import { ButtonLink } from '../components/common/Button';
 import { Container } from '../components/common/Container';
+import { LanguageSelector } from '../components/common/LanguageSelector';
 import { Notice } from '../components/feedback/Notice';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -128,11 +128,8 @@ export function HomePage() {
                   </ButtonLink>
                 </>
               )}
-              <ButtonLink to={PATHS.scan} variant="secondary" className="px-6">
-                <QrCode aria-hidden="true" className="size-5" />
-                {t('scan.title')}
-              </ButtonLink>
             </div>
+            <LanguageSelector className="mt-5 flex-wrap" />
           </div>
 
           <ExampleTokenCard />

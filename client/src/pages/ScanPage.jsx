@@ -103,7 +103,7 @@ function ScannerView() {
 }
 
 /**
- * /scan — the single entry point for every SehatDarsak QR code.
+ * /scan — the single entry point for every Sehat Darshak QR code.
  * Without a payload it shows the scanner. With one it validates it, asks visitors to sign in
  * (returning here afterwards), and then shows the destination.
  */

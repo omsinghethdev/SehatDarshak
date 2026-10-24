@@ -1,7 +1,7 @@
 import { PATHS } from '../../routes/paths';
 
 /*
- * SehatDarsak QR payload contract (frontend only, version 1)
+ * Sehat Darshak QR payload contract (frontend only, version 1)
  * -----------------------------------------------------------
  * Every QR code contains an app URL to the /scan route — so a phone's own camera app can open it
  * directly — with exactly these query parameters:

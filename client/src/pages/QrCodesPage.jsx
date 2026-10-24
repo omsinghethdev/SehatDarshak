@@ -53,7 +53,7 @@ export function QrCodesPage() {
       const url = buildQrUrl(payload, origin);
       if (!parseQrPayload(url).ok) return null; // never render a code the scanner would reject
       try {
-        return { key: `${payload.type}:${payload.id ?? ''}`, payload, label, detail, url, qr: encodeQr(url), fileName: `sehatdarsak-${payload.type}${payload.id ? `-${payload.id}` : ''}.svg` };
+        return { key: `${payload.type}:${payload.id ?? ''}`, payload, label, detail, url, qr: encodeQr(url), fileName: `sehat-darshak-${payload.type}${payload.id ? `-${payload.id}` : ''}.svg` };
       } catch {
         return null;
       }

@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
-import { Container } from '../common/Container';
-import { LanguageSelector } from '../common/LanguageSelector';
 import { useTranslation } from '../../hooks/useTranslation';
 import { stopSpeech } from '../../lib/speech';
 import { Footer } from './Footer';
@@ -26,12 +24,6 @@ export function AppLayout() {
         {t('layout.skipToContent')}
       </a>
       <DemoModeBanner />
-      {/* Language choice is available on every page, before and after sign-in. */}
-      <div className="border-b border-line bg-white">
-        <Container className="flex justify-end py-1.5">
-          <LanguageSelector />
-        </Container>
-      </div>
       <Header />
       <main id="main-content" ref={mainRef} tabIndex={-1} className="flex-1">
         <Outlet />
