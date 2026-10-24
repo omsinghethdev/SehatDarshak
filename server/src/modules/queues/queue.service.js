@@ -6,19 +6,13 @@ import {
   statusTransitions,
 } from '../tokens/queueToken.model.js';
 import { duplicateKeyErrorCode, toPublicToken } from '../tokens/queueToken.service.js';
+import { canManageDepartment } from '../../utils/departmentAccess.js';
 import { conflictError, forbiddenError, notFoundError } from '../../utils/httpError.js';
 
 const calledTokenExistsError = () => conflictError(
   'A token is already called in this department. Move it to in_consultation, skipped, or cancelled before calling the next token.',
 );
 
-function canManageDepartment(user, departmentId) {
-  if (user.role === 'admin') {
-    return true;
-  }
-
-  return user.role === 'staff' && Boolean(user.departmentId) && user.departmentId === departmentId;
-}
 
 async function requireManageableDepartment(user, departmentId) {
   if (!canManageDepartment(user, departmentId)) {

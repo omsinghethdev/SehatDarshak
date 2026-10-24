@@ -26,6 +26,23 @@ export function parseObjectBody(body, allowedFields) {
   return body;
 }
 
+// Returns the trimmed string; rejects non-strings, blank text, and over-long text.
+export function parseRequiredText(value, field, maxLength) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text) {
+    throw fieldError(field, 'Required');
+  }
+  if (text.length > maxLength) {
+    throw fieldError(field, `Must be at most ${maxLength} characters`);
+  }
+
+  return text;
+}
+
+export function parseOptionalEnumValue(value, field, allowedValues) {
+  return isOmitted(value) ? undefined : parseEnumValue(value, field, allowedValues);
+}
+
 export function parseEnumValue(value, field, allowedValues) {
   if (typeof value !== 'string' || !allowedValues.includes(value)) {
     throw fieldError(field, `Must be one of: ${allowedValues.join(', ')}`);
