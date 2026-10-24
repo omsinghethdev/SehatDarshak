@@ -6,30 +6,9 @@ import { ErrorState } from '../../components/feedback/ErrorState';
 import { LoadingState } from '../../components/feedback/LoadingState';
 import { ListenButton } from '../../components/common/ListenButton';
 import { useTranslation } from '../../hooks/useTranslation';
-import { PATHS, assistancePath } from '../../routes/paths';
-import { navigationService } from '../navigation/navigationService';
+import { assistancePath, mapLocationPath } from '../../routes/paths';
+import { findDepartmentLocations } from '../navigation/locationLookup';
 import { getLocationType, typeLabel } from '../navigation/locationTypes';
-
-function mapLink(floorId, locationId) {
-  return `${PATHS.navigation}?${new URLSearchParams({ floor: floorId, location: locationId })}`;
-}
-
-/**
- * Find the department's rooms on the hospital map (documented map endpoints only).
- * Floors that fail to load are reported, not silently dropped.
- */
-async function loadDepartmentLocations(departmentId) {
-  const floors = await navigationService.listFloors();
-  const maps = await Promise.all(
-    floors.map((floor) => navigationService.getFloorMap(floor.id).then((map) => ({ map }), (error) => ({ error }))),
-  );
-  const locations = maps.flatMap(({ map }) =>
-    (map?.locations ?? [])
-      .filter((location) => location.departmentId && location.departmentId === departmentId)
-      .map((location) => ({ ...location, floorId: map.id, floorName: map.displayName })),
-  );
-  return { locations, failedFloors: maps.filter((entry) => entry.error).length };
-}
 
 /**
  * "Where should I wait?" — shows only what the system actually knows: the department and its
@@ -45,7 +24,7 @@ export function WaitingGuidance({ token, department }) {
   async function load() {
     setState({ status: 'loading', locations: [], failedFloors: 0, error: null });
     try {
-      const result = await loadDepartmentLocations(token.departmentId);
+      const result = await findDepartmentLocations(token.departmentId);
       setState({ status: 'success', ...result, error: null });
     } catch (error) {
       setState({ status: 'error', locations: [], failedFloors: 0, error });
@@ -117,7 +96,7 @@ export function WaitingGuidance({ token, department }) {
                     </span>
                   </span>
                   <Link
-                    to={mapLink(location.floorId, location.id)}
+                    to={mapLocationPath(location.floorId, location.id)}
                     className="inline-flex min-h-11 items-center font-semibold text-brand-800 underline underline-offset-4"
                   >
                     {t('waiting.showOnMap')}<span className="sr-only"> — {location.displayName}</span>

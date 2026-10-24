@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { FlaskConical, UserRound } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { ErrorState } from '../../components/feedback/ErrorState';
@@ -11,6 +12,7 @@ import { useForm } from '../../hooks/useForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { messageRef } from '../../i18n/translate';
 import { API_ERROR_CODES } from '../../services/apiClient';
+import { REGISTER_PATHS } from '../../routes/paths';
 import { validateLogin } from './validation';
 
 /** Development-only shortcut to sign in as a simulated patient, staff, or admin account. */
@@ -41,9 +43,10 @@ function DemoAccountSignIn({ disabled }) {
         {t('demo.accountsTitle')}
       </h2>
       <p className="text-sm text-slate-700">{t('demo.accountsBody')}</p>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {demoAccounts.map((account) => (
-          <li key={account.key}>
+          <li key={account.key} className="space-y-2 rounded-lg border border-line p-3">
+            <p className="text-sm font-semibold text-slate-900">{t(`register.kinds.${account.key}.label`)}</p>
             <Button
               variant="secondary"
               className="w-full"
@@ -51,12 +54,20 @@ function DemoAccountSignIn({ disabled }) {
               aria-disabled={Boolean(pendingKey) || disabled || undefined}
               aria-describedby={`demo-${account.key}-description`}
             >
-              <UserRound aria-hidden="true" className="size-5" />
+              <UserRound aria-hidden="true" className="size-5 shrink-0" />
               {pendingKey === account.key ? t('auth.signingIn') : t(`demo.accounts.${account.key}.button`, { defaultValue: account.buttonLabel })}
             </Button>
-            <p id={`demo-${account.key}-description`} className="mt-1 text-center text-xs text-slate-600">
+            <p id={`demo-${account.key}-description`} className="text-center text-xs text-slate-600">
               {t(`demo.accounts.${account.key}.description`, { defaultValue: account.description })}
             </p>
+            {REGISTER_PATHS[account.key] && (
+              <Link
+                to={REGISTER_PATHS[account.key]}
+                className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-800 underline underline-offset-4"
+              >
+                {t('demo.registerLink', { category: t(`register.kinds.${account.key}.label`) })}
+              </Link>
+            )}
           </li>
         ))}
       </ul>

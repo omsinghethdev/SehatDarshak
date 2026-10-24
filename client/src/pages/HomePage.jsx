@@ -8,6 +8,7 @@ import {
   ListOrdered,
   Map as MapIcon,
   MapPin,
+  QrCode,
   ShieldCheck,
   Ticket,
   Users,
@@ -118,7 +119,7 @@ export function HomePage() {
                 </ButtonLink>
               ) : (
                 <>
-                  <ButtonLink to={PATHS.register} className="px-6">
+                  <ButtonLink to={PATHS.registerPatient} className="px-6">
                     {t('auth.registerTitle')}
                     <ArrowRight aria-hidden="true" className="size-5" />
                   </ButtonLink>
@@ -127,6 +128,10 @@ export function HomePage() {
                   </ButtonLink>
                 </>
               )}
+              <ButtonLink to={PATHS.scan} variant="secondary" className="px-6">
+                <QrCode aria-hidden="true" className="size-5" />
+                {t('scan.title')}
+              </ButtonLink>
             </div>
           </div>
 

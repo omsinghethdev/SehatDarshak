@@ -7,6 +7,8 @@ import { mockAuthService } from './mockAuthService';
  *   login({ identifier, password })        → Promise<{ accessToken, user }>
  *   register({ name, identifier, password }) → Promise<{ accessToken, user }>
  *   demoAccounts / loginAsDemoAccount(key) → simulated accounts in mock mode, otherwise null
+ *   demoRegistrationKinds / registerDemoAccount(kind, details) → development-only staff/admin
+ *     account creation in mock mode, otherwise [] / null (the API only registers patients)
  * Errors are always `ApiError`s using the contract's error codes.
  *
  * Switch with VITE_AUTH_MODE ("api" or "mock"); see authConfig.js.

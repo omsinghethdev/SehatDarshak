@@ -7,25 +7,44 @@ import { useErrorText } from '../../hooks/useErrorText';
 import { useForm } from '../../hooks/useForm';
 import { useTranslation } from '../../hooks/useTranslation';
 import { messageRef } from '../../i18n/translate';
+import { ACCOUNT_TYPES } from './accountTypes';
 import { PASSWORD_MIN_LENGTH, validateRegistration } from './validation';
 
-export function RegisterForm() {
-  const { register } = useAuth();
+const SUBMIT_KEYS = { patient: 'auth.createAccount', staff: 'register.createStaff', admin: 'register.createAdmin' };
+
+/**
+ * Registration form for one account category. Patients use the contract's `register`; staff and
+ * administrator categories use the mock-only `registerDemoAccount`, which takes the category key —
+ * the role and department are never form fields.
+ */
+export function RegisterForm({ kind = 'patient' }) {
+  const { register, registerDemoAccount } = useAuth();
   const { t } = useTranslation();
+  const type = ACCOUNT_TYPES[kind];
   const { values, fieldErrors, submitError, pending, handleChange, handleSubmit } = useForm({
     initialValues: { name: '', identifier: '', password: '', confirmPassword: '' },
     validate: (formValues) => validateRegistration(formValues, messageRef),
     // confirmPassword is a client-only check; the contract accepts name, identifier, and password.
     // The interface language is a browser preference only: the contract's preferredLanguage codes
     // are not agreed yet, so it is not sent.
-    onSubmit: ({ name, identifier, password }) =>
-      register({ name: name.trim(), identifier: identifier.trim(), password }),
+    onSubmit: ({ name, identifier, password }) => {
+      const details = { name: name.trim(), identifier: identifier.trim(), password };
+      return kind === 'patient' ? register(details) : registerDemoAccount(kind, details);
+    },
   });
   const errorText = useErrorText(fieldErrors);
 
   return (
     <form noValidate onSubmit={handleSubmit} className="space-y-5" aria-busy={pending}>
       {submitError && <ErrorState error={submitError} showDetails={false} />}
+
+      {type.departmentId && (
+        <div className="rounded-lg border border-line bg-canvas-muted p-4">
+          <p className="text-sm text-slate-600">{t('register.assignedDepartment')}</p>
+          <p className="font-semibold text-slate-900">{t(`register.departments.${kind}`)}</p>
+          <p className="mt-1 text-sm text-slate-600">{t('register.departmentFixed')}</p>
+        </div>
+      )}
 
       <TextField
         id="name"
@@ -72,7 +91,7 @@ export function RegisterForm() {
       />
 
       <SubmitButton pending={pending} pendingLabel={t('auth.creatingAccount')} className="w-full">
-        {t('auth.createAccount')}
+        {t(SUBMIT_KEYS[type.role])}
       </SubmitButton>
     </form>
   );
