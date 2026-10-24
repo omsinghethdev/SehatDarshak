@@ -1,10 +1,10 @@
-# SehatDarsak
+# SehatDarshak
 
-SehatDarsak is a hackathon MVP for smart queue management and accessible hospital navigation in government hospitals. It is designed to make common OPD tasks easier for patients while giving staff (doctors) and administrators a small operational view.
+SehatDarshak is a hackathon MVP for smart queue management and accessible hospital navigation in government hospitals. It is designed to make common OPD tasks easier for patients while giving staff (doctors) and administrators a small operational view.
 
 ## Problem statement
 
-Patients can face long, uncertain queues and difficulty finding departments or facilities in unfamiliar hospitals. SehatDarsak provides simple language-aware registration, queue updates, a basic 2D floor map, and a staff assistance-request channel. It is not a clinical system or emergency-response service.
+Patients can face long, uncertain queues and difficulty finding departments or facilities in unfamiliar hospitals. SehatDarshak provides simple language-aware registration, queue updates, a basic 2D floor map, and a staff assistance-request channel. It is not a clinical system or emergency-response service.
 
 ## MVP scope
 
@@ -54,7 +54,7 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 
 - **Backend:** implements and tests the patient, hospital-data, queue, staff queue-operation, assistance, and admin-statistics endpoints. QR lookup uses an existing endpoint.
 - **Proposed, not implemented yet:** admin staff-account management, staff deactivation, the staff `departmentId` in user responses, and the queue-token audit history. See the [implementation status table](docs/API_CONTRACT.md#implementation-status).
-- **Frontend:** developed on separate branches. Its status is reported per branch rather than in this README.
+- **Frontend:** the `raunak` branch is merged into `main`. It has patient, staff, and admin pages, English and Hindi translations, QR pages, and service layers that switch between mock data and the API. Full integration with the API is still pending.
 
 ## Next step
 

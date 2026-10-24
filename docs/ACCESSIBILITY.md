@@ -1,6 +1,6 @@
 # Accessibility Guidelines
 
-SehatDarsak is intended for people with varied language, literacy, device, and accessibility needs.
+SehatDarshak is intended for people with varied language, literacy, device, and accessibility needs.
 
 - Offer language selection early and keep language names easy to recognize.
 - Use readable typography, plain language, high contrast, and avoid colour as the only status indicator.

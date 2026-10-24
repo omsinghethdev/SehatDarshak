@@ -4,7 +4,7 @@
 
 ## 1. Project scope and source of truth
 
-SehatDarsak is a fictional-data hackathon MVP for government-hospital OPD queues, accessible language-aware patient flows, basic SVG-based 2D floor maps, staff assistance requests, staff (doctor) queue actions including token QR scanning, admin statistics/queue monitoring, admin staff-account management, and a protected audit history of queue-token status changes.
+SehatDarshak is a fictional-data hackathon MVP for government-hospital OPD queues, accessible language-aware patient flows, basic SVG-based 2D floor maps, staff assistance requests, staff (doctor) queue actions including token QR scanning, admin statistics/queue monitoring, admin staff-account management, and a protected audit history of queue-token status changes.
 
 Roles are `patient`, `staff`, and `admin`; doctors use the `staff` role. The stack is React/Vite/JavaScript/Tailwind on the client; Node/Express/REST JSON on the server; MongoDB (Atlas in production) with Mongoose for persistence. The client polls for queue updates. Out of scope: route calculation or turn-by-turn navigation (future scope), live indoor positioning, 3D maps, department/room/floor create/edit/delete, public staff or admin registration, real hospital integrations, clinical triage, payments, prescriptions, medical records, emergency dispatch, WebSockets, and email OTP.
 

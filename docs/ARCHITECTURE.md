@@ -2,7 +2,7 @@
 
 ## Overview
 
-SehatDarsak uses a single React/Vite client, a single Express REST API, and MongoDB (Atlas in production) through Mongoose. This deliberately small architecture is suitable for a 2–3 person hackathon team and can be expanded only after the MVP is validated.
+SehatDarshak uses a single React/Vite client, a single Express REST API, and MongoDB (Atlas in production) through Mongoose. This deliberately small architecture is suitable for a 2–3 person hackathon team and can be expanded only after the MVP is validated.
 
 ## Frontend
 
