@@ -146,6 +146,7 @@ export function AssistancePage() {
   const { isMockAuth } = useAuth();
   const [submitted, setSubmitted] = useState(null);
   const [announcement, setAnnouncement] = useState('');
+  const formHeadingRef = useRef(null);
 
   const loadDepartments = useCallback((signal) => departmentService.listDepartments({ signal }), []);
   const departments = useAsyncData(loadDepartments);
@@ -167,7 +168,11 @@ export function AssistancePage() {
       <SubmissionConfirmation
         request={submitted}
         department={departmentsById?.get(submitted.departmentId)}
-        onSendAnother={() => setSubmitted(null)}
+        onSendAnother={() => {
+          // The clicked button disappears with the confirmation; keep focus on the form section.
+          setSubmitted(null);
+          formHeadingRef.current?.focus();
+        }}
       />
     );
   } else if (departments.status === 'error') {
@@ -206,7 +211,7 @@ export function AssistancePage() {
       )}
 
       <section aria-labelledby="request-form-heading" className="space-y-5 rounded-2xl border border-line bg-white p-5 shadow-sm sm:p-8">
-        <h2 id="request-form-heading" className="flex items-center gap-2 text-xl font-bold text-slate-900">
+        <h2 id="request-form-heading" ref={formHeadingRef} tabIndex={-1} className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <ShieldAlert aria-hidden="true" className="size-5 text-brand-700" />
           New request
         </h2>

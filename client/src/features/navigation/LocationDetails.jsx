@@ -11,11 +11,23 @@ function departmentText(location, departments) {
   return 'Department details are not available right now.';
 }
 
-/** Details for the selected location. Announced politely when the selection changes. */
-export function LocationDetails({ location, number, floor, departments, onClear }) {
+/**
+ * Details for the selected location. Announced politely when the selection changes: the
+ * live region stays mounted and only its contents change, because screen readers often
+ * ignore live regions that are inserted at the same moment as their content.
+ */
+export function LocationDetails(props) {
+  return (
+    <div aria-live="polite">
+      <LocationDetailsContent {...props} />
+    </div>
+  );
+}
+
+function LocationDetailsContent({ location, number, floor, departments, onClear }) {
   if (!location) {
     return (
-      <div aria-live="polite" className="rounded-xl border border-dashed border-line bg-white p-5 text-slate-700">
+      <div className="rounded-xl border border-dashed border-line bg-white p-5 text-slate-700">
         <p className="flex items-start gap-3">
           <MousePointerClick aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-slate-500" />
           Select a location on the map or in the list below to see its details.
@@ -28,7 +40,6 @@ export function LocationDetails({ location, number, floor, departments, onClear 
 
   return (
     <section
-      aria-live="polite"
       aria-labelledby="location-details-heading"
       className="rounded-xl border-2 border-slate-900 bg-white p-5"
     >

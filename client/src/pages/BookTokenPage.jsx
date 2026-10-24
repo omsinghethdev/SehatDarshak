@@ -52,6 +52,7 @@ export function BookTokenPage() {
   const { isMockAuth } = useAuth();
   const [searchParams] = useSearchParams();
   const [bookedToken, setBookedToken] = useState(null);
+  const headingRef = useRef(null);
 
   const load = useCallback(async (signal) => {
     const [departments, activeTokens] = await Promise.all([
@@ -65,6 +66,8 @@ export function BookTokenPage() {
   function handleBookAnother() {
     setBookedToken(null);
     reload();
+    // The clicked button disappears with the confirmation; keep focus on the page heading.
+    headingRef.current?.focus();
   }
 
   let content;
@@ -105,7 +108,9 @@ export function BookTokenPage() {
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
       <div>
         <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">OPD queue</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Book a token</h1>
+        <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+          Book a token
+        </h1>
         <p className="mt-2 max-w-2xl text-slate-700">
           Choose the department you need. You will get a token number and can follow your place in
           the queue.

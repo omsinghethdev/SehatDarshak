@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { MapPinOff } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink } from '../components/common/Button';
@@ -41,6 +41,13 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
     () => (departments.data ? new Map(departments.data.map((item) => [item.id, item])) : null),
     [departments.data],
   );
+  const mapHeadingRef = useRef(null);
+  // "Clear selection" removes its own button, so move focus to a stable place instead of
+  // letting it fall back to the page body.
+  const handleClear = () => {
+    onClear();
+    mapHeadingRef.current?.focus();
+  };
 
   if (status === 'error') return <ErrorState error={error} onRetry={reload} />;
   if (status === 'loading' || !floor) return <LoadingState label="Loading floor map…" />;
@@ -79,7 +86,7 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section aria-labelledby="floor-map-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 id="floor-map-heading" className="text-xl font-bold text-slate-900">
+            <h2 id="floor-map-heading" ref={mapHeadingRef} tabIndex={-1} className="text-xl font-bold text-slate-900">
               {floor.displayName} map
             </h2>
             <p className="text-sm text-slate-600">Select a numbered location to see its details.</p>
@@ -94,7 +101,7 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
             number={selected ? numbering.get(selected.id) : undefined}
             floor={floor}
             departments={departmentsState}
-            onClear={onClear}
+            onClear={handleClear}
           />
         </div>
       </div>

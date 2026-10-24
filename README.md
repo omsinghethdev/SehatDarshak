@@ -19,7 +19,7 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 
 - Frontend: React, Vite, JavaScript, Tailwind CSS, Lucide React.
 - Backend: Node.js, Express, REST/JSON.
-- Data: MongoDB Atlas with Mongoose (planned integration).
+- Data: MongoDB (Atlas in production) with Mongoose.
 - Deployment targets: Vercel (client) and Render (server).
 
 ## Directory overview
@@ -28,8 +28,8 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 
 ## Development status
 
-Foundation only. The project has coherent entry points, configuration, environment templates, and draft design documents. Authentication, database models, routes, queue logic, and product pages are intentionally not implemented yet.
+The backend API in `server/` implements the endpoints in the draft API contract: authentication, hospital data and maps, queue tokens and staff queue operations, assistance requests, and admin statistics. It is covered by automated tests; see [server/README.md](server/README.md). The frontend product pages are not yet integrated with the API.
 
 ## Next step
 
-Review and freeze the draft API contract before frontend or backend feature implementation begins.
+Resolve the open contract decisions (including the admin dashboard response shape), then integrate the frontend with the API.

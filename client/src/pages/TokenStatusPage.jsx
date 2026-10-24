@@ -17,6 +17,14 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { PATHS, bookTokenPath } from '../routes/paths';
+import { API_ERROR_CODES } from '../services/apiClient';
+
+// Refresh failures that retrying cannot fix: the token is gone or no longer visible to this user.
+const PERMANENT_REFRESH_ERRORS = [
+  API_ERROR_CODES.NOT_FOUND,
+  API_ERROR_CODES.FORBIDDEN,
+  API_ERROR_CODES.UNAUTHORIZED,
+];
 
 function formatTime(date) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -33,6 +41,7 @@ function useTokenStatusPolling(token, onStatus) {
   const inFlight = useRef(false);
   const tokenId = token?.id;
   const active = token ? isActiveStatus(token.status) : false;
+  const permanentError = PERMANENT_REFRESH_ERRORS.includes(refreshError?.code);
 
   const refresh = useCallback(async () => {
     if (!tokenId || inFlight.current) return;
@@ -51,14 +60,14 @@ function useTokenStatusPolling(token, onStatus) {
   }, [tokenId, onStatus]);
 
   useEffect(() => {
-    if (!active) return undefined;
+    if (!active || permanentError) return undefined;
     const id = setInterval(() => {
       if (!document.hidden) refresh();
     }, QUEUE_POLL_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [active, refresh]);
+  }, [active, permanentError, refresh]);
 
-  return { lastUpdated, setLastUpdated, refreshError, refreshing, refresh };
+  return { lastUpdated, setLastUpdated, refreshError, permanentError, refreshing, refresh };
 }
 
 export function TokenStatusPage() {
@@ -87,13 +96,16 @@ export function TokenStatusPage() {
     (update) => setData((current) => (current ? { ...current, token: { ...current.token, ...update } } : current)),
     [setData],
   );
-  const { lastUpdated, setLastUpdated, refreshError, refreshing, refresh } = useTokenStatusPolling(token, applyStatus);
+  const { lastUpdated, setLastUpdated, refreshError, permanentError, refreshing, refresh } =
+    useTokenStatusPolling(token, applyStatus);
 
-  if (status === 'error') {
+  // A permanent refresh failure (e.g. the token no longer exists) is shown like a failed load
+  // instead of a stale status with a "we will keep trying" message.
+  if (status === 'error' || permanentError) {
     return (
       <Container className="max-w-3xl space-y-6 py-10 sm:py-14">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">Queue status</h1>
-        <ErrorState error={error} onRetry={reload} />
+        <ErrorState error={status === 'error' ? error : refreshError} onRetry={status === 'error' ? reload : refresh} />
         <ButtonLink to={PATHS.dashboard} variant="secondary">
           <ArrowLeft aria-hidden="true" className="size-5" />
           Back to dashboard

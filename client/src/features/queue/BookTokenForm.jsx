@@ -76,7 +76,10 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
 
   const { values, fieldErrors, submitError, pending, handleChange, handleSubmit } = useForm({
     initialValues: { departmentId: preselected },
-    validate: ({ departmentId }) => (departmentId ? {} : { departmentId: 'Choose a department.' }),
+    // A department that gained an active token since it was chosen (e.g. after a reload or a
+    // 409) can no longer be booked, so it counts as not chosen.
+    validate: ({ departmentId }) =>
+      departmentId && !activeByDepartment.has(departmentId) ? {} : { departmentId: 'Choose a department.' },
     onSubmit: async ({ departmentId }) => {
       try {
         onBooked(await queueService.createToken(departmentId));
@@ -109,7 +112,7 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
               key={department.id}
               department={department}
               activeToken={activeByDepartment.get(department.id)}
-              checked={values.departmentId === department.id}
+              checked={values.departmentId === department.id && !activeByDepartment.has(department.id)}
               onChange={handleChange}
             />
           ))}

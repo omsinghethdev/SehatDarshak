@@ -20,12 +20,11 @@ export function AssistanceRequestForm({ departments, onSubmitted }) {
     initialValues: EMPTY_VALUES,
     validate: validateAssistanceRequest,
     onSubmit: async ({ departmentId, location, message }) => {
-      const request = await assistanceService.createRequest({
-        departmentId,
-        location: location.trim(),
-        message: message.trim(),
-      });
-      onSubmitted(request);
+      const submitted = { departmentId, location: location.trim(), message: message.trim() };
+      const request = await assistanceService.createRequest(submitted);
+      // The contract's create response is only { id, status, createdAt, notice }, so keep the
+      // submitted details for the confirmation summary; server fields take precedence.
+      onSubmitted({ ...submitted, ...request });
     },
   });
 

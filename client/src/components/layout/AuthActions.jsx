@@ -21,12 +21,16 @@ export function AuthActions({ stacked = false, onNavigate }) {
     return (
       <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'items-center')}>
         <p className={cn('items-center gap-2 px-2 text-sm text-slate-700', stacked ? 'flex' : 'hidden xl:flex')}>
-          <UserRound aria-hidden="true" className="size-4" />
-          <span>
-            Signed in as <span className="font-semibold text-slate-900">{user.name}</span>
+          <UserRound aria-hidden="true" className="size-4 shrink-0" />
+          <span className={cn(!stacked && 'flex min-w-0 gap-1 whitespace-nowrap')}>
+            Signed in as{' '}
+            {/* Long names are truncated in the one-line desktop header; the mobile menu shows them in full. */}
+            <span className={cn('font-semibold text-slate-900', !stacked && 'max-w-24 truncate')} title={user.name}>
+              {user.name}
+            </span>
           </span>
         </p>
-        <Button variant="secondary" onClick={handleSignOut}>
+        <Button variant="secondary" onClick={handleSignOut} className={cn(!stacked && 'whitespace-nowrap')}>
           <LogOut aria-hidden="true" className="size-4" />
           Sign out
         </Button>
