@@ -31,9 +31,9 @@ export function Footer() {
             OPD visits.
           </p>
           <p className="mt-4 max-w-xl text-sm text-slate-700">
-            Waiting times shown in SehatDarsak are simulated estimates. Assistance requests go to
-            hospital staff and are not an emergency medical service. In a medical emergency, go
-            directly to the hospital&apos;s emergency department.
+            Waiting times shown in SehatDarsak are simulated estimates. Assistance requests are for
+            non-emergency help and are not an emergency medical service. For emergencies, contact
+            hospital staff directly or use the hospital&apos;s designated emergency process.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ArrowRight, Building2, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
+import { ArrowRight, Building2, HandHelping, ListOrdered, Map as MapIcon, Ticket } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button, ButtonLink } from '../../components/common/Button';
 import { EmptyState } from '../../components/feedback/EmptyState';
@@ -112,7 +112,7 @@ export function PatientDashboard() {
         <h2 id="actions-heading" className="sr-only">
           Quick actions
         </h2>
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <li>
             <QuickAction
               to={PATHS.bookToken}
@@ -138,6 +138,14 @@ export function PatientDashboard() {
               icon={MapIcon}
               title="Hospital map"
               description="Find departments and facilities on each floor."
+            />
+          </li>
+          <li>
+            <QuickAction
+              to={PATHS.assistance}
+              icon={HandHelping}
+              title="Ask for help"
+              description="Request non-emergency help from hospital staff."
             />
           </li>
         </ul>

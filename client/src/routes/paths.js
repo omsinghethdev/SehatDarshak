@@ -5,6 +5,7 @@ export const PATHS = Object.freeze({
   dashboard: '/dashboard',
   departments: '/departments',
   navigation: '/navigation',
+  assistance: '/assistance',
   bookToken: '/queue/book',
   tokenStatus: '/queue/tokens/:tokenId',
   unauthorized: '/unauthorized',

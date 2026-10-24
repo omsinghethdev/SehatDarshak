@@ -15,6 +15,7 @@ function getSignedInItems(role) {
     ...(role === 'patient' ? [{ to: PATHS.bookToken, label: 'Book a token' }] : []),
     { to: PATHS.departments, label: 'Departments' },
     { to: PATHS.navigation, label: 'Hospital map' },
+    ...(role === 'patient' ? [{ to: PATHS.assistance, label: 'Get help' }] : []),
   ];
 }
 

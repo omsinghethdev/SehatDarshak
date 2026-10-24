@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '../components/layout/AppLayout';
+import { AssistancePage } from '../pages/AssistancePage';
 import { BookTokenPage } from '../pages/BookTokenPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { DepartmentsPage } from '../pages/DepartmentsPage';
@@ -41,11 +42,12 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            // Patient-only queue actions. Staff/admin token views are not built yet.
+            // Patient-only actions. Staff/admin token and assistance views are not built yet.
             element: <ProtectedRoute allowedRoles={['patient']} />,
             children: [
               { path: PATHS.bookToken, element: <BookTokenPage /> },
               { path: PATHS.tokenStatus, element: <TokenStatusPage /> },
+              { path: PATHS.assistance, element: <AssistancePage /> },
             ],
           },
           { path: '*', element: <NotFoundPage /> },

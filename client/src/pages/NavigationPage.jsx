@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { MapPinOff } from 'lucide-react';
 import { useSearchParams } from 'react-router';
-import { Button } from '../components/common/Button';
+import { Button, ButtonLink } from '../components/common/Button';
 import { Container } from '../components/common/Container';
 import { EmptyState } from '../components/feedback/EmptyState';
 import { ErrorState } from '../components/feedback/ErrorState';
@@ -17,6 +17,7 @@ import { navigationService } from '../features/navigation/navigationService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { PATHS } from '../routes/paths';
 
 function isUsableFloorMap(floor) {
   return (
@@ -111,7 +112,7 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
 
 export function NavigationPage() {
   useDocumentTitle('Hospital map');
-  const { isMockAuth } = useAuth();
+  const { isMockAuth, role } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const loadFloors = useCallback((signal) => navigationService.listFloors({ signal }), []);
@@ -191,7 +192,17 @@ export function NavigationPage() {
             hospital.
           </Notice>
         )}
-        <Notice tone="info" title="Location map only">
+        <Notice
+          tone="info"
+          title="Location map only"
+          action={
+            role === 'patient' && (
+              <ButtonLink to={PATHS.assistance} variant="secondary">
+                Ask staff for help
+              </ButtonLink>
+            )
+          }
+        >
           This map shows where places are. It does not give verified directions or step-by-step
           routes. If you need help getting somewhere, please ask hospital staff.
         </Notice>
