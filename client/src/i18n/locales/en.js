@@ -476,6 +476,14 @@ const en = {
     lookingTitle: 'Looking for a department?',
     lookingBody: 'The hospital map shows where departments and facilities are on each floor.',
     openMap: 'Open the hospital map',
+    map: {
+      checking: 'Checking where this department is on the map…',
+      findOnMap: 'Find on map',
+      roomsTitle: 'Rooms on the map',
+      notMarked: 'This department’s room is not marked on the hospital map yet. Open the map to look around, or ask at the help desk.',
+      notChecked: 'Some floors could not be loaded, so this department’s room could not be found. Open the map to try again.',
+      unavailable: 'Map locations are not available right now.',
+    },
   },
   map: {
     intro: 'Find departments, consultation rooms, and facilities on each floor.',
@@ -488,6 +496,8 @@ const en = {
     unusableBody: 'The map information for this floor is incomplete. Please ask hospital staff for help finding your way.',
     emptyFloorTitle: 'No locations have been mapped on the {floor} yet',
     emptyFloorBody: 'Please ask hospital staff for help finding rooms on this floor.',
+    floorNotFoundTitle: 'Floor not found',
+    floorNotFoundBody: 'The floor in your link is not on the hospital map, so the {floor} is shown instead.',
     linkNotFoundTitle: 'Location not found on this floor',
     linkNotFoundBody: 'The location in your link is not on the {floor}. Choose a location below.',
     floorMapTitle: '{floor} map',
@@ -706,7 +716,7 @@ const en = {
   },
   register: {
     chooseTitle: 'Create an account',
-    chooseIntro: 'Choose the kind of account you need.',
+    chooseIntro: 'Patients can create their own account here in a minute.',
     kinds: {
       patient: {
         label: 'Patient',
@@ -753,6 +763,12 @@ const en = {
     hospitalOnlyAdmin:
       'Administrator accounts are created by the hospital, not through public registration. Ask the hospital’s system administrator for access, then sign in.',
     goToSignIn: 'Go to sign in',
+    patientAction: 'Create a patient account',
+    staffTitle: 'Hospital staff or administrator?',
+    staffBody: 'Staff and administrator accounts are created by the hospital administration, not through public registration. If you already have one, sign in below. Otherwise, ask your hospital administrator.',
+    demoKindsTitle: 'Demo staff and administrator accounts',
+    demoKindsBody: 'Demo mode only: these create fictional accounts stored in this browser so each role can be tried. They are not real hospital accounts.',
+    notPatient: 'Not a patient? Staff and administrator accounts',
   },
 };
 

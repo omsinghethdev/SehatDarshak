@@ -10,7 +10,7 @@ const PUBLIC_LINKS = [
   { to: `${PATHS.home}#features`, labelKey: 'nav.features' },
   { to: `${PATHS.home}#how-it-works`, labelKey: 'nav.howItWorks' },
   { to: PATHS.login, labelKey: 'layout.signIn' },
-  { to: PATHS.register, labelKey: 'layout.register' },
+  { to: PATHS.registerPatient, labelKey: 'layout.register' },
 ];
 
 const SIGNED_IN_LINKS = [

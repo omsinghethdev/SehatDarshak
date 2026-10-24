@@ -75,20 +75,57 @@ function SignInLink() {
   );
 }
 
-/** /register — choose which kind of account to create. */
+/**
+ * /register — who can create an account. Patients register themselves (the primary action);
+ * staff and administrator accounts are created by the hospital, so they are explained, not
+ * offered. Only in mock mode are the demo staff/admin accounts that really work listed, under a
+ * clearly labelled demo heading. (The header, footer, and landing page link straight to the
+ * patient form; this page is reached from "Not a patient?" links.)
+ */
 export function RegisterPage() {
   const { t } = useTranslation();
+  const location = useLocation();
+  const { registerDemoAccount, demoRegistrationKinds } = useAuth();
   useDocumentTitle(t('register.chooseTitle'));
+  const demoKinds = registerDemoAccount
+    ? ACCOUNT_TYPE_KEYS.filter((kind) => kind !== 'patient' && demoRegistrationKinds.includes(kind))
+    : [];
 
   return (
     <StatusPageLayout icon={UserPlus} title={t('register.chooseTitle')}>
       <p>{t('register.chooseIntro')}</p>
       <DemoAuthNotice />
-      <ul aria-label={t('register.chooseTitle')} className="space-y-3">
-        {ACCOUNT_TYPE_KEYS.map((kind) => (
-          <AccountTypeCard key={kind} kind={kind} />
-        ))}
-      </ul>
+
+      <section aria-labelledby="register-patient-heading" className="space-y-3 rounded-xl border border-line bg-white p-5">
+        <h2 id="register-patient-heading" className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <UserRound aria-hidden="true" className="size-5 text-brand-700" />
+          {t('register.kinds.patient.title')}
+        </h2>
+        <p className="text-slate-700">{t('register.kinds.patient.description')}</p>
+        <ButtonLink to={PATHS.registerPatient} state={location.state} className="w-full">
+          <UserPlus aria-hidden="true" className="size-5" />
+          {t('register.patientAction')}
+        </ButtonLink>
+      </section>
+
+      <Notice tone="info" title={t('register.staffTitle')}>
+        {t('register.staffBody')}
+      </Notice>
+
+      {demoKinds.length > 0 && (
+        <section aria-labelledby="register-demo-heading" className="space-y-3">
+          <h2 id="register-demo-heading" className="font-semibold text-slate-900">
+            {t('register.demoKindsTitle')}
+          </h2>
+          <p className="text-sm text-slate-700">{t('register.demoKindsBody')}</p>
+          <ul className="space-y-3">
+            {demoKinds.map((kind) => (
+              <AccountTypeCard key={kind} kind={kind} />
+            ))}
+          </ul>
+        </section>
+      )}
+
       <SignInLink />
     </StatusPageLayout>
   );
@@ -145,7 +182,7 @@ export function RegisterAccountPage({ kind }) {
     <StatusPageLayout icon={UserPlus} title={title}>
       <Link to={PATHS.register} state={location.state} className={`${LINK_CLASS} text-sm`}>
         <ArrowLeft aria-hidden="true" className="size-4" />
-        {t('register.backToChoices')}
+        {kind === 'patient' ? t('register.notPatient') : t('register.backToChoices')}
       </Link>
       {body}
       <SignInLink />

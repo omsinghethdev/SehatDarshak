@@ -7,7 +7,9 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { PageHeader } from '../components/layout/PageHeader';
+import { DepartmentMapAction } from '../features/departments/DepartmentMapAction';
 import { departmentService } from '../features/departments/departmentService';
+import { loadDepartmentLocations } from '../features/navigation/locationLookup';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -22,6 +24,8 @@ export function DepartmentsPage() {
 
   const load = useCallback((signal) => departmentService.listDepartments({ signal }), []);
   const { status, data: departments, error, reload } = useAsyncData(load);
+  // Map locations are extra help: loaded alongside, and a failure never hides the departments.
+  const locations = useAsyncData(loadDepartmentLocations);
 
   let content;
   if (status === 'error') {
@@ -49,15 +53,18 @@ export function DepartmentsPage() {
               </span>
             </div>
             {department.description && <p className="mt-2 text-slate-700">{department.description}</p>}
-            {role === 'patient' && (
-              <div className="mt-auto pt-5">
-                <ButtonLink to={bookTokenPath(department.id)} variant="secondary">
-                  <Ticket aria-hidden="true" className="size-4" />
-                  {t('nav.bookToken')}
-                  <span className="sr-only"> — {department.name}</span>
-                </ButtonLink>
-              </div>
-            )}
+            <div className="mt-auto flex flex-col gap-4 pt-5">
+              <DepartmentMapAction department={department} lookup={locations} />
+              {role === 'patient' && (
+                <div>
+                  <ButtonLink to={bookTokenPath(department.id)} variant="secondary">
+                    <Ticket aria-hidden="true" className="size-4" />
+                    {t('nav.bookToken')}
+                    <span className="sr-only"> — {department.name}</span>
+                  </ButtonLink>
+                </div>
+              )}
+            </div>
           </li>
         ))}
       </ul>

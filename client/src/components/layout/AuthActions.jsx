@@ -45,7 +45,7 @@ export function AuthActions({ stacked = false, onNavigate }) {
       <ButtonLink to={PATHS.login} variant="ghost" onClick={onNavigate} className={stacked ? undefined : 'whitespace-nowrap'}>
         {t('layout.signIn')}
       </ButtonLink>
-      <ButtonLink to={PATHS.register} onClick={onNavigate} className={stacked ? undefined : 'whitespace-nowrap'}>
+      <ButtonLink to={PATHS.registerPatient} onClick={onNavigate} className={stacked ? undefined : 'whitespace-nowrap'}>
         {t('layout.register')}
       </ButtonLink>
     </div>

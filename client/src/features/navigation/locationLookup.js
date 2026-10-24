@@ -1,3 +1,4 @@
+import { groupLocationsByDepartment } from './departmentLocations';
 import { navigationService } from './navigationService';
 
 /**
@@ -42,4 +43,10 @@ export async function findLocation(locationId, signal) {
     if (location) return { location, floor: { id: map.id, displayName: map.displayName }, failedFloors };
   }
   return { location: null, floor: null, failedFloors };
+}
+
+/** Every department's mapped rooms, from one load of all floors (see departmentLocations.js). */
+export async function loadDepartmentLocations(signal) {
+  const { maps, failedFloors } = await loadFloorMaps(signal);
+  return { byDepartment: groupLocationsByDepartment(maps), failedFloors };
 }

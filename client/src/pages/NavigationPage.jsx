@@ -168,8 +168,15 @@ export function NavigationPage() {
       />
     );
   } else {
+    // A link naming a floor that does not exist falls back to the first floor, and says so.
+    const floorMissing = Boolean(requestedFloorId) && requestedFloorId !== floorId;
     content = (
       <div className="space-y-8">
+        {floorMissing && (
+          <Notice tone="info" title={t('map.floorNotFoundTitle')}>
+            {t('map.floorNotFoundBody', { floor: floorList[0].displayName })}
+          </Notice>
+        )}
         <FloorSelector floors={floorList} selectedFloorId={floorId} onSelect={selectFloor} />
         <FloorMapSection
           floorState={floorState}
