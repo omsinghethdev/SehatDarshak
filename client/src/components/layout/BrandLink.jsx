@@ -13,10 +13,10 @@ export function BrandLink({ className, onClick }) {
       aria-label={t('layout.brandHome')}
       className={cn('inline-flex min-h-11 items-center gap-2.5 font-bold text-slate-900', className)}
     >
-      <span className="flex size-9 items-center justify-center rounded-lg bg-brand-700">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-700">
         <HeartPulse aria-hidden="true" className="size-5 text-white" />
       </span>
-      <span className="text-xl tracking-tight">Sehat Darshak</span>
+      <span className="text-xl tracking-tight whitespace-nowrap">Sehat Darshak</span>
     </Link>
   );
 }

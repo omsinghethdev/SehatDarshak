@@ -21,12 +21,18 @@ export function AuthActions({ stacked = false, onNavigate }) {
 
   if (isAuthenticated) {
     return (
-      <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'items-center')}>
-        <p className={cn('items-center gap-2 px-2 text-sm text-slate-700', stacked ? 'flex' : 'hidden xl:flex')}>
-          <UserRound aria-hidden="true" className="size-4" />
-          <span>{tx('layout.signedInAs', { name: <span className="font-semibold text-slate-900">{user.name}</span> })}</span>
+      <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'min-w-0 items-center')}>
+        <p
+          title={stacked ? undefined : user.name}
+          className={cn('min-w-0 items-center gap-2 px-2 text-sm text-slate-700', stacked ? 'flex' : 'hidden xl:flex')}
+        >
+          <UserRound aria-hidden="true" className="size-4 shrink-0" />
+          {/* On one line in the header; a long name is shortened with "…" (full text stays readable to screen readers). */}
+          <span className={stacked ? undefined : 'truncate'}>
+            {tx('layout.signedInAs', { name: <span className="font-semibold text-slate-900">{user.name}</span> })}
+          </span>
         </p>
-        <Button variant="secondary" onClick={handleSignOut}>
+        <Button variant="secondary" onClick={handleSignOut} className={stacked ? undefined : 'shrink-0 whitespace-nowrap'}>
           <LogOut aria-hidden="true" className="size-4" />
           {t('layout.signOut')}
         </Button>
@@ -36,10 +42,10 @@ export function AuthActions({ stacked = false, onNavigate }) {
 
   return (
     <div className={cn('flex gap-2', stacked ? 'flex-col items-stretch' : 'items-center')}>
-      <ButtonLink to={PATHS.login} variant="ghost" onClick={onNavigate}>
+      <ButtonLink to={PATHS.login} variant="ghost" onClick={onNavigate} className={stacked ? undefined : 'whitespace-nowrap'}>
         {t('layout.signIn')}
       </ButtonLink>
-      <ButtonLink to={PATHS.register} onClick={onNavigate}>
+      <ButtonLink to={PATHS.register} onClick={onNavigate} className={stacked ? undefined : 'whitespace-nowrap'}>
         {t('layout.register')}
       </ButtonLink>
     </div>
