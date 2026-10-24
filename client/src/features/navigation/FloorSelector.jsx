@@ -1,13 +1,15 @@
 import { Layers } from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 
 /** Floor picker as a set of toggle buttons; the current floor has `aria-pressed="true"`. */
 export function FloorSelector({ floors, selectedFloorId, onSelect }) {
+  const { t } = useTranslation();
   return (
     <div role="group" aria-labelledby="floor-selector-label">
       <p id="floor-selector-label" className="flex items-center gap-2 font-semibold text-slate-900">
         <Layers aria-hidden="true" className="size-5 text-brand-700" />
-        Choose a floor
+        {t('map.chooseFloor')}
       </p>
       <ul className="mt-3 flex flex-wrap gap-2">
         {floors.map((floor) => {
@@ -26,7 +28,7 @@ export function FloorSelector({ floors, selectedFloorId, onSelect }) {
                 )}
               >
                 {floor.displayName}
-                {selected && <span className="sr-only"> (selected)</span>}
+                {selected && <span className="sr-only"> ({t('common.selected')})</span>}
               </button>
             </li>
           );

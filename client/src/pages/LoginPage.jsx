@@ -4,20 +4,22 @@ import { StatusPageLayout } from '../components/layout/StatusPageLayout';
 import { DemoAuthNotice } from '../features/auth/DemoAuthNotice';
 import { LoginForm } from '../features/auth/LoginForm';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
 import { PATHS } from '../routes/paths';
 
 export function LoginPage() {
-  useDocumentTitle('Sign in');
+  const { t } = useTranslation();
+  useDocumentTitle(t('auth.signInTitle'));
 
   return (
-    <StatusPageLayout icon={LogIn} title="Sign in">
-      <p>Sign in with your username and password.</p>
+    <StatusPageLayout icon={LogIn} title={t('auth.signInTitle')}>
+      <p>{t('auth.signInIntro')}</p>
       <DemoAuthNotice />
       <LoginForm />
       <p className="border-t border-line pt-6 text-sm">
-        New patient?{' '}
+        {t('auth.newPatient')}{' '}
         <Link to={PATHS.register} className="inline-flex min-h-11 min-w-11 items-center font-semibold text-brand-800 underline underline-offset-4">
-          Create an account
+          {t('auth.createAnAccount')}
         </Link>
       </p>
     </StatusPageLayout>

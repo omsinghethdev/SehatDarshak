@@ -3,33 +3,31 @@ import { ButtonLink } from '../components/common/Button';
 import { StatusPageLayout } from '../components/layout/StatusPageLayout';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
 import { PATHS } from '../routes/paths';
 
 export function UnauthorizedPage() {
-  useDocumentTitle('Access not allowed');
+  const { t } = useTranslation();
+  useDocumentTitle(t('access.documentTitle'));
   const { isAuthenticated } = useAuth();
 
   return (
     <StatusPageLayout
       icon={ShieldAlert}
-      eyebrow="Access not allowed"
-      title="You can't view this page"
+      eyebrow={t('access.documentTitle')}
+      title={t('access.title')}
       actions={
         <>
-          <ButtonLink to={PATHS.home}>Back to home</ButtonLink>
+          <ButtonLink to={PATHS.home}>{t('common.backHome')}</ButtonLink>
           {!isAuthenticated && (
             <ButtonLink to={PATHS.login} variant="secondary">
-              Sign in
+              {t('layout.signIn')}
             </ButtonLink>
           )}
         </>
       }
     >
-      <p>
-        {isAuthenticated
-          ? 'Your account does not have permission to open this page. If you think this is a mistake, ask hospital staff for help.'
-          : 'You need to sign in with an account that has access to this page.'}
-      </p>
+      <p>{isAuthenticated ? t('access.signedInBody') : t('access.signedOutBody')}</p>
     </StatusPageLayout>
   );
 }

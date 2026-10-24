@@ -2,25 +2,26 @@ import { useState } from 'react';
 import { FlaskConical } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { ErrorState } from '../../components/feedback/ErrorState';
+import { useTranslation } from '../../hooks/useTranslation';
 import { queueDemoControls } from './queueService';
 
 function getActions(token) {
   const actions = [];
   if (token.status === 'waiting' && token.patientsAhead > 0) {
-    actions.push({ key: 'advance', label: 'One patient ahead is seen', run: () => queueDemoControls.advanceQueue(token.id) });
+    actions.push({ key: 'advance', labelKey: 'demo.controls.advance', run: () => queueDemoControls.advanceQueue(token.id) });
   }
   if (token.status === 'waiting' && token.patientsAhead === 0) {
-    actions.push({ key: 'called', label: 'Staff call this token', status: 'called' });
+    actions.push({ key: 'called', labelKey: 'demo.controls.call', status: 'called' });
   }
   if (token.status === 'called') {
-    actions.push({ key: 'in_consultation', label: 'Consultation starts', status: 'in_consultation' });
-    actions.push({ key: 'skipped', label: 'Patient not present — skip', status: 'skipped' });
+    actions.push({ key: 'in_consultation', labelKey: 'demo.controls.start', status: 'in_consultation' });
+    actions.push({ key: 'skipped', labelKey: 'demo.controls.skip', status: 'skipped' });
   }
   if (token.status === 'in_consultation') {
-    actions.push({ key: 'completed', label: 'Consultation completed', status: 'completed' });
+    actions.push({ key: 'completed', labelKey: 'demo.controls.complete', status: 'completed' });
   }
   if (['waiting', 'called', 'in_consultation'].includes(token.status)) {
-    actions.push({ key: 'cancelled', label: 'Staff cancel this token', status: 'cancelled', variant: 'danger' });
+    actions.push({ key: 'cancelled', labelKey: 'demo.controls.cancel', status: 'cancelled', variant: 'danger' });
   }
   return actions;
 }
@@ -31,6 +32,7 @@ function getActions(token) {
  */
 export function DemoQueueControls({ token, onUpdated }) {
   const [pendingKey, setPendingKey] = useState(null);
+  const { t } = useTranslation();
   const [error, setError] = useState(null);
 
   if (!queueDemoControls) return null;
@@ -60,12 +62,9 @@ export function DemoQueueControls({ token, onUpdated }) {
     >
       <h2 id="demo-controls-heading" className="flex items-center gap-2 font-semibold text-amber-950">
         <FlaskConical aria-hidden="true" className="size-5 text-amber-700" />
-        Demo controls: simulate staff actions
+        {t('demo.controls.title')}
       </h2>
-      <p className="mt-1 text-sm text-amber-950">
-        These buttons pretend to be hospital staff so you can see how this page changes. They only
-        change demo data in this browser — no real hospital queue is updated.
-      </p>
+      <p className="mt-1 text-sm text-amber-950">{t('demo.controls.body')}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((action) => (
           <Button
@@ -74,7 +73,7 @@ export function DemoQueueControls({ token, onUpdated }) {
             onClick={() => runAction(action)}
             aria-disabled={Boolean(pendingKey) || undefined}
           >
-            {pendingKey === action.key ? 'Updating…' : `Simulate: ${action.label}`}
+            {pendingKey === action.key ? t('common.updating') : t('demo.controls.simulate', { action: t(action.labelKey) })}
           </Button>
         ))}
       </div>

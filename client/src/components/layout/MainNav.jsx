@@ -1,30 +1,31 @@
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../hooks/useTranslation';
 import { PATHS } from '../../routes/paths';
 import { cn } from '../../utils/cn';
 
 const PUBLIC_ITEMS = [
-  { to: PATHS.home, label: 'Home' },
-  { to: `${PATHS.home}#features`, label: 'Features' },
-  { to: `${PATHS.home}#how-it-works`, label: 'How it works' },
+  { to: PATHS.home, labelKey: 'nav.home' },
+  { to: `${PATHS.home}#features`, labelKey: 'nav.features' },
+  { to: `${PATHS.home}#how-it-works`, labelKey: 'nav.howItWorks' },
 ];
 
 function getSignedInItems(role) {
   if (role === 'patient') {
     return [
-      { to: PATHS.dashboard, label: 'Dashboard' },
-      { to: PATHS.bookToken, label: 'Book a token' },
-      { to: PATHS.departments, label: 'Departments' },
-      { to: PATHS.navigation, label: 'Hospital map' },
-      { to: PATHS.assistance, label: 'Get help' },
+      { to: PATHS.dashboard, labelKey: 'nav.dashboard' },
+      { to: PATHS.bookToken, labelKey: 'nav.bookToken' },
+      { to: PATHS.departments, labelKey: 'nav.departments' },
+      { to: PATHS.navigation, labelKey: 'nav.map' },
+      { to: PATHS.assistance, labelKey: 'nav.getHelp' },
     ];
   }
   return [
-    { to: PATHS.dashboard, label: 'Dashboard' },
-    ...(role === 'admin' ? [{ to: PATHS.admin, label: 'Overview' }] : []),
-    { to: PATHS.staffQueue, label: 'Queue' },
-    { to: PATHS.staffAssistance, label: 'Requests' },
-    { to: PATHS.navigation, label: 'Hospital map' },
+    { to: PATHS.dashboard, labelKey: 'nav.dashboard' },
+    ...(role === 'admin' ? [{ to: PATHS.admin, labelKey: 'nav.overview' }] : []),
+    { to: PATHS.staffQueue, labelKey: 'nav.queue' },
+    { to: PATHS.staffAssistance, labelKey: 'nav.requests' },
+    { to: PATHS.navigation, labelKey: 'nav.map' },
   ];
 }
 
@@ -35,11 +36,12 @@ function getSignedInItems(role) {
 export function MainNav({ orientation = 'horizontal', onNavigate, id }) {
   const { pathname, hash } = useLocation();
   const { isAuthenticated, role } = useAuth();
+  const { t } = useTranslation();
   const items = isAuthenticated ? getSignedInItems(role) : PUBLIC_ITEMS;
   const vertical = orientation === 'vertical';
 
   return (
-    <nav id={id} aria-label="Main">
+    <nav id={id} aria-label={t('nav.mainLabel')}>
       <ul className={cn('flex', vertical ? 'flex-col gap-1' : 'items-center gap-1')}>
         {items.map((item) => {
           const exactMatch = items.some((other) => other.to === `${pathname}${hash}`);
@@ -56,7 +58,7 @@ export function MainNav({ orientation = 'horizontal', onNavigate, id }) {
                   vertical && 'justify-start px-4 text-lg',
                 )}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             </li>
           );

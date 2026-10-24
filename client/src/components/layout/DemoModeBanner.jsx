@@ -1,10 +1,12 @@
 import { FlaskConical } from 'lucide-react';
 import { Container } from '../common/Container';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /** Site-wide label shown whenever development-only mock authentication is active. */
 export function DemoModeBanner() {
   const { isMockAuth } = useAuth();
+  const { t } = useTranslation();
   if (!isMockAuth) return null;
 
   return (
@@ -12,8 +14,7 @@ export function DemoModeBanner() {
       <Container className="flex items-start gap-2 py-2 text-sm sm:items-center">
         <FlaskConical aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-amber-700 sm:mt-0" />
         <p>
-          <strong>Demo mode:</strong> sign-in uses development-only mock accounts stored in this
-          browser. It is not secure and not connected to the hospital service.
+          <strong>{t('demo.bannerTitle')}</strong> {t('demo.bannerBody')}
         </p>
       </Container>
     </div>

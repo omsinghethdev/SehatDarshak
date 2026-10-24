@@ -8,6 +8,7 @@ import { LoadingState } from '../../components/feedback/LoadingState';
 import { Notice } from '../../components/feedback/Notice';
 import { useAsyncData } from '../../hooks/useAsyncData';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from '../../hooks/useTranslation';
 import { PATHS, tokenStatusPath } from '../../routes/paths';
 import { departmentService } from '../departments/departmentService';
 import { StatusLegend } from '../queue/StatusLegend';
@@ -15,19 +16,20 @@ import { TokenCard } from '../queue/TokenCard';
 import { queueService } from '../queue/queueService';
 
 function ActiveTokens({ status, data, error, reload }) {
+  const { t } = useTranslation();
   if (status === 'error') return <ErrorState error={error} onRetry={reload} />;
-  if (!data) return <LoadingState label="Loading your tokens…" />;
+  if (!data) return <LoadingState label={t('dashboard.loadingTokens')} />;
 
   if (data.tokens.length === 0) {
     return (
       <EmptyState
         icon={Ticket}
-        title="You have no active token"
-        description="Book a token for the department you need to join its queue."
+        title={t('dashboard.noToken')}
+        description={t('dashboard.noTokenBody')}
         action={
           <ButtonLink to={PATHS.bookToken}>
             <Ticket aria-hidden="true" className="size-5" />
-            Book a token
+            {t('nav.bookToken')}
           </ButtonLink>
         }
       />
@@ -48,6 +50,7 @@ function ActiveTokens({ status, data, error, reload }) {
 /** Patient view of /dashboard: active tokens and quick actions. */
 export function PatientDashboard() {
   const { isMockAuth } = useAuth();
+  const { t } = useTranslation();
 
   const load = useCallback(async (signal) => {
     const [tokens, departments] = await Promise.all([
@@ -61,24 +64,23 @@ export function PatientDashboard() {
 
   let statusAction;
   if (!tokens) {
-    statusAction = { description: 'Checking your tokens…' };
+    statusAction = { description: t('dashboard.checkingTokens') };
   } else if (tokens.length === 0) {
-    statusAction = { description: 'You have no active token yet.' };
+    statusAction = { description: t('dashboard.noTokenYet') };
   } else if (tokens.length === 1) {
     statusAction = {
       to: tokenStatusPath(tokens[0].id),
-      description: `Follow token ${tokens[0].displayNumber}.`,
+      description: t('dashboard.followToken', { number: tokens[0].displayNumber }),
     };
   } else {
-    statusAction = { to: `${PATHS.dashboard}#active-tokens`, description: `You have ${tokens.length} active tokens.` };
+    statusAction = { to: `${PATHS.dashboard}#active-tokens`, description: t('dashboard.activeTokenCount', { count: tokens.length }) };
   }
 
   return (
     <div className="space-y-10">
       {isMockAuth && (
-        <Notice tone="warning" title="Demo data">
-          Tokens, queue positions, and waiting times on this page are simulated and stored only in
-          this browser. No real hospital queue is involved.
+        <Notice tone="warning" title={t('demo.dataTitle')}>
+          {t('demo.dashboardBody')}
         </Notice>
       )}
 
@@ -86,13 +88,13 @@ export function PatientDashboard() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="tokens-heading" className="text-2xl font-bold tracking-tight text-slate-900">
-              Your active tokens
+              {t('dashboard.activeTokens')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">Waiting times are simulated estimates.</p>
+            <p className="mt-1 text-sm text-slate-600">{t('dashboard.tokenExplained')}</p>
           </div>
           {tokens?.length > 0 && (
             <Button variant="ghost" onClick={tokensState.reload}>
-              Refresh
+              {t('common.refresh')}
             </Button>
           )}
         </div>
@@ -101,42 +103,42 @@ export function PatientDashboard() {
 
       <section aria-labelledby="actions-heading">
         <h2 id="actions-heading" className="text-xl font-bold tracking-tight text-slate-900">
-          What would you like to do?
+          {t('dashboard.whatToDo')}
         </h2>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           <li>
             <QuickActionCard
               to={PATHS.bookToken}
               icon={Ticket}
-              title="Book a token"
-              description="Join the queue for an OPD department."
+              title={t('nav.bookToken')}
+              description={t('dashboard.actions.book')}
             />
           </li>
           <li>
-            <QuickActionCard to={statusAction.to} icon={ListOrdered} title="View queue status" description={statusAction.description} />
+            <QuickActionCard to={statusAction.to} icon={ListOrdered} title={t('queue.viewStatus')} description={statusAction.description} />
           </li>
           <li>
             <QuickActionCard
               to={PATHS.departments}
               icon={Building2}
-              title="Hospital information"
-              description="See the OPD departments."
+              title={t('dashboard.actions.infoTitle')}
+              description={t('dashboard.actions.info')}
             />
           </li>
           <li>
             <QuickActionCard
               to={PATHS.navigation}
               icon={MapIcon}
-              title="Hospital map"
-              description="Find departments and facilities on each floor."
+              title={t('nav.map')}
+              description={t('dashboard.actions.map')}
             />
           </li>
           <li>
             <QuickActionCard
               to={PATHS.assistance}
               icon={HandHelping}
-              title="Ask for help"
-              description="Request non-emergency help from hospital staff."
+              title={t('assistance.requestAction')}
+              description={t('dashboard.actions.help')}
             />
           </li>
         </ul>

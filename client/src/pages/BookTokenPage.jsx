@@ -16,32 +16,38 @@ import { queueService } from '../features/queue/queueService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
+import { ListenButton } from '../components/common/ListenButton';
 import { PATHS, tokenStatusPath } from '../routes/paths';
 
 function BookingConfirmation({ token, department, onBookAnother }) {
   const headingRef = useRef(null);
+  const { t, tx } = useTranslation();
   useEffect(() => headingRef.current?.focus(), []);
+  const departmentName = department?.name ?? t('queue.yourDepartment');
 
   return (
     <div className="space-y-6">
-      <SuccessMessage title="Your token has been booked">
-        Your token for {department?.name ?? 'the department'} is <strong>{token.displayNumber}</strong>.
-        Keep this page or your dashboard open to follow your place in the queue.
+      <SuccessMessage
+        title={t('booking.bookedTitle')}
+        action={<ListenButton text={() => t('booking.bookedSpeech', { department: departmentName, number: token.displayNumber })} />}
+      >
+        {tx('booking.bookedBody', { department: departmentName, number: <strong>{token.displayNumber}</strong> })}
       </SuccessMessage>
       <h2 ref={headingRef} tabIndex={-1} className="text-xl font-semibold text-slate-900">
-        Your new token
+        {t('booking.newToken')}
       </h2>
       <TokenCard token={token} department={department} showStatusLink={false} />
       <div className="flex flex-col gap-3 sm:flex-row">
         <ButtonLink to={tokenStatusPath(token.id)}>
-          View queue status
+          {t('queue.viewStatus')}
           <ArrowRight aria-hidden="true" className="size-5" />
         </ButtonLink>
         <ButtonLink to={PATHS.dashboard} variant="secondary">
-          Back to dashboard
+          {t('common.backToDashboard')}
         </ButtonLink>
         <Button variant="ghost" onClick={onBookAnother}>
-          Book for another department
+          {t('booking.bookAnother')}
         </Button>
       </div>
     </div>
@@ -49,7 +55,8 @@ function BookingConfirmation({ token, department, onBookAnother }) {
 }
 
 export function BookTokenPage() {
-  useDocumentTitle('Book a token');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.bookToken'));
   const { isMockAuth } = useAuth();
   const [searchParams] = useSearchParams();
   const [bookedToken, setBookedToken] = useState(null);
@@ -84,14 +91,14 @@ export function BookTokenPage() {
   } else if (status === 'error') {
     content = <ErrorState error={error} onRetry={reload} />;
   } else if (!data) {
-    content = <LoadingState label="Loading departments…" />;
+    content = <LoadingState label={t('departments.loading')} />;
   } else if (data.departments.length === 0) {
     content = (
       <EmptyState
         icon={Building2}
-        title="No departments are available right now"
-        description="Tokens cannot be booked at the moment. Please try again later or ask at the registration desk."
-        action={<Button variant="secondary" onClick={reload}>Check again</Button>}
+        title={t('booking.noDepartments')}
+        description={t('booking.noDepartmentsBody')}
+        action={<Button variant="secondary" onClick={reload}>{t('common.checkAgain')}</Button>}
       />
     );
   } else {
@@ -109,15 +116,14 @@ export function BookTokenPage() {
   return (
     <Container className="max-w-4xl space-y-8 py-10 sm:py-14">
       <PageHeader
-        eyebrow="OPD queue"
-        title="Book a token"
-        description="Choose the department you need. You will get a token number and can follow your place in the queue."
+        eyebrow={t('booking.eyebrow')}
+        title={t('nav.bookToken')}
+        description={t('booking.intro')}
       />
 
       {isMockAuth && (
-        <Notice tone="warning" title="Demo data">
-          Departments and tokens are simulated and stored only in this browser. Booking here does not
-          reserve a place in a real hospital queue.
+        <Notice tone="warning" title={t('demo.dataTitle')}>
+          {t('demo.bookingBody')}
         </Notice>
       )}
 

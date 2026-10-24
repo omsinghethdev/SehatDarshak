@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { MapPinOff } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink } from '../components/common/Button';
@@ -18,6 +18,7 @@ import { navigationService } from '../features/navigation/navigationService';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
 import { PATHS } from '../routes/paths';
 
 function isUsableFloorMap(floor) {
@@ -32,6 +33,7 @@ function isUsableFloorMap(floor) {
 }
 
 function FloorMapSection({ floorState, departments, selectedId, onSelect, onClear }) {
+  const { t } = useTranslation();
   const { status, data: floor, error, reload } = floorState;
 
   const numbering = useMemo(
@@ -42,23 +44,16 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
     () => (departments.data ? new Map(departments.data.map((item) => [item.id, item])) : null),
     [departments.data],
   );
-  const mapHeadingRef = useRef(null);
-  // "Clear selection" removes its own button, so move focus to a stable place instead of
-  // letting it fall back to the page body.
-  const handleClear = () => {
-    onClear();
-    mapHeadingRef.current?.focus();
-  };
 
   if (status === 'error') return <ErrorState error={error} onRetry={reload} />;
-  if (status === 'loading' || !floor) return <LoadingState label="Loading floor map…" />;
+  if (status === 'loading' || !floor) return <LoadingState label={t('map.loadingFloor')} />;
 
   if (!isUsableFloorMap(floor)) {
     return (
       <EmptyState
         icon={MapPinOff}
-        title="This floor map cannot be shown"
-        description="The map information for this floor is incomplete. Please ask hospital staff for help finding your way."
+        title={t('map.unusableTitle')}
+        description={t('map.unusableBody')}
       />
     );
   }
@@ -67,8 +62,8 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
     return (
       <EmptyState
         icon={MapPinOff}
-        title={`No locations have been mapped on the ${floor.displayName} yet`}
-        description="Please ask hospital staff for help finding rooms on this floor."
+        title={t('map.emptyFloorTitle', { floor: floor.displayName })}
+        description={t('map.emptyFloorBody')}
       />
     );
   }
@@ -79,20 +74,20 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
   return (
     <div className="space-y-10">
       {selectedId && !selected && (
-        <Notice tone="info" title="Location not found on this floor">
-          The location in your link is not on the {floor.displayName}. Choose a location below.
+        <Notice tone="info" title={t('map.linkNotFoundTitle')}>
+          {t('map.linkNotFoundBody', { floor: floor.displayName })}
         </Notice>
       )}
 
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section aria-labelledby="floor-map-heading" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 id="floor-map-heading" ref={mapHeadingRef} tabIndex={-1} className="text-xl font-bold text-slate-900">
-              {floor.displayName} map
+            <h2 id="floor-map-heading" className="text-xl font-bold text-slate-900">
+              {t('map.floorMapTitle', { floor: floor.displayName })}
             </h2>
             <p className="text-sm text-slate-600">
-              Select a numbered location to see its details.
-              <span className="sm:hidden"> On a small screen, swipe the map sideways to see the whole floor.</span>
+              {t('map.selectNumbered')}
+              <span className="sm:hidden"> {t('map.swipeHint')}</span>
             </p>
           </div>
           <FloorMapSvg floor={floor} numbering={numbering} selectedId={selected?.id} onSelect={onSelect} />
@@ -105,7 +100,7 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
             number={selected ? numbering.get(selected.id) : undefined}
             floor={floor}
             departments={departmentsState}
-            onClear={handleClear}
+            onClear={onClear}
           />
         </div>
       </div>
@@ -122,7 +117,8 @@ function FloorMapSection({ floorState, departments, selectedId, onSelect, onClea
 }
 
 export function NavigationPage() {
-  useDocumentTitle('Hospital map');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.map'));
   const { isMockAuth, role } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -161,14 +157,14 @@ export function NavigationPage() {
   if (floors.status === 'error') {
     content = <ErrorState error={floors.error} onRetry={floors.reload} />;
   } else if (!floors.data) {
-    content = <LoadingState label="Loading floors…" />;
+    content = <LoadingState label={t('map.loadingFloors')} />;
   } else if (floorList.length === 0) {
     content = (
       <EmptyState
         icon={MapPinOff}
-        title="No floor maps are available"
-        description="Please ask hospital staff for help finding your way."
-        action={<Button variant="secondary" onClick={floors.reload}>Check again</Button>}
+        title={t('map.noFloorsTitle')}
+        description={t('map.noFloorsBody')}
+        action={<Button variant="secondary" onClick={floors.reload}>{t('common.checkAgain')}</Button>}
       />
     );
   } else {
@@ -189,31 +185,29 @@ export function NavigationPage() {
   return (
     <Container className="space-y-8 py-10 sm:py-14">
       <PageHeader
-        eyebrow="Hospital information"
-        title="Hospital map"
-        description="Find departments, consultation rooms, and facilities on each floor."
+        eyebrow={t('dashboard.actions.infoTitle')}
+        title={t('nav.map')}
+        description={t('map.intro')}
       />
 
       <div className="space-y-3">
         {isMockAuth && (
-          <Notice tone="warning" title="Demo map">
-            The floors and locations shown here are fictional demo data. They do not show a real
-            hospital.
+          <Notice tone="warning" title={t('demo.mapTitle')}>
+            {t('demo.mapBody')}
           </Notice>
         )}
         <Notice
           tone="info"
-          title="Location map only"
+          title={t('map.locationOnlyTitle')}
           action={
             role === 'patient' && (
               <ButtonLink to={PATHS.assistance} variant="secondary">
-                Ask staff for help
+                {t('waiting.askStaff')}
               </ButtonLink>
             )
           }
         >
-          This map shows where places are. It does not give verified directions or step-by-step
-          routes. If you need help getting somewhere, please ask hospital staff.
+          {t('map.locationOnlyBody')}
         </Notice>
       </div>
 

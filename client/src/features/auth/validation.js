@@ -1,32 +1,36 @@
+import { englishTranslator } from '../../i18n/translate';
+
 /**
  * Client-side checks mirroring the rules in docs/API_CONTRACT.md. They give fast feedback
  * only; the server remains responsible for validation.
- * Each function returns an object of `{ fieldName: message }` (empty when valid).
+ * Each function returns `{ fieldName: message }` (empty when valid). Pass the UI translator `t`
+ * for the patient's language; it defaults to English, which the mock services use to imitate
+ * server messages.
  */
 
 export const PASSWORD_MIN_LENGTH = 8;
 
-export function validateLogin({ identifier, password }) {
+export function validateLogin({ identifier, password }, t = englishTranslator.t) {
   const errors = {};
-  if (!identifier.trim()) errors.identifier = 'Enter your username.';
-  if (!password) errors.password = 'Enter your password.';
+  if (!identifier.trim()) errors.identifier = t('validation.usernameRequired');
+  if (!password) errors.password = t('validation.passwordRequired');
   return errors;
 }
 
-export function validateRegistration({ name, identifier, password, confirmPassword }) {
+export function validateRegistration({ name, identifier, password, confirmPassword }, t = englishTranslator.t) {
   const errors = {};
-  if (!name.trim()) errors.name = 'Enter your full name.';
-  if (!identifier.trim()) errors.identifier = 'Choose a username.';
+  if (!name.trim()) errors.name = t('validation.nameRequired');
+  if (!identifier.trim()) errors.identifier = t('validation.chooseUsername');
 
   if (!password) {
-    errors.password = 'Create a password.';
+    errors.password = t('validation.createPassword');
   } else if (password.length < PASSWORD_MIN_LENGTH) {
-    errors.password = `Use at least ${PASSWORD_MIN_LENGTH} characters.`;
+    errors.password = t('validation.passwordTooShort', { min: PASSWORD_MIN_LENGTH });
   }
 
   if (confirmPassword !== undefined) {
-    if (!confirmPassword) errors.confirmPassword = 'Re-enter your password.';
-    else if (confirmPassword !== password) errors.confirmPassword = 'Passwords do not match.';
+    if (!confirmPassword) errors.confirmPassword = t('validation.confirmPasswordRequired');
+    else if (confirmPassword !== password) errors.confirmPassword = t('validation.passwordsDoNotMatch');
   }
   return errors;
 }

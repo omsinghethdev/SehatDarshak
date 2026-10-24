@@ -17,59 +17,25 @@ import { Container } from '../components/common/Container';
 import { Notice } from '../components/feedback/Notice';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from '../hooks/useTranslation';
 import { PATHS } from '../routes/paths';
 
+// Text lives in the dictionaries under home.*; only icons and keys are listed here.
 const FEATURES = [
-  {
-    icon: Ticket,
-    title: 'Queue tokens and status',
-    description:
-      'Choose your department and receive a token. See how many people are ahead of you and a simulated waiting-time estimate, without standing in line to ask.',
-  },
-  {
-    icon: MapIcon,
-    title: 'Accessible floor maps',
-    description:
-      'Find departments, rooms, and facilities on simple 2D floor maps, with the same information also available as a text list.',
-  },
-  {
-    icon: BellRing,
-    title: 'Ask staff for help',
-    description:
-      'Send a request for assistance to hospital staff in your department, and see when it has been acknowledged.',
-  },
+  { icon: Ticket, key: 'tokens' },
+  { icon: MapIcon, key: 'maps' },
+  { icon: BellRing, key: 'help' },
 ];
 
 const STEPS = [
-  {
-    icon: Languages,
-    title: 'Register and choose your language',
-    description: 'Create a patient account with a username and pick the language you are most comfortable with.',
-  },
-  {
-    icon: ClipboardList,
-    title: 'Select a department',
-    description: 'Pick the OPD department you need and receive your queue token.',
-  },
-  {
-    icon: MapPin,
-    title: 'Track your turn and find your way',
-    description: 'Follow your place in the queue and use the floor map to reach the right room.',
-  },
+  { icon: Languages, key: 'register' },
+  { icon: ClipboardList, key: 'department' },
+  { icon: MapPin, key: 'track' },
 ];
 
 const STAFF_POINTS = [
-  {
-    icon: ListOrdered,
-    title: 'For hospital staff',
-    description:
-      'View your department’s queue, call the next patient, update consultation status, and acknowledge assistance requests.',
-  },
-  {
-    icon: LayoutDashboard,
-    title: 'For administrators',
-    description: 'Monitor queues across departments with basic aggregate statistics.',
-  },
+  { icon: ListOrdered, key: 'staff' },
+  { icon: LayoutDashboard, key: 'admin' },
 ];
 
 function SectionHeading({ id, eyebrow, title, description }) {
@@ -85,43 +51,45 @@ function SectionHeading({ id, eyebrow, title, description }) {
 }
 
 function ExampleTokenCard() {
+  const { t } = useTranslation();
   return (
     <figure className="rounded-xl border border-line bg-white p-6 shadow-raised sm:p-8">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm font-medium text-slate-600">Demo OPD</p>
         <span className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-800">
-          Waiting
+          {t('status.waiting.label')}
         </span>
       </div>
-      <p className="mt-4 text-sm text-slate-600">Your token</p>
+      <p className="mt-4 text-sm text-slate-600">{t('home.example.yourToken')}</p>
       <p className="text-5xl font-bold tracking-tight text-slate-900">OPD-101</p>
 
       <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-6">
         <div>
           <dt className="flex items-center gap-1.5 text-sm text-slate-600">
             <Users aria-hidden="true" className="size-4" />
-            Patients ahead
+            {t('queue.patientsAhead')}
           </dt>
           <dd className="mt-1 text-2xl font-semibold text-slate-900">4</dd>
         </div>
         <div>
           <dt className="flex items-center gap-1.5 text-sm text-slate-600">
             <Clock aria-hidden="true" className="size-4" />
-            Estimated wait
+            {t('queue.estimatedWait')}
           </dt>
-          <dd className="mt-1 text-2xl font-semibold text-slate-900">~20 min</dd>
-          <dd className="text-xs font-medium text-slate-600">Simulated estimate</dd>
+          <dd className="mt-1 text-2xl font-semibold text-slate-900">{t('estimate.aboutMinutes', { count: 20 })}</dd>
+          <dd className="text-xs font-medium text-slate-600">{t('queue.simulatedEstimate')}</dd>
         </div>
       </dl>
       <figcaption className="mt-6 rounded-lg bg-canvas-muted px-3 py-2 text-sm text-slate-700">
-        Example only — this shows how a queue token will look. It is not live data.
+        {t('home.example.caption')}
       </figcaption>
     </figure>
   );
 }
 
 export function HomePage() {
-  useDocumentTitle('Hospital queues and navigation');
+  const { t } = useTranslation();
+  useDocumentTitle(t('home.documentTitle'));
   const { isAuthenticated } = useAuth();
 
   return (
@@ -131,33 +99,31 @@ export function HomePage() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-sm font-medium text-brand-800">
               <ShieldCheck aria-hidden="true" className="size-4" />
-              For government hospital OPDs
+              {t('home.badge')}
             </p>
             <h1
               id="hero-heading"
               className="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl"
             >
-              Know your turn. Find your way. Get help when you need it.
+              {t('home.title')}
             </h1>
             <p className="mt-6 max-w-xl text-lg text-slate-700">
-              SehatDarsak makes OPD visits less uncertain. Get a queue token, follow your place in
-              line, find departments on a simple floor map, and ask hospital staff for assistance —
-              in the language you prefer.
+              {t('home.intro')}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {isAuthenticated ? (
                 <ButtonLink to={PATHS.dashboard} className="px-6">
-                  Go to your dashboard
+                  {t('home.goToDashboard')}
                   <ArrowRight aria-hidden="true" className="size-5" />
                 </ButtonLink>
               ) : (
                 <>
                   <ButtonLink to={PATHS.register} className="px-6">
-                    Register as a patient
+                    {t('auth.registerTitle')}
                     <ArrowRight aria-hidden="true" className="size-5" />
                   </ButtonLink>
                   <ButtonLink to={PATHS.login} variant="secondary" className="px-6">
-                    Sign in
+                    {t('layout.signIn')}
                   </ButtonLink>
                 </>
               )}
@@ -172,18 +138,18 @@ export function HomePage() {
         <Container>
           <SectionHeading
             id="features-heading"
-            eyebrow="Features"
-            title="Built around a patient’s hospital visit"
-            description="Three simple tools for the moments that cause the most confusion during an OPD visit."
+            eyebrow={t('nav.features')}
+            title={t('home.features.title')}
+            description={t('home.features.description')}
           />
           <ul className="mt-10 grid gap-6 md:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="rounded-xl border border-line bg-white p-6">
+            {FEATURES.map(({ icon: Icon, key }) => (
+              <li key={key} className="rounded-xl border border-line bg-white p-6">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-brand-50">
                   <Icon aria-hidden="true" className="size-6 text-brand-700" />
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{title}</h3>
-                <p className="mt-2 text-slate-700">{description}</p>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{t(`home.features.${key}.title`)}</h3>
+                <p className="mt-2 text-slate-700">{t(`home.features.${key}.description`)}</p>
               </li>
             ))}
           </ul>
@@ -197,10 +163,10 @@ export function HomePage() {
         className="border-y border-line bg-canvas-muted py-16 sm:py-20"
       >
         <Container>
-          <SectionHeading id="how-heading" eyebrow="How it works" title="Three steps for patients" />
+          <SectionHeading id="how-heading" eyebrow={t('nav.howItWorks')} title={t('home.steps.title')} />
           <ol className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map(({ icon: Icon, title, description }, index) => (
-              <li key={title} className="flex gap-4">
+            {STEPS.map(({ icon: Icon, key }, index) => (
+              <li key={key} className="flex gap-4">
                 <span
                   aria-hidden="true"
                   className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-700 font-bold text-white"
@@ -210,9 +176,9 @@ export function HomePage() {
                 <div>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
                     <Icon aria-hidden="true" className="size-5 text-brand-700" />
-                    {title}
+                    {t(`home.steps.${key}.title`)}
                   </h3>
-                  <p className="mt-1 text-slate-700">{description}</p>
+                  <p className="mt-1 text-slate-700">{t(`home.steps.${key}.description`)}</p>
                 </div>
               </li>
             ))}
@@ -224,17 +190,17 @@ export function HomePage() {
         <Container className="grid gap-10 lg:grid-cols-2">
           <SectionHeading
             id="staff-heading"
-            eyebrow="For hospital teams"
-            title="A small, focused view for staff and administrators"
-            description="Staff see only their own department. Every action is checked by the hospital service, not just hidden in the app."
+            eyebrow={t('home.teams.eyebrow')}
+            title={t('home.teams.title')}
+            description={t('home.teams.description')}
           />
           <ul className="grid gap-4">
-            {STAFF_POINTS.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex gap-4 rounded-xl border border-line bg-white p-5">
+            {STAFF_POINTS.map(({ icon: Icon, key }) => (
+              <li key={key} className="flex gap-4 rounded-xl border border-line bg-white p-5">
                 <Icon aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-brand-700" />
                 <div>
-                  <h3 className="font-semibold text-slate-900">{title}</h3>
-                  <p className="mt-1 text-slate-700">{description}</p>
+                  <h3 className="font-semibold text-slate-900">{t(`home.teams.${key}.title`)}</h3>
+                  <p className="mt-1 text-slate-700">{t(`home.teams.${key}.description`)}</p>
                 </div>
               </li>
             ))}
@@ -245,12 +211,10 @@ export function HomePage() {
       <section aria-labelledby="notice-heading" className="pb-16 sm:pb-20">
         <Container>
           <h2 id="notice-heading" className="sr-only">
-            Important information
+            {t('home.notice.heading')}
           </h2>
-          <Notice tone="warning" title="Not an emergency service">
-            Waiting times are simulated estimates. Assistance requests are sent to hospital staff
-            and are not a guaranteed emergency medical response. In a medical emergency, go directly
-            to the hospital&apos;s emergency department.
+          <Notice tone="warning" title={t('home.notice.title')}>
+            {t('home.notice.body')}
           </Notice>
         </Container>
       </section>

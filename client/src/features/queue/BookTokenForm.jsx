@@ -2,7 +2,10 @@ import { AlertCircle, Ticket } from 'lucide-react';
 import { Link } from 'react-router';
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { SubmitButton } from '../../components/forms/SubmitButton';
+import { useErrorText } from '../../hooks/useErrorText';
 import { useForm } from '../../hooks/useForm';
+import { messageRef } from '../../i18n/translate';
+import { useTranslation } from '../../hooks/useTranslation';
 import { tokenStatusPath } from '../../routes/paths';
 import { API_ERROR_CODES } from '../../services/apiClient';
 import { cn } from '../../utils/cn';
@@ -12,6 +15,7 @@ const ERROR_ID = 'departmentId-error';
 
 function DepartmentOption({ department, activeToken, checked, onChange }) {
   const unavailable = Boolean(activeToken);
+  const { t } = useTranslation();
   const descriptionId = `dept-${department.id}-description`;
 
   return (
@@ -43,9 +47,7 @@ function DepartmentOption({ department, activeToken, checked, onChange }) {
             </span>
           </span>
           <span id={descriptionId} className="mt-1 block text-sm text-slate-700">
-            {unavailable
-              ? `You already have an active token here: ${activeToken.displayNumber}.`
-              : department.description}
+            {unavailable ? t('booking.alreadyHave', { number: activeToken.displayNumber }) : department.description}
           </span>
         </span>
       </label>
@@ -54,7 +56,7 @@ function DepartmentOption({ department, activeToken, checked, onChange }) {
           to={tokenStatusPath(activeToken.id)}
           className="mt-1 ml-4 inline-flex min-h-11 items-center text-sm font-semibold text-brand-800 underline underline-offset-4"
         >
-          View token {activeToken.displayNumber}
+          {t('booking.viewToken', { number: activeToken.displayNumber })}
         </Link>
       )}
     </li>
@@ -66,6 +68,7 @@ function DepartmentOption({ department, activeToken, checked, onChange }) {
  * department; `activeTokens` is used only to explain that rule up front.
  */
 export function BookTokenForm({ departments, activeTokens, initialDepartmentId, onBooked, onConflict }) {
+  const { t } = useTranslation();
   const activeByDepartment = new Map(activeTokens.map((token) => [token.departmentId, token]));
   const preselected =
     initialDepartmentId &&
@@ -76,10 +79,7 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
 
   const { values, fieldErrors, submitError, pending, handleChange, handleSubmit } = useForm({
     initialValues: { departmentId: preselected },
-    // A department that gained an active token since it was chosen (e.g. after a reload or a
-    // 409) can no longer be booked, so it counts as not chosen.
-    validate: ({ departmentId }) =>
-      departmentId && !activeByDepartment.has(departmentId) ? {} : { departmentId: 'Choose a department.' },
+    validate: ({ departmentId }) => (departmentId ? {} : { departmentId: messageRef('booking.chooseDepartmentError') }),
     onSubmit: async ({ departmentId }) => {
       try {
         onBooked(await queueService.createToken(departmentId));
@@ -91,15 +91,16 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
   });
 
   const allBooked = departments.every((department) => activeByDepartment.has(department.id));
-  const fieldError = fieldErrors.departmentId;
+  const errorText = useErrorText(fieldErrors);
+  const fieldError = errorText('departmentId');
 
   return (
     <form noValidate onSubmit={handleSubmit} className="space-y-6" aria-busy={pending}>
       {submitError && <ErrorState error={submitError} showDetails={false} />}
 
       <fieldset aria-describedby={fieldError ? ERROR_ID : undefined}>
-        <legend className="text-lg font-semibold text-slate-900">Choose a department</legend>
-        <p className="mt-1 text-sm text-slate-600">You can hold one active token per department.</p>
+        <legend className="text-lg font-semibold text-slate-900">{t('booking.step1')}</legend>
+        <p className="mt-1 text-sm text-slate-600">{t('booking.oneTokenRule')}</p>
         {fieldError && (
           <p id={ERROR_ID} className="mt-2 flex items-center gap-1.5 text-sm font-medium text-red-700">
             <AlertCircle aria-hidden="true" className="size-4 shrink-0" />
@@ -112,7 +113,7 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
               key={department.id}
               department={department}
               activeToken={activeByDepartment.get(department.id)}
-              checked={values.departmentId === department.id && !activeByDepartment.has(department.id)}
+              checked={values.departmentId === department.id}
               onChange={handleChange}
             />
           ))}
@@ -121,13 +122,16 @@ export function BookTokenForm({ departments, activeTokens, initialDepartmentId, 
 
       {allBooked ? (
         <p className="rounded-lg border border-line bg-canvas-muted p-4 text-slate-700">
-          You already have an active token in every department.
+          {t('booking.allBooked')}
         </p>
       ) : (
-        <SubmitButton pending={pending} pendingLabel="Requesting token…" className="w-full sm:w-auto">
-          <Ticket aria-hidden="true" className="size-5" />
-          Get my token
-        </SubmitButton>
+        <div className="space-y-2">
+          <p className="text-lg font-semibold text-slate-900">{t('booking.step2')}</p>
+          <SubmitButton pending={pending} pendingLabel={t('booking.requesting')} className="w-full sm:w-auto">
+            <Ticket aria-hidden="true" className="size-5" />
+            {t('booking.getToken')}
+          </SubmitButton>
+        </div>
       )}
     </form>
   );

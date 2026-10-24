@@ -4,11 +4,13 @@ import { AuthActions } from './AuthActions';
 import { BrandLink } from './BrandLink';
 import { MainNav } from './MainNav';
 import { Container } from '../common/Container';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const MOBILE_MENU_ID = 'mobile-menu';
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation();
   const toggleRef = useRef(null);
   const closeMenu = () => setMenuOpen(false);
 
@@ -48,7 +50,7 @@ export function Header() {
           onClick={() => setMenuOpen((open) => !open)}
         >
           {menuOpen ? <X aria-hidden="true" className="size-6" /> : <Menu aria-hidden="true" className="size-6" />}
-          <span className="sr-only">{menuOpen ? 'Close menu' : 'Open menu'}</span>
+          <span className="sr-only">{menuOpen ? t('layout.closeMenu') : t('layout.openMenu')}</span>
         </button>
       </Container>
 

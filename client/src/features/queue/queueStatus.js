@@ -26,7 +26,11 @@ export function isActiveStatus(status) {
   return ACTIVE_STATUSES.includes(status);
 }
 
-/** Every status has a text label, a description, and an icon, so meaning never relies on colour. */
+/**
+ * Every status has a text label, a description, and an icon, so meaning never relies on colour.
+ * The UI shows translated labels/descriptions (status.* in src/i18n/locales); these English
+ * values remain for mock server messages and staff tools.
+ */
 export const STATUS_DETAILS = Object.freeze({
   waiting: {
     label: 'Waiting',
