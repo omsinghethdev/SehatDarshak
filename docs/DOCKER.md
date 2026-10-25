@@ -112,7 +112,7 @@ Requirements: Docker Desktop (or Docker Engine) with Compose v2.
 
 | Service | Reachable from | Address |
 | --- | --- | --- |
-| web | your computer (by default only `127.0.0.1`) | `http://localhost:${WEB_PORT}` (8080) |
+| web | all network interfaces of the host (limit access with the firewall / security group) | `http://localhost:${WEB_PORT}` (8080) |
 | backend | the web service only | `http://backend:5000` inside Docker |
 | mongo | the backend only (internal network) | `mongo:27017` inside Docker |
 
@@ -130,7 +130,7 @@ docker compose exec mongo mongosh -u "$MONGO_ROOT_USERNAME" -p --authenticationD
 
 | Variable | Used by | When |
 | --- | --- | --- |
-| `WEB_PORT`, `WEB_BIND_ADDRESS` | Compose (host port binding of `web`) | each `up` |
+| `WEB_PORT` | Compose (host port of `web`, on all interfaces) | each `up` |
 | `APP_ORIGIN` | backend (`CORS_ORIGIN`) at runtime **and** web build (`VITE_PUBLIC_APP_URL`, QR codes) | runtime / **build** |
 | `AUTH_SECRET`, `AUTH_TOKEN_EXPIRES_IN`, `HOSPITAL_TIMEZONE`, `TRUST_PROXY` | backend | runtime |
 | `MONGO_ROOT_USERNAME`, `MONGO_ROOT_PASSWORD` | mongo | **first start only** |
@@ -210,8 +210,8 @@ deploys to AWS.
    service, for example an AWS Application Load Balancer with an ACM certificate, or Caddy/Nginx
    with Let's Encrypt on the instance. Then set:
    - `APP_ORIGIN=https://your-domain`
-   - `WEB_BIND_ADDRESS=127.0.0.1` if the TLS proxy runs on the same instance, or `0.0.0.0` with the
-     security group allowing only the load balancer to reach `WEB_PORT`.
+   - In the security group, allow `WEB_PORT` only from the load balancer / TLS proxy once HTTPS
+     is in place (the web port is published on all interfaces).
    - `TRUST_PROXY=2` (TLS proxy + Nginx).
 3. **Get the code and configure:**
 

@@ -18,8 +18,8 @@ services:
         VITE_PUBLIC_APP_URL: ${APP_ORIGIN:-http://localhost:8080}
     image: sehatdarshak-web:local
     ports:
-      # Localhost only by default. On a server, set WEB_BIND_ADDRESS=0.0.0.0 (see docs/DOCKER.md).
-      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-8080}:8080"
+      # Published on all host interfaces; restrict who can reach it with the firewall / security group.
+      - "${WEB_PORT:-8080}:8080"
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp]
