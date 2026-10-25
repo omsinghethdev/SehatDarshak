@@ -176,21 +176,23 @@ function MapLocation({ item, number, prefix, selected, onSelect }) {
  * so locations are drawn at their documented coordinates and the plan scales to the
  * container width without distortion.
  */
-export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
+export function FloorMapSvg({ floor, numbering, selectedId, onSelect, viewBox, underlay, overlay, frameProps, zoomed = false }) {
   const { t } = useTranslation();
   const prefix = `map${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const drawable = floor.locations.filter(hasValidGeometry);
+  const box = viewBox ?? { x: 0, y: 0, width: floor.width, height: floor.height };
 
   return (
-    // Below 640px the plan keeps a minimum width (rooms stay readable and at least ~44px tall
-    // to tap) and scrolls sideways inside this frame instead of shrinking.
-    <div className="relative overflow-x-auto rounded-lg border border-line bg-white">
+    // Below 640px the whole plan keeps a minimum width (rooms stay readable and at least ~44px
+    // tall to tap) and scrolls sideways inside this frame instead of shrinking. When zoomed
+    // in (MapViewport), it fits the frame and is moved by dragging or the arrow buttons.
+    <div {...frameProps} className={`relative rounded-lg border border-line bg-white ${zoomed ? 'touch-none overflow-hidden' : 'overflow-x-auto'}`}>
       <svg
-        viewBox={`0 0 ${floor.width} ${floor.height}`}
+        viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
         preserveAspectRatio="xMidYMid meet"
         role="group"
         aria-label={t('map.svgLabel', { floor: floor.displayName, count: drawable.length })}
-        className="block h-auto w-full min-w-[40rem]"
+        className={`block h-auto w-full ${zoomed ? '' : 'min-w-[40rem]'}`}
       >
         <PatternDefs prefix={prefix} />
         <rect
@@ -204,6 +206,7 @@ export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
           stroke="#94a3b8"
           strokeWidth="3"
         />
+        {underlay}
         {drawable.map((item) => (
           <MapLocation
             key={item.id}
@@ -214,6 +217,7 @@ export function FloorMapSvg({ floor, numbering, selectedId, onSelect }) {
             onSelect={onSelect}
           />
         ))}
+        {overlay}
       </svg>
     </div>
   );

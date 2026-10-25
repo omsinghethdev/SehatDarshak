@@ -44,6 +44,27 @@ export function mapLocationPath(floorId, locationId) {
   return `${PATHS.navigation}?${new URLSearchParams({ floor: floorId, location: locationId })}`;
 }
 
+const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+
+/** True for IDs that are safe to put in a directions link (same rule as the API's resource IDs). */
+export function isSafeId(value) {
+  return typeof value === 'string' && SAFE_ID.test(value);
+}
+
+/**
+ * Directions on the hospital map: `to` and `from` are room IDs; `token` keeps the queue-token
+ * context so the page can link back to that token's status. Unsafe values are left out.
+ */
+export function directionsPath({ to, from, token, avoidStairs } = {}) {
+  const params = new URLSearchParams();
+  if (isSafeId(to)) params.set('to', to);
+  if (isSafeId(from)) params.set('from', from);
+  if (avoidStairs) params.set('stairs', 'avoid');
+  if (isSafeId(token)) params.set('token', token);
+  const query = params.toString();
+  return query ? `${PATHS.navigation}?${query}` : PATHS.navigation;
+}
+
 /** Assistance page, optionally pre-selecting a department (the patient can still change it). */
 export function assistancePath(departmentId) {
   return departmentId

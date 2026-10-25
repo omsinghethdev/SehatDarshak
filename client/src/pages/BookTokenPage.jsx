@@ -10,6 +10,7 @@ import { Notice } from '../components/feedback/Notice';
 import { SuccessMessage } from '../components/feedback/SuccessMessage';
 import { PageHeader } from '../components/layout/PageHeader';
 import { departmentService } from '../features/departments/departmentService';
+import { NavigateToDepartment } from '../features/navigation/NavigateToDepartment';
 import { BookTokenForm } from '../features/queue/BookTokenForm';
 import { TokenCard } from '../features/queue/TokenCard';
 import { queueService } from '../features/queue/queueService';
@@ -38,6 +39,8 @@ function BookingConfirmation({ token, department, onBookAnother }) {
         {t('booking.newToken')}
       </h2>
       <TokenCard token={token} department={department} showStatusLink={false} />
+      {/* Uses the booked token's own departmentId from the service response. */}
+      <NavigateToDepartment token={token} departmentName={department?.name} />
       <div className="flex flex-col gap-3 sm:flex-row">
         <ButtonLink to={tokenStatusPath(token.id)}>
           {t('queue.viewStatus')}

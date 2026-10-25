@@ -244,13 +244,17 @@ every request, so a changed assignment takes effect immediately even if the clie
 | `GET` | `/api/rooms/:roomId` | Authenticated | Get room and map-location details. |
 | `GET` | `/api/map/floors` | Authenticated | List floors available to the 2D navigation UI. |
 | `GET` | `/api/map/floors/:floorId` | Authenticated | Return one floor's SVG-safe map metadata, rooms, departments, and facilities. |
+| `GET` | `/api/map/floors/:floorId/walkways` | Authenticated | Corridors and walkable graph (nodes, same-floor edges, lift/stair links) of one floor. |
+| `GET` | `/api/map/destinations?q=` | Authenticated | Rooms that can be a route start or destination; `q` (≤ 60 chars) matches room, department name, or code. |
+| `GET` | `/api/map/departments/:departmentId/destination` | Authenticated | The room a department's directions lead to (`destination` may be `null`). |
+| `GET` | `/api/map/route?from=&to=&avoidStairs=` | Authenticated | Walking route between two rooms, with floor segments and steps. |
 
 These endpoints are read-only. Only active records are returned; inactive or unknown IDs return
 `404`. The `floor` query parameter of `/api/rooms` is a floor ID (for example `floor_ground`).
 
 Map responses should contain only presentation/location metadata needed by the 2D UI; no patient or
-operational queue data is included. The map shows where locations are; it does not calculate routes
-or give directions (future scope).
+operational queue data is included. Directions are described under
+[Indoor directions](#indoor-directions).
 
 `GET /api/map/floors` returns a list of floor summaries without `locations`:
 
@@ -301,8 +305,61 @@ coordinate system.
 ```
 
 Each room or facility has a stable ID, display name, numeric coordinates and dimensions, plus a room
-type and associated department when applicable. This supports rendering only; route-finding, 3D
-maps, external map services, and other map dependencies are out of scope.
+type and associated department when applicable. 3D maps, external map services, and live indoor
+positioning are out of scope.
+
+### Indoor directions
+
+Routes are computed on the server over an explicit walkable graph stored in the
+`navigationgraphs` collection (one active document, seeded by `npm run seed` from the fictional
+"SehatDarshak Demo Hospital" in `server/src/modules/navigation/demoHospital.data.js`). Nodes are
+room doors and corridor junctions; edges are `door`, `corridor`, `lift`, and `stairs`. Floors are
+joined only by explicit lift/stair edges. Routes minimise estimated time with Dijkstra; walking
+distance is the sum of the edges walked at the dataset's demo scale (`metresPerMapUnit`), so the
+distance and time are estimates for a fictional plan. There is no live positioning: the client
+always sends a chosen start room. `avoidStairs=true` skips stair edges; step-free access is not
+modelled. Without a seeded graph, nothing is navigable.
+
+`GET /api/map/departments/:departmentId/destination` returns the first room in the department's
+`roomIds` whose `departmentId` is that department and that has a door on the graph:
+
+```json
+{ "data": { "departmentId": "dept_demo_card", "destination": { "id": "room_demo_card_1", "displayName": "Cardiology Consultation Room", "roomType": "consultation", "departmentId": "dept_demo_card", "floorId": "floor_demo_first", "floorName": "First Floor", "isEntrance": false, "transition": null }, "alternatives": [] } }
+```
+
+`GET /api/map/route?from=room_demo_entrance&to=room_demo_card_1` returns (abridged):
+
+```json
+{
+  "data": {
+    "from": { "id": "room_demo_entrance", "displayName": "Main Entrance", "floorId": "floor_ground" },
+    "to": { "id": "room_demo_card_1", "displayName": "Cardiology Consultation Room", "floorId": "floor_demo_first" },
+    "avoidStairs": false,
+    "metres": 86,
+    "estimatedSeconds": 94,
+    "estimatedMinutes": 2,
+    "floors": [{ "id": "floor_ground", "displayName": "Ground Floor" }, { "id": "floor_demo_first", "displayName": "First Floor" }],
+    "segments": [{ "floorId": "floor_ground", "points": [{ "x": 500, "y": 620 }, "…"] }, { "floorId": "floor_demo_first", "points": ["…"] }],
+    "steps": [
+      { "index": 0, "kind": "start", "floorId": "floor_ground", "locationId": "room_demo_entrance", "points": ["…"] },
+      { "index": 1, "kind": "walk", "floorId": "floor_ground", "turn": "depart", "departFrom": "start", "metres": 17, "seconds": 17, "points": ["…"] },
+      { "index": 2, "kind": "walk", "floorId": "floor_ground", "turn": "right", "departFrom": null, "metres": 22, "seconds": 22, "points": ["…"] },
+      { "index": 3, "kind": "stairs", "floorId": "floor_ground", "toFloorId": "floor_demo_first", "direction": "up", "side": "right", "metres": 8, "seconds": 16, "points": ["…"] },
+      { "index": 4, "kind": "walk", "floorId": "floor_demo_first", "turn": "left", "departFrom": "stairs", "metres": 39, "seconds": 39, "points": ["…"] },
+      { "index": 5, "kind": "arrive", "floorId": "floor_demo_first", "locationId": "room_demo_card_1", "side": "right", "points": ["…"] }
+    ],
+    "path": ["door_room_demo_entrance", "junction_g_s585", "…", "door_room_demo_card_1"]
+  }
+}
+```
+
+Steps are structured (kind, turn, side, floors) so the client writes them in the user's language.
+`metres` and `seconds` on walk, lift, and stairs steps are estimates from the demo map's scale and
+planning speeds (a lift has `metres: 0` and its own `seconds`); the simulated navigation uses them to
+pace the moving marker.
+Errors: missing/malformed `from`/`to`, equal `from` and `to`, or `avoidStairs` other than
+`true`/`false` → `400 VALIDATION_ERROR`; unknown or inactive room → `404 NOT_FOUND`; a room not on
+the walking graph, or no connection (for example lifts and stairs closed) → `404 NO_ROUTE`.
 
 ## Queue tokens
 

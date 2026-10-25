@@ -1,4 +1,4 @@
-import { MousePointerClick, Ticket, X } from 'lucide-react';
+import { MousePointerClick, Navigation, PersonStanding, Ticket, X } from 'lucide-react';
 import { Button, ButtonLink } from '../../components/common/Button';
 import { LocationGlyph } from './LocationGlyph';
 import { ListenButton } from '../../components/common/ListenButton';
@@ -16,7 +16,7 @@ function departmentText(location, departments, t) {
 }
 
 /** Details for the selected location. Announced politely when the selection changes. */
-export function LocationDetails({ location, number, floor, departments, onClear }) {
+export function LocationDetails({ location, number, floor, departments, onClear, onDirectionsTo, onStartHere }) {
   const { t } = useTranslation();
   const { role } = useAuth();
   if (!location) {
@@ -66,6 +66,18 @@ export function LocationDetails({ location, number, floor, departments, onClear 
       </dl>
       <p className="mt-4 text-sm text-slate-600">{t('map.noDirections')}</p>
       <div className="mt-4 flex flex-wrap gap-3">
+        {onDirectionsTo && (
+          <Button onClick={onDirectionsTo}>
+            <Navigation aria-hidden="true" className="size-4" />
+            {t('directions.setAsDestination')}
+          </Button>
+        )}
+        {onStartHere && (
+          <Button variant="secondary" onClick={onStartHere}>
+            <PersonStanding aria-hidden="true" className="size-4" />
+            {t('directions.setAsStart')}
+          </Button>
+        )}
         {bookableDepartment && (
           <ButtonLink to={bookTokenPath(bookableDepartment.id)}>
             <Ticket aria-hidden="true" className="size-4" />

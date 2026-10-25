@@ -7,6 +7,7 @@ import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { Notice } from '../components/feedback/Notice';
 import { departmentService } from '../features/departments/departmentService';
+import { NavigateToDepartment } from '../features/navigation/NavigateToDepartment';
 import { CancelTokenSection } from '../features/queue/CancelTokenSection';
 import { DemoQueueControls } from '../features/queue/DemoQueueControls';
 import { StatusBadge } from '../features/queue/StatusBadge';
@@ -262,6 +263,9 @@ export function TokenStatusPage() {
           {active && ` ${t('queue.keepTrying')}`}
         </Notice>
       )}
+
+      {/* Directions to this token's department, from the token's own departmentId. */}
+      {active && <NavigateToDepartment token={token} departmentName={departmentName} />}
 
       {/* Only for a token the service returned and that is still in the queue. */}
       {active && <TokenQrCard token={token} />}

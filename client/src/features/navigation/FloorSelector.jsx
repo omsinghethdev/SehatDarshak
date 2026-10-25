@@ -3,7 +3,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../utils/cn';
 
 /** Floor picker as a set of toggle buttons; the current floor has `aria-pressed="true"`. */
-export function FloorSelector({ floors, selectedFloorId, onSelect }) {
+export function FloorSelector({ floors, selectedFloorId, onSelect, routeFloorIds }) {
   const { t } = useTranslation();
   return (
     <div role="group" aria-labelledby="floor-selector-label">
@@ -28,6 +28,11 @@ export function FloorSelector({ floors, selectedFloorId, onSelect }) {
                 )}
               >
                 {floor.displayName}
+                {routeFloorIds?.has(floor.id) && (
+                  <span className={cn('ml-2 rounded px-1.5 text-xs font-bold uppercase', selected ? 'bg-white text-blue-800' : 'bg-blue-700 text-white')}>
+                    {t('directions.map.routeBadge')}
+                  </span>
+                )}
                 {selected && <span className="sr-only"> ({t('common.selected')})</span>}
               </button>
             </li>
