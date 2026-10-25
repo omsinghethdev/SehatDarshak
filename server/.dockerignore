@@ -1,0 +1,22 @@
+# Only package.json, package-lock.json, and src/ are needed in the image (see Dockerfile).
+node_modules
+npm-debug.log*
+*.log
+coverage
+.git
+.gitignore
+.DS_Store
+.vscode
+.idea
+
+# Secrets and local configuration: never sent to the Docker build.
+.env
+.env.*
+!.env.example
+
+# Not needed at runtime.
+tests
+Dockerfile
+.dockerignore
+README.md
+ADMIN_API.md

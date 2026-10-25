@@ -1,0 +1,24 @@
+# SehatDarshak — Docker stack with an EXTERNAL MongoDB (for example MongoDB Atlas). No local
+# database container is started, and no local data is used or copied.
+#   docker compose -f compose.external-db.yaml up --build -d
+# Every `docker compose` command for this mode needs the same `-f compose.external-db.yaml`.
+# Guide: docs/DOCKER.md ("Database modes").
+
+name: sehatdarshak-external-db
+
+services:
+  web:
+    extends:
+      file: docker/compose.app.yaml
+      service: web
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    extends:
+      file: docker/compose.app.yaml
+      service: backend
+    environment:
+      # The full connection string of the external database, including its database name.
+      MONGODB_URI: ${EXTERNAL_MONGODB_URI:?set EXTERNAL_MONGODB_URI in .env to use an external database}

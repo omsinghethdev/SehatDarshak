@@ -1,0 +1,22 @@
+# The image is built from source with its own clean install (see Dockerfile).
+node_modules
+dist
+coverage
+npm-debug.log*
+*.log
+.git
+.gitignore
+.DS_Store
+.vscode
+.idea
+
+# Local settings and secrets must not reach the build: Vite would read client/.env and bake its
+# values (for example a localhost API address) into the bundle.
+.env
+.env.*
+!.env.example
+
+# Not needed to build the app.
+tests
+Dockerfile
+.dockerignore

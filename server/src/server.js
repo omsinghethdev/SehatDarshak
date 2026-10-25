@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import app from './app.js';
 import { AuthConfigurationError, getAuthConfig } from './config/auth.js';
 import { HospitalConfigurationError, getHospitalTimeZone } from './config/hospital.js';
+import { ProxyConfigurationError, getTrustProxy } from './config/proxy.js';
 import {
   DatabaseConfigurationError,
   DatabaseConnectionError,
@@ -60,6 +61,7 @@ export function startupFailureMessage(error, port) {
   if (
     error instanceof AuthConfigurationError
     || error instanceof HospitalConfigurationError
+    || error instanceof ProxyConfigurationError
     || error instanceof DatabaseConfigurationError
     || error instanceof DatabaseConnectionError
   ) {
@@ -83,6 +85,7 @@ async function bootstrap() {
   try {
     getAuthConfig();
     getHospitalTimeZone();
+    getTrustProxy();
     httpServer = await startServer();
   } catch (error) {
     console.error(`Server startup failed: ${startupFailureMessage(error, defaultPort)}`);

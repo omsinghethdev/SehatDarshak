@@ -48,6 +48,7 @@ Patients can face long, uncertain queues and difficulty finding departments or f
 - [docs/SHARED_INTEGRATION_CONTRACT.md](docs/SHARED_INTEGRATION_CONTRACT.md): frontend/backend data models, ownership, and demo data.
 - [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
 - [docs/SETUP.md](docs/SETUP.md) and [server/README.md](server/README.md): local setup, environment variables, and deployment.
+- [docs/DOCKER.md](docs/DOCKER.md): run the web app, API, and MongoDB together with Docker Compose (`docker compose up --build -d`), first-time setup, and EC2 notes.
 - [docs/TESTING.md](docs/TESTING.md): how to run tests and the existing vs. planned test cases.
 
 ## Development status

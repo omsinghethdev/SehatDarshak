@@ -1,0 +1,74 @@
+# SehatDarshak — Docker stack with a LOCAL MongoDB container (the default database mode).
+#   web      Nginx serving the built React app; forwards /api/ to the backend.
+#   backend  Express API (not published to the host).
+#   mongo    MongoDB with a persistent named volume (not published to the host).
+# Configure ./.env first (copy .env.example), then: docker compose up --build -d
+# To use an external database such as MongoDB Atlas instead, use compose.external-db.yaml.
+# Full guide: docs/DOCKER.md
+
+name: sehatdarshak
+
+services:
+  web:
+    extends:
+      file: docker/compose.app.yaml
+      service: web
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [edge]
+
+  backend:
+    extends:
+      file: docker/compose.app.yaml
+      service: backend
+    environment:
+      # The local database, reached by its service name on the private network.
+      MONGODB_URI: mongodb://${MONGO_APP_USERNAME:?set MONGO_APP_USERNAME in .env}:${MONGO_APP_PASSWORD:?set MONGO_APP_PASSWORD in .env}@mongo:27017/${MONGO_DB_NAME:-sehatdarshak}?authSource=${MONGO_DB_NAME:-sehatdarshak}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [edge, data]
+
+  mongo:
+    # 8.2: mongo:8.0 (8.0.34) refuses to start on Linux kernels 6.19+ (SERVER-121912), which
+    # current Docker Desktop VMs use. Changing the major version later needs a data upgrade path.
+    image: mongo:8.2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME:-sehatdarshak}
+      # Used once, by docker/mongo/init, to create the API's read/write account.
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME:?set MONGO_APP_USERNAME in .env}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?set MONGO_APP_PASSWORD in .env}
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+      - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro
+    # No published port: MongoDB is reachable only from the backend on the private network.
+    networks: [data]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--norc", "--eval", "quit(db.adminCommand('ping').ok === 1 ? 0 : 1)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  edge: {}
+  # No outside access for the database network.
+  data:
+    internal: true
+
+volumes:
+  # Persistent database files. `docker compose down` keeps them; only `down -v` deletes them.
+  mongo-data:
+  mongo-config:

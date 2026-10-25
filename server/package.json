@@ -13,6 +13,7 @@
     "seed:dev-users": "node src/seed/seedDevUsers.js",
     "migrate:up": "node src/migrations/run.js up",
     "migrate:down": "node src/migrations/run.js down",
+    "bootstrap:admin": "node src/bootstrap/createInitialAdmin.js",
     "test": "node --test"
   },
   "dependencies": {
