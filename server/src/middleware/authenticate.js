@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User } from '../modules/users/user.model.js';
+import { User, isActiveAccount } from '../modules/users/user.model.js';
 import { verifyAccessToken } from '../utils/accessToken.js';
 import { forbiddenError, unauthorizedError } from '../utils/httpError.js';
 
@@ -39,6 +39,18 @@ export function createAuthenticate({ loadUser = findUserById } = {}) {
 
     const user = await loadUser(claims.sub);
     if (!user) {
+      throw unauthorizedError('Invalid or expired access token');
+    }
+
+    // Deactivation takes effect immediately for existing sessions (docs/API_CONTRACT.md →
+    // Account status), because the user record is loaded on every request.
+    if (!isActiveAccount(user)) {
+      throw unauthorizedError('This account is deactivated. Contact an administrator.');
+    }
+
+    // Tokens issued before a password reset or change stop working. JWT `iat` has one-second
+    // precision, so a token issued in the same second as the change is still accepted.
+    if (user.passwordChangedAt && claims.iat < Math.floor(user.passwordChangedAt.getTime() / 1000)) {
       throw unauthorizedError('Invalid or expired access token');
     }
 

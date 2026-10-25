@@ -24,6 +24,7 @@ In production, set these as platform environment variables instead of using a fi
 | `CORS_ORIGIN` | Production: yes | Comma-separated browser origins allowed to call the API, e.g. `https://sehat.vercel.app`. Trailing slashes are ignored; `*` is **not** supported. When unset, development allows `http://localhost:5173` and production allows no cross-origin browser requests. |
 | `NODE_ENV` | Production: yes | Set to `production` so the development CORS default is not applied. |
 | `AUTH_TOKEN_EXPIRES_IN` | No | Access-token lifetime: a whole number followed by `s`, `m`, `h`, or `d` (e.g. `15m`, `1h`). Defaults to `1h`. |
+| `HOSPITAL_TIMEZONE` | No | IANA time zone used for visit service dates, report periods, and daily trends. Defaults to `Asia/Kolkata`. Validated at startup. |
 | `MONGODB_TEST_URI` | No | MongoDB **server** used by the test suite (default `mongodb://127.0.0.1:27017`). Never point it at production data; tests create and drop `sehatdarshak_*_test` databases. |
 
 The server validates `AUTH_SECRET`, `AUTH_TOKEN_EXPIRES_IN`, and the MongoDB connection before it
@@ -78,13 +79,16 @@ On macOS, port 5000 is often taken by AirPlay Receiver; set `PORT=5001` (and the
 | `npm run dev` | Development start with `node --watch`. |
 | `npm run seed` | Idempotently upserts the fictional demo data into `MONGODB_URI`: the canonical fixtures in `src/seed/demoData.js` plus the development floors, departments, and rooms in `src/seed/devDemoData.js` (which match the frontend mocks). It validates the data first, resets those records to the fixture values, and never deletes other records. |
 | `npm run seed:dev-users` | Development only: creates the demo patient, staff, and admin accounts described above. Never modifies existing users. |
+| `npm run migrate:up` | Links queue tokens created before visits existed to their visit and creates the missing visit records. Idempotent; prints counts only. Run once after deploying the admin/visit changes. |
+| `npm run migrate:down` | Reverses `migrate:up` (keeps visit records an admin has corrected). |
 | `npm test` | Runs all tests with `node --test`. |
 
 ## Tests
 
 `npm test` runs unit tests and HTTP-level tests. These files need a reachable MongoDB at
 `MONGODB_TEST_URI`: `auth.routes`, `hospital.routes`, `seed`, `devSeed`, `queueTokens`,
-`queueOperations`, `assistanceRequests`, and `dashboard`. Without MongoDB those suites are **skipped**, not failed,
+`queueOperations`, `assistanceRequests`, `dashboard`, `accountStatus`, `adminStaff`, `adminVisits`,
+`adminWards`, and `auditHistory`. Without MongoDB those suites are **skipped**, not failed,
 so check that the summary reports `skipped 0`. [docs/TESTING.md](../docs/TESTING.md) lists which
 cases are covered by existing tests and which are planned.
 
@@ -129,18 +133,25 @@ register/login. Responses use `{ "data": ..., "message"?, "meta"? }`; errors use
 | GET | `/assistance-requests?status=&page=&limit=` | Assigned-department staff, admin |
 | PATCH | `/assistance-requests/:requestId/acknowledge` | Assigned-department staff, admin |
 | GET | `/dashboard/statistics` | Admin (response shape is a proposal pending team review) |
+| POST | `/auth/change-password` | Any authenticated user |
+| GET, POST | `/admin/staff`; GET, PATCH `/admin/staff/:staffId`; POST `/admin/staff/:staffId/password-reset` | Admin |
+| GET | `/admin/patients`, `/admin/patients/:patientId` | Admin |
+| GET | `/admin/visits`, `/admin/visits/:visitId`; PATCH `/admin/visits/:visitId` | Admin |
+| GET, POST | `/admin/wards`; GET, PATCH `/admin/wards/:wardId` | Admin |
+| GET | `/admin/departments`, `/admin/departments/:departmentId` | Admin |
+| GET | `/admin/statistics` | Admin |
+| GET | `/admin/audit/queue-token-status-changes`, `/admin/audit/admin-actions` | Admin |
 
 The table lists the endpoints that are **implemented**. Public registration only creates patients.
-Staff and admin accounts currently have to be created directly in the database by a maintainer,
-or locally with `npm run seed:dev-users`.
+Staff accounts (including doctors, `staffType: "doctor"`) are created by admins through
+`/admin/staff`; admin accounts are still created only by a maintainer directly in the database, or
+locally with `npm run seed:dev-users`. Deactivated accounts are rejected at login (`403`, after the
+password is verified) and on every request (`401`).
 
-**Proposed, not implemented yet** (see the
-[implementation status](../docs/API_CONTRACT.md#implementation-status)):
-
-- Admin staff-account endpoints under `/admin/staff`.
-- Staff deactivation, enforced at login and on every request.
-- A read-only admin audit history of queue-token status changes at
-  `/admin/audit/queue-token-status-changes`.
+The admin and hospital-operations endpoints, permissions, metric definitions, data-model changes,
+and migration are documented in [ADMIN_API.md](ADMIN_API.md). They are a backward-compatible
+extension of [docs/API_CONTRACT.md](../docs/API_CONTRACT.md); the shared contract documents have not
+been edited and the additions await team review.
 
 Token QR lookup needs no new endpoint; it uses `GET /queue-tokens/:tokenId`.
 

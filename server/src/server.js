@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { fileURLToPath } from 'node:url';
 import app from './app.js';
 import { AuthConfigurationError, getAuthConfig } from './config/auth.js';
+import { HospitalConfigurationError, getHospitalTimeZone } from './config/hospital.js';
 import {
   DatabaseConfigurationError,
   DatabaseConnectionError,
@@ -58,6 +59,7 @@ export async function stopServer(httpServer) {
 export function startupFailureMessage(error, port) {
   if (
     error instanceof AuthConfigurationError
+    || error instanceof HospitalConfigurationError
     || error instanceof DatabaseConfigurationError
     || error instanceof DatabaseConnectionError
   ) {
@@ -80,6 +82,7 @@ async function bootstrap() {
 
   try {
     getAuthConfig();
+    getHospitalTimeZone();
     httpServer = await startServer();
   } catch (error) {
     console.error(`Server startup failed: ${startupFailureMessage(error, defaultPort)}`);

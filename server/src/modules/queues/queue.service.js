@@ -3,6 +3,7 @@ import {
   QueueToken,
   activeTokenStatuses,
   oneCalledTokenIndexName,
+  statusChange,
   statusTransitions,
 } from '../tokens/queueToken.model.js';
 import { duplicateKeyErrorCode, toPublicToken } from '../tokens/queueToken.service.js';
@@ -69,10 +70,14 @@ export async function callNextToken(user, departmentId) {
 
   let token;
   try {
+    // The audit entry is part of the same atomic update, so it exists exactly when the change does.
     token = await QueueToken.findOneAndUpdate(
       { departmentId, status: 'waiting' },
-      { $set: { status: 'called', calledAt: new Date() } },
-      { sort: { sequence: 1 }, new: true, lean: true },
+      {
+        $set: { status: 'called', calledAt: new Date() },
+        $push: { statusHistory: statusChange(user, 'waiting', 'called', 'call_next') },
+      },
+      { sort: { sequence: 1 }, new: true, lean: true, projection: { statusHistory: 0 } },
     );
   } catch (error) {
     if (error?.code === duplicateKeyErrorCode && error.message.includes(oneCalledTokenIndexName)) {
@@ -112,8 +117,11 @@ export async function updateTokenStatus(user, tokenId, nextStatus) {
   // cannot be overwritten with a transition that is no longer valid.
   const updated = await QueueToken.findOneAndUpdate(
     { _id: tokenId, status: token.status },
-    { $set: { status: nextStatus, ...(nextStatus === 'completed' ? { completedAt: new Date() } : {}) } },
-    { new: true, lean: true },
+    {
+      $set: { status: nextStatus, ...(nextStatus === 'completed' ? { completedAt: new Date() } : {}) },
+      $push: { statusHistory: statusChange(user, token.status, nextStatus, 'status_update') },
+    },
+    { new: true, lean: true, projection: { statusHistory: 0 } },
   );
 
   if (!updated) {
