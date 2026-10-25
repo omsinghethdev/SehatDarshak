@@ -23,7 +23,11 @@ export function getAuthConfig({
   }
 
   if (secret === exampleSecret) {
-    throw new AuthConfigurationError('AUTH_SECRET is still the example value. Set a long random secret in server/.env.');
+    // Name both places: with Docker Compose the value comes from the .env next to compose.yaml,
+    // and server/.env is not used, so pointing only at server/.env sends people to the wrong file.
+    throw new AuthConfigurationError(
+      'AUTH_SECRET is still the example value. Set a long random secret: in the .env file next to compose.yaml when using Docker Compose, or in server/.env when running the server directly.',
+    );
   }
 
   // Restricted to "<positive integer><s|m|h|d>": jsonwebtoken would otherwise read a bare

@@ -192,7 +192,7 @@ Store back-ups outside the server and test restoring them (`mongorestore --archi
 | --- | --- |
 | `required variable … is missing a value` | `.env` is missing that setting; see `.env.example`. |
 | backend `unhealthy`, log says `MongoDB authentication failed` | `MONGO_APP_*` in `.env` differ from the user created on first start (see above). |
-| backend log: `AUTH_SECRET …` | Use a random secret of at least 32 characters (not the example text). |
+| backend log: `AUTH_SECRET is still the example value` | The `.env` next to `compose.yaml` still has the placeholder from `.env.example` (it is 33 characters, so it passes the length check). Docker reads this file, **not** `server/.env`. Put a new random secret there and run `docker compose up -d`. Also replace every other `replace-with-…` value. |
 | mongo restarts with "Linux kernel versions 6.19 and newer…" | That is MongoDB 8.0; this stack uses 8.2, which runs on these kernels. Do not pin `mongo:8.0`. |
 | Browser shows the app but API calls fail | Check `docker compose logs backend`; make sure `APP_ORIGIN` is the exact address in the browser. |
 | Port 8080 already in use | Set another `WEB_PORT` and the matching `APP_ORIGIN`, then `docker compose up --build -d`. |

@@ -122,6 +122,9 @@ test('auth configuration requires a sufficiently long secret', () => {
   assert.throws(() => getAuthConfig({ secret: '' }), AuthConfigurationError);
   assert.throws(() => getAuthConfig({ secret: 'too-short' }), /at least 32 characters/);
   assert.throws(() => getAuthConfig({ secret: 'replace-with-a-long-random-secret' }), /example value/);
+  // The placeholder from both .env.example files is 33 characters, so it passes the length check;
+  // the message must name the Compose .env too (server/.env is not read inside Docker).
+  assert.throws(() => getAuthConfig({ secret: 'replace-with-a-long-random-secret' }), /next to compose\.yaml.*server\/\.env/);
   assert.equal(getAuthConfig({ secret: testSecret }).expiresIn, '1h');
 });
 
