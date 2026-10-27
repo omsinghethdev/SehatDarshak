@@ -6,6 +6,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { stopSpeech } from '../../lib/speech';
 import { Footer } from './Footer';
 import { DemoModeBanner } from './DemoModeBanner';
+import { EmergencyButton } from '../../features/emergency/EmergencyButton';
 import { Header } from './Header';
 import { RouteFocusManager } from './RouteFocusManager';
 
@@ -33,6 +34,7 @@ export function AppLayout() {
         </Container>
       </div>
       <Header />
+      <EmergencyButton />
       <main id="main-content" ref={mainRef} tabIndex={-1} className="flex-1">
         <Outlet />
       </main>

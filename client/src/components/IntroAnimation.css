@@ -1,0 +1,154 @@
+/* Colours follow the site theme in src/styles/index.css (canvas, slate text, brand greens). */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vh, 28px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, #eef6f1 0%, transparent 60%),
+    #faf7f2;
+  color: #0f172a;
+  /* Everything right of --reveal-x (set each frame behind the nurse) is see-through, so the
+     website underneath is uncovered as she walks. Starts fully covered. */
+  --reveal-x: 200vw;
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(var(--reveal-x) - var(--reveal-softness, 120px)),
+    transparent var(--reveal-x)
+  );
+  transition: opacity 0.6s ease;
+}
+
+.intro-screen.is-leaving {
+  opacity: 0;
+}
+
+/* The site-wide reduced-motion rule makes transitions instant; a gentle fade is still fine. */
+@media (prefers-reduced-motion: reduce) {
+  .intro-screen {
+    transition-duration: 0.6s !important;
+  }
+}
+
+.intro-heading {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.intro-logo {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #1f5f3f;
+  color: #fff;
+  box-shadow: 0 10px 30px rgb(31 95 63 / 0.3);
+  animation:
+    introPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    introHeartbeat 1.2s ease-in-out 0.6s infinite;
+}
+
+.intro-logo svg {
+  width: 34px;
+  height: 34px;
+}
+
+.intro-heading h1 {
+  margin: 14px 0 0;
+  font-size: clamp(34px, 5.5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  animation: introRise 0.7s ease-out 0.25s both;
+}
+
+.intro-heading p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: clamp(15px, 2vw, 19px);
+  animation: introRise 0.7s ease-out 0.5s both;
+}
+
+.intro-message {
+  min-height: 1.6em;
+  margin: 0;
+  padding: 0 16px;
+  color: #1f5f3f;
+  font-size: clamp(17px, 2.4vw, 22px);
+  font-weight: 700;
+  text-align: center;
+  animation: introRise 0.5s ease-out both;
+}
+
+.intro-skip {
+  /* Bottom-left: the last area the nurse uncovers, so it stays visible the longest. */
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 3;
+  padding: 8px 18px;
+  border: 1px solid #e4ddd1;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f5f3f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.intro-skip:hover {
+  background: #eef6f1;
+}
+
+@keyframes introPop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* "Lub-dub": two quick beats, then rest. */
+@keyframes introHeartbeat {
+  0%,
+  40%,
+  100% {
+    transform: scale(1);
+  }
+
+  10% {
+    transform: scale(1.1);
+  }
+
+  25% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes introRise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

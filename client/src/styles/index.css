@@ -24,6 +24,42 @@
   /* Surfaces are white with a 1px --color-line border and rounded-xl corners; only primary
      panels (forms, the current token) are raised, using this single shadow. */
   --shadow-raised: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.06);
+
+  /* Emergency button plus sign (features/emergency/EmergencyButton.jsx). */
+  --animate-plus-hover: plus-hover 3s ease-in-out infinite;
+  --animate-plus-halo: plus-halo 2s ease-out infinite;
+  --animate-plus-beat: plus-beat 2s ease-in-out infinite;
+
+  @keyframes plus-beat {
+    0% {
+      stroke-dashoffset: 1;
+    }
+    60%,
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes plus-hover {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-4px) rotate(8deg);
+    }
+  }
+
+  @keyframes plus-halo {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {
